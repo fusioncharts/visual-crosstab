@@ -1,73 +1,44 @@
 @startuml
-top to bottom direction
 
-interface MultiChart {
+class CrosstabExt {
+  config: Object
+  measure: String
+  globalData: Object[ ]
+  colDimensions: String[ ]
+  rowDimensions: String[ ]
+  measureOnRow: Boolean
+
+  renderTable()
+  reorderRow(String, Number)
+  reorderColumn(String, Number)
+}
+
+interface MultiChartExt {
   init(): Void
   draw(): Void
   dispose(): Void
 }
 
-class CrosstabExt implements MultiChart{
-  globalData: Object[ ]
-  dimensions: String[ ]
-  measures: String[ ]
-
-  createMeasures(): Measure[ ]
-  createDimensions(): Dimension[ ]
-}
-
-class TableManger {
-  columns: ColumnManager
-  rows: RowManager
-
+class TableManager {
   constructTable()
+  createRowCells()
+  supplyGridData()
+  createColumnCells()
 }
 
-abstract class OrderManager {
+class Field {
+  primaryDimension: String
+  dimensionArray: Dimension [ ]
+  getSplitData(DataStore): DataStore [ ]
+  swapDimensions(Dimension, Number)
 }
 
-class ColumnManager extends OrderManager {
-  columns: Column [ ]
-  reorderColumn()
+class Text {
+  textValue: String
+
+  renderText(Container)
 }
 
-class RowManager extends OrderManager {
-  rows: Row [ ]
-  reorderRow()
-}
-
-abstract class Tuple {
-  measures: Measure [ ]
-  dimensions: Dimension [ ]
-}
-
-class Row extends Tuple {
-  updateRows()
-}
-
-class Column  extends Tuple {
-  updateColumns()
-}
-
-abstract class Field {
-  name: String
-}
-
-class Measure extends Field {
-  name: String
-}
-
-class Dimension extends Field {
-  name: String
-}
-
-class Chart extends Field {
-  will be an instance of a chart
-}
-
-class CrosstabExt - class TableManger
-class TableManger - abstract class OrderManager
-abstract class OrderManager - abstract class Tuple
-abstract class Tuple - abstract class Field
+CrosstabExt .u.> MultiChartExt
 
 @enduml
