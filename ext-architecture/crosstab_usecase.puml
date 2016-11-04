@@ -1,0 +1,36 @@
+@startuml
+left to right direction
+
+actor :Business User: as BU
+actor :Developer User: as DU
+actor :Multi Chart: as MC
+
+rectangle Crosstab {
+  usecase Interact as "Interact with \n the Crosstab
+  --
+  Interaction types:
+  1. Re-order rows
+  2. Re-order columns
+  3. Re-order dimensions"
+  usecase Configure as "Configure \n the Crosstab
+  --
+  Config. options:
+  1. Row order
+  2. Column order
+  3. Chart measure \n (multiple measures \n possible)
+  4. Measure axis
+  5. Chart type
+  "
+  usecase Provide as "Provide the \n Crosstab with information \n about the charts
+  --
+  Info. provided:
+  1. Measures
+  2. Dimensions
+  3. Global data"
+
+  BU -> (Interact)
+  (Provide) <- MC
+  DU -> (Configure)
+}
+
+@enduml

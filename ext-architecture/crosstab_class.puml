@@ -1,0 +1,73 @@
+@startuml
+top to bottom direction
+
+interface MultiChart {
+  init(): Void
+  draw(): Void
+  dispose(): Void
+}
+
+class CrosstabExt implements MultiChart{
+  globalData: Object[ ]
+  dimensions: String[ ]
+  measures: String[ ]
+
+  createMeasures(): Measure[ ]
+  createDimensions(): Dimension[ ]
+}
+
+class TableManger {
+  columns: ColumnManager
+  rows: RowManager
+
+  constructTable()
+}
+
+abstract class OrderManager {
+}
+
+class ColumnManager extends OrderManager {
+  columns: Column [ ]
+  reorderColumn()
+}
+
+class RowManager extends OrderManager {
+  rows: Row [ ]
+  reorderRow()
+}
+
+abstract class Tuple {
+  measures: Measure [ ]
+  dimensions: Dimension [ ]
+}
+
+class Row extends Tuple {
+  updateRows()
+}
+
+class Column  extends Tuple {
+  updateColumns()
+}
+
+abstract class Field {
+  name: String
+}
+
+class Measure extends Field {
+  name: String
+}
+
+class Dimension extends Field {
+  name: String
+}
+
+class Chart extends Field {
+  will be an instance of a chart
+}
+
+class CrosstabExt - class TableManger
+class TableManger - abstract class OrderManager
+abstract class OrderManager - abstract class Tuple
+abstract class Tuple - abstract class Field
+
+@enduml

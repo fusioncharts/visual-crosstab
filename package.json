@@ -1,0 +1,12 @@
+{
+  "name": "visual-crosstab",
+  "version": "0.0.2",
+  "description": "Crosstabbed chart for FusionCharts",
+  "main": "index.js",
+  "repository": {
+    "url": "https://github.com/fusioncharts/visual-crosstab.git",
+    "type": "git"
+  },
+  "author": "Nakshatra Mukhopadhyay <nakshatra@fusioncharts.com>",
+  "license": "MIT"
+}
