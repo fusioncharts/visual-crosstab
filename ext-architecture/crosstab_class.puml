@@ -33,12 +33,6 @@ class Field {
   swapDimensions(Dimension, Number)
 }
 
-class Text {
-  textValue: String
-
-  renderText(Container)
-}
-
 CrosstabExt .u.> MultiChartExt
 
 @enduml

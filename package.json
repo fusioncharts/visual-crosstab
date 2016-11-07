@@ -1,12 +1,30 @@
 {
   "name": "visual-crosstab",
-  "version": "0.0.2",
+  "version": "0.0.1",
   "description": "Crosstabbed chart for FusionCharts",
-  "main": "index.js",
+  "private": true,
   "repository": {
     "url": "https://github.com/fusioncharts/visual-crosstab.git",
     "type": "git"
   },
   "author": "Nakshatra Mukhopadhyay <nakshatra@fusioncharts.com>",
-  "license": "MIT"
+  "scripts": {
+    "start": "node ./bin/www",
+    "build": "webpack --progress --colors",
+    "build-watch": "webpack --progress --colors --watch",
+    "dev-server": "webpack-dev-server --progress --colors --content-base public/"
+  },
+  "dependencies": {
+    "body-parser": "~1.15.2",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.2.0",
+    "express": "~4.14.0",
+    "jade": "~1.11.0",
+    "morgan": "~1.7.0",
+    "serve-favicon": "~2.3.0"
+  },
+  "devDependencies": {
+    "webpack": "^1.13.3",
+    "webpack-dev-server": "^1.16.2"
+  }
 }
