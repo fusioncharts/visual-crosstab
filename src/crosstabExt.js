@@ -101,36 +101,59 @@ class CrosstabExt {
         ];
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
-        this.dataStore.addData({ dataSource: this.data });
+        this.dataStore.setData({ dataSource: this.data });
         this.rowDimensions = ['product', 'state'];
         this.colDimensions = ['year', 'month'];
+        this.dimensions = this.mergeDimensions();
         this.measure = 'sale';
         this.measureOnRow = false;
-        this.globalData = {
-            'product': ['Tea', 'Coffee'],
-            'state': ['New York', 'Washington'],
-            'year': [2013, 2014],
-            'month': ['Jan', 'Feb'],
-            'sale': [1550, 2550, 3550, 4550, 5550, 6550, 7550, 8550, 9550, 10550, 11550, 12550, 13550, 14550,
-                     15550, 16550]
-        };
+        this.globalData = this.buildGlobalData();
+    }
+
+    buildGlobalData () {
+        let fields = this.dataStore.getKey();
+        let globalData = {};
+        for (let i = 0, ii = fields.length; i < ii; i++) {
+            globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
+        }
+        return globalData;
+    }
+
+    createArray () {
+        let numRows = 1;
+        let numCols = 1;
+        let rowDims = this.rowDimensions;
+        let colDims = this.colDimensions;
+        for (let i = 0, ii = rowDims.length; i < ii; i++) {
+            numRows = numRows * this.globalData[rowDims[i]].length;
+        }
+        for (let i = 0, ii = colDims.length - 1; i < ii; i++) {
+            numCols = numCols * this.globalData[colDims[i]].length;
+        }
+        if (this.measureOnRow) {
+            numRows += colDims.length;
+            numCols += rowDims.length - 1;
+        } else {
+            numRows += colDims.length - 1;
+            numCols += rowDims.length;
+        }
     }
 
     mergeDimensions () {
-        this.dimensions = [];
+        let dimensions = [];
         for (let i = 0, l = this.rowDimensions.length; i < l; i++) {
-            this.dimensions.push(this.rowDimensions[i]);
+            dimensions.push(this.rowDimensions[i]);
         }
         for (let i = 0, l = this.colDimensions.length; i < l; i++) {
-            this.dimensions.push(this.colDimensions[i]);
+            dimensions.push(this.colDimensions[i]);
         }
+        return dimensions;
     }
 
     createFilters () {
         let filters = [];
-        let globalKeys = Object.keys(this.globalData);
         for (let i = 0, l = this.dimensions.length; i < l; i++) {
-            if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length -1]) {
+            if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
                     filters.push({
@@ -138,7 +161,7 @@ class CrosstabExt {
                         filterVal: matchedValues[j]
                     });
                 }
-            } else if (!this.measureOnRow && this.dimensions[i] !== this.colDimensions[this.colDimensions.length -1]) {
+            } else if (!this.measureOnRow && this.dimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
                     filters.push({
@@ -151,12 +174,12 @@ class CrosstabExt {
         return filters;
     }
 
-    createDataCombos() {
-        var r = [],
-            globalArray = this.makeGlobalArray(),
-            max = globalArray.length -1;
+    createDataCombos () {
+        let r = [];
+        let globalArray = this.makeGlobalArray();
+        let max = globalArray.length - 1;
 
-        function recurse(arr, i) {
+        function recurse (arr, i) {
             for (var j = 0, l = globalArray[i].length; j < l; j++) {
                 var a = arr.slice(0);
                 a.push(globalArray[i][j]);
@@ -173,8 +196,8 @@ class CrosstabExt {
     }
 
     makeGlobalArray () {
-        let tempObj = {},
-            tempArr = [];
+        let tempObj = {};
+        let tempArr = [];
         for (let key in this.globalData) {
             if (this.globalData.hasOwnProperty(key) && key !== this.measure) {
                 if (this.measureOnRow && key !== this.rowDimensions[this.rowDimensions.length - 1]) {
@@ -193,13 +216,13 @@ class CrosstabExt {
         let dataCombos = this.createDataCombos();
         let hashMap = {};
         for (let i = 0, l = dataCombos.length; i < l; i++) {
-            let dataCombo = dataCombos[i],
-                key = '',
-                value = [];
+            let dataCombo = dataCombos[i];
+            let key = '';
+            let value = [];
             for (let j = 0, len = dataCombo.length; j < len; j++) {
                 for (let k = 0, length = filters.length; k < length; k++) {
                     let filterVal = filters[k].filterVal;
-                    if (dataCombo[j] == filterVal) {
+                    if (dataCombo[j] === filterVal) {
                         if (j === 0) {
                             key += dataCombo[j];
                         } else {
@@ -214,15 +237,10 @@ class CrosstabExt {
         return hashMap;
     }
 
-    createFilterFunctions () {
-
-    }
-
-    createMatrix() {
-        var matrix = [];
+    createMatrix () {
         var cols = [];
         var rows = [];
-        for (var i = 0; i < this.colDimensions.length; i++) {
+        for (let i = 0; i < this.colDimensions.length; i++) {
             if (this.measureOnRow) {
                 cols.push(this.globalData[this.colDimensions[i]]);
             } else {
@@ -231,7 +249,7 @@ class CrosstabExt {
                 }
             }
         }
-        for (var i = 0; i < this.rowDimensions.length; i++) {
+        for (let i = 0; i < this.rowDimensions.length; i++) {
             if (this.measureOnRow) {
                 if (this.colDimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
                     rows.push(this.globalData[this.rowDimensions[i]]);
@@ -241,7 +259,7 @@ class CrosstabExt {
             }
         }
         var str = '';
-        for (var i = 0; i < rows.length; i++) {
+        for (let i = 0; i < rows.length; i++) {
             let row = rows[i];
             for (var j = 0; j < row.length; j++) {
                 str += row[j];
@@ -256,65 +274,65 @@ class CrosstabExt {
     };
 
     createMultiChart () {
+        let chartArr = [];
         let hash = this.getFilterHashMap();
+        // this.drawSpans('crosstab-div', Object.keys(hash).length);
+        // console.log(hash);
 
-        let coffeeDataProcessor = this.mc.createDataProcessor();
-        let stateDataProcessor = this.mc.createDataProcessor();
-        let yearDataProcessor = this.mc.createDataProcessor();
+        for (var key in hash) {
+            if (hash.hasOwnProperty(key)) {
+                let dataProcessors = [];
+                let filters = hash[key];
+                for (var i = 0; i < filters.length; i++) {
+                    let dataProcessor = this.mc.createDataProcessor();
+                    dataProcessor.filter(filters[i]);
+                    dataProcessors.push(dataProcessor);
+                }
+                let filteredData = this.dataStore.getData(dataProcessors);
+                filteredData = filteredData[filteredData.length - 1];
 
-        let filter1 = hash['Coffee|New York|2013'][0];
-        let filter2 = hash['Coffee|New York|2013'][1];
-        let filter3 = hash['Coffee|New York|2013'][2];
-
-        let coffeeData = coffeeDataProcessor.filter(filter1);
-        let stateData = stateDataProcessor.filter(filter2);
-        let yearData = yearDataProcessor.filter(filter3);
-
-        let filteredData = this.dataStore.getData(coffeeDataProcessor)
-            .getData(stateDataProcessor)
-            .getData(yearDataProcessor);
-
-        let teaChart = this.mc.createChart({
-            type         : 'column2d',
-            renderAt     : 'div-1-1',
-            width        : 300,
-            height       : 150,
-            jsonData     : filteredData.getJSON(),
-            configuration: {
-                data: {
-                    dimension : ['month'],
-                    measure   : ['sale'],
-                    seriesType: 'SS',
-                    config    : {
-                        chart: {
-                            'yAxisName'           : 'Revenues (In INR)',
-                            'numberPrefix'        : '₹',
-                            'paletteColors'       : '#0075c2',
-                            'bgColor'             : '#ffffff',
-                            'valueFontColor'      : '#ffffff',
-                            'usePlotGradientColor': '0',
-                            'showYAxisValues'     : '0',
-                            'placevaluesInside'   : '1',
-                            'showXAxisLine'       : '1',
-                            'divLineIsDashed'     : '1',
-                            'showXaxisValues'     : '1',
-                            'rotateValues'        : '1'
+                let chartObj = {
+                    type: 'column2d',
+                    width: '100%',
+                    height: '100%',
+                    jsonData: filteredData.getJSON(),
+                    configuration: {
+                        data: {
+                            dimension: ['month'],
+                            measure: ['sale'],
+                            seriesType: 'SS',
+                            config: {
+                                chart: {
+                                    'yAxisName': 'Revenues (In INR)',
+                                    'numberPrefix': '₹',
+                                    'paletteColors': '#0075c2',
+                                    'bgColor': '#ffffff',
+                                    'valueFontColor': '#ffffff',
+                                    'usePlotGradientColor': '0',
+                                    'showYAxisValues': '0',
+                                    'placevaluesInside': '1',
+                                    'showXAxisLine': '1',
+                                    'divLineIsDashed': '1',
+                                    'showXaxisValues': '1',
+                                    'rotateValues': '1'
+                                }
+                            }
                         }
                     }
-                }
+                };
+                chartArr.push({
+                    width: 161,
+                    height: 200,
+                    id: 'div-' + Object.keys(hash).indexOf(key),
+                    chart: chartObj
+                });
             }
-        });
+        }
+        this.mc.createMatrix('crosstab-div', [chartArr]).draw();
     }
 
-    filterGen(key, val) {
+    filterGen (key, val) {
         return (data) => data[key] === val;
-    }
-
-    draw (id) {
-        var elem = document.getElementById(id);
-        var div = document.createElement('div');
-        div.setAttribute('id', 'div-1-1');
-        elem.appendChild(div);
     }
 }
 

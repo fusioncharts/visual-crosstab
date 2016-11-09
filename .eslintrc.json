@@ -1,0 +1,21 @@
+{
+    "extends": "standard",
+    "plugins": [
+        "standard",
+        "promise"
+    ],
+    "globals": {
+        "FusionCharts": true,
+        "MultiCharting": true
+    },
+    "rules": {
+        "semi": [
+            "error",
+            "always"
+        ],
+        "indent": [
+            "error",
+            4
+        ]
+    }
+}
