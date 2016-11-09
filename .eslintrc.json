@@ -16,6 +16,9 @@
         "indent": [
             "error",
             4
+        ],
+        "no-debugger": [
+            "warn"
         ]
     }
 }

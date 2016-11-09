@@ -119,24 +119,60 @@ class CrosstabExt {
         return globalData;
     }
 
-    createArray () {
-        let numRows = 1;
-        let numCols = 1;
-        let rowDims = this.rowDimensions;
-        let colDims = this.colDimensions;
+    createMatrix () {
+        let matrix = [];
+        let rowDims = [];
+        let colDims = [];
+
+        for (let i = 0, ii = this.rowDimensions.length; i < ii; i++) {
+            if (this.measureOnRow) {
+                if (i !== this.rowDimensions.length - 1) {
+                    rowDims.push(this.rowDimensions[i]);
+                }
+            } else {
+                rowDims.push(this.rowDimensions[i]);
+            }
+        }
+
+        for (let i = 0, ii = this.colDimensions.length; i < ii; i++) {
+            if (this.measureOnRow) {
+                colDims.push(this.colDimensions[i]);
+            } else {
+                if (i !== this.colDimensions.length - 1) {
+                    colDims.push(this.colDimensions[i]);
+                }
+            }
+        }
+
+        for (let i = 0; i < rowDims.length; i++) {
+            matrix.push([]);
+        }
+
+        for (let i = 0; i < colDims.length; i++) {
+            matrix[0].push({
+                html: '',
+                rowspan: colDims.length,
+                colspan: rowDims.length
+            });
+        }
+
+        function recurseRows (idx) {
+            return idx;
+        };
+
         for (let i = 0, ii = rowDims.length; i < ii; i++) {
-            numRows = numRows * this.globalData[rowDims[i]].length;
+            console.log(recurseRows(rowDims[i]));
         }
-        for (let i = 0, ii = colDims.length - 1; i < ii; i++) {
-            numCols = numCols * this.globalData[colDims[i]].length;
-        }
-        if (this.measureOnRow) {
-            numRows += colDims.length;
-            numCols += rowDims.length - 1;
-        } else {
-            numRows += colDims.length - 1;
-            numCols += rowDims.length;
-        }
+        matrix = [
+            [{html: '', rowspan: 1, colspan: 2}, {html: '2013', rowspan: 1, colspan: 1}, {html: '2014', rowspan: 1, colspan: 1}],
+            [{html: 'Tea', rowspan: 2, colspan: 1}, {html: 'New York', rowspan: 1, colspan: 1}, {html: '1'}, {html: '2'}],
+            [{html: 'Washington', rowspan: 1, colspan: 1}, {html: '3'}, {html: '4'}],
+            [{html: 'Coffee', rowspan: 2, colspan: 1}, {html: 'New York', rowspan: 1, colspan: 1}, {html: '5'}, {html: '6'}],
+            [{html: 'Washington', rowspan: 1, colspan: 1}, {html: '7'}, {html: '8'}]
+        ];
+        console.log(JSON.stringify(matrix, null, 2));
+        console.log(JSON.stringify(this.globalData, null, 2));
+        return matrix;
     }
 
     mergeDimensions () {
@@ -237,43 +273,11 @@ class CrosstabExt {
         return hashMap;
     }
 
-    createMatrix () {
-        var cols = [];
-        var rows = [];
-        for (let i = 0; i < this.colDimensions.length; i++) {
-            if (this.measureOnRow) {
-                cols.push(this.globalData[this.colDimensions[i]]);
-            } else {
-                if (this.colDimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
-                    cols.push(this.globalData[this.colDimensions[i]]);
-                }
-            }
-        }
-        for (let i = 0; i < this.rowDimensions.length; i++) {
-            if (this.measureOnRow) {
-                if (this.colDimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
-                    rows.push(this.globalData[this.rowDimensions[i]]);
-                }
-            } else {
-                rows.push(this.globalData[this.rowDimensions[i]]);
-            }
-        }
-        var str = '';
-        for (let i = 0; i < rows.length; i++) {
-            let row = rows[i];
-            for (var j = 0; j < row.length; j++) {
-                str += row[j];
-            }
-            str += '\n';
-        }
-        console.log(str);
-    }
-
     filter (a) {
         return (a.product === 'Tea' && a.state === 'New York' && a.year === '2013');
     };
 
-    createMultiChart () {
+    createMultiChart (matrix) {
         let chartArr = [];
         let hash = this.getFilterHashMap();
         // this.drawSpans('crosstab-div', Object.keys(hash).length);
@@ -328,7 +332,7 @@ class CrosstabExt {
                 });
             }
         }
-        this.mc.createMatrix('crosstab-div', [chartArr]).draw();
+        this.mc.createMatrix('crosstab-div', matrix).draw();
     }
 
     filterGen (key, val) {
