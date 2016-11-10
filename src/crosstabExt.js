@@ -114,53 +114,12 @@ class CrosstabExt {
     }
 
     buildGlobalData () {
-        let fields = this.dataStore.getKey(),
+        let fields = this.dataStore.getKeys(),
             globalData = {};
         for (let i = 0, ii = fields.length; i < ii; i++) {
             globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
         }
         return globalData;
-    }
-
-    separateDimensions () {
-        let matrix = [],
-            rowDimMatrix = [],
-            colDimMatrix = [];
-
-        this.rowObj = {};
-        this.colObj = {};
-
-        for (var keys in this.globalData) {
-            if (this.globalData.hasOwnProperty(keys)) {
-                if (this.dimensions.indexOf(keys) !== -1) {
-                    if (this.measureOnRow) {
-                        if (keys !== this.dimensions[this.rowDimensions.length - 1]) {
-                            if (this.rowDimensions.indexOf(keys) !== -1) {
-                                this.rowObj[keys] = this.globalData[keys];
-                            } else if (this.colDimensions.indexOf(keys) !== -1) {
-                                this.colObj[keys] = this.globalData[keys];
-                            }
-                        }
-                    } else {
-                        if (keys !== this.colDimensions[this.colDimensions.length - 1]) {
-                            if (this.rowDimensions.indexOf(keys) !== -1) {
-                                this.rowObj[keys] = this.globalData[keys];
-                            } else if (this.colDimensions.indexOf(keys) !== -1) {
-                                this.colObj[keys] = this.globalData[keys];
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        matrix.push(this.createCornerMatrix(this.rowObj, this.colObj));
-        rowDimMatrix = this.createRowMatrix(this.rowObj);
-        colDimMatrix = this.createColumnMatrix(this.colObj);
-        console.log(colDimMatrix);
-        for (let i = 0, ii = rowDimMatrix.length; i < ii; i++) {
-            matrix.push(rowDimMatrix[i]);
-        };
-        this.createMultiChart(matrix);
     }
 
     createRow (table, data, rowOrder, currentIndex, filteredDataStore) {
