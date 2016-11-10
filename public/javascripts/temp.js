@@ -10,55 +10,73 @@ var obj = {
         ],
         'state': [
             'New York',
-            'California',
             'Washington'
         ],
         'year': [
             '2013',
             '2014'
+        ],
+        'month': [
+            'Jan',
+            'Feb'
         ]
     },
-    rowOrder = ['product', 'variety'],
-    colOrder = ['year', 'state'],
+    rowOrder = ['product', 'state'],
+    colOrder = ['year'],
+    columnKeyArr = [],
     table = [[{
         rowspan: colOrder.length,
         colspan: rowOrder.length
     }]];
 
-function createRow (table, data, fieldOrder, currentIndex) {
+function createRow (table, data, fieldOrder, currentIndex, filteredDataStore) {
     var rowspan = 0,
-        rowComponent = rowOrder[currentIndex],
-        fieldValues = data[rowComponent],
+        fieldComponent = rowOrder[currentIndex],
+        fieldValues = data[fieldComponent],
         i, l = fieldValues.length,
         element,
-        hasFurtherDepth = currentIndex < (rowOrder.length - 1);
+        hasFurtherDepth = currentIndex < (rowOrder.length - 1),
+        filteredDataHashKey,
+        colLength = columnKeyArr.length;
+
     for (i = 0; i < l; i += 1) {
         element = {
             rowspan: 1,
-            colspan: 1,
-            html: fieldValues[i]
+            cplSpan: 1,
+            text: fieldValues[i]
         };
+
+        filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
+
         if (i) {
-            // insert a new Row
             table.push([element]);
         } else {
             table[table.length - 1].push(element);
         }
         if (hasFurtherDepth) {
-            element.rowspan = createRow(table, data, rowOrder, currentIndex + 1);
+            element.rowspan = createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
+        } else {
+            for (let j = 0; j < colLength; j += 1) {
+                table[table.length - 1].push({
+                    rowspan: 1,
+                    cplSpan: 1,
+                    text: 'rowFilter- ' + filteredDataHashKey + '<br/>colFilter- ' + columnKeyArr[j]
+                });
+            }
         }
         rowspan += element.rowspan;
     }
     return rowspan;
 }
 
-function createCol (table, data, fieldOrder, currentIndex) {
+function createCol (table, data, fieldOrder, currentIndex, filteredDataStore) {
     var colspan = 0,
         fieldComponent = fieldOrder[currentIndex],
         fieldValues = data[fieldComponent],
         i, l = fieldValues.length,
         element,
-        hasFurtherDepth = currentIndex < (fieldOrder.length - 1);
+        hasFurtherDepth = currentIndex < (fieldOrder.length - 1),
+        filteredDataHashKey;
 
     if (table.length <= currentIndex) {
         table.push([]);
@@ -67,35 +85,22 @@ function createCol (table, data, fieldOrder, currentIndex) {
         element = {
             rowspan: 1,
             colspan: 1,
-            html: fieldValues[i]
+            text: fieldValues[i]
         };
+
+        filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
 
         table[currentIndex].push(element);
 
         if (hasFurtherDepth) {
-            element.colspan = createCol(table, data, fieldOrder, currentIndex + 1);
+            element.colspan = createCol(table, data, fieldOrder, currentIndex + 1, filteredDataHashKey);
+        } else {
+            columnKeyArr.push(filteredDataHashKey);
         }
         colspan += element.colspan;
     }
     return colspan;
 }
-
-function createChartContainers (table) {
-    let element = {
-        rowspan: 1,
-        colspan: 1,
-        chart: 'Yeaaaa'
-    };
-    console.log(element);
-    for (let i = 0, ii = table.length; i < ii; i++) {
-        console.log(table[i]);
-    }
-}
-
-createCol(table, obj, colOrder, 0);
-table.push([]);
-createRow(table, obj, rowOrder, 0);
-createChartContainers(table);
 
 // Temp code to visualize the table
 function drawTable (table) {
@@ -111,10 +116,10 @@ function drawTable (table) {
             col = row[j];
             tableStr += '<td';
 
-            tableStr += ' rowspan="' + (col.rowspan === undefined ? '1' : col.rowspan) + '"';
-            tableStr += ' colspan="' + (col.colspan === undefined ? '1' : col.colspan) + '"';
+            tableStr += ' rowspan="' + col.rowspan + '"';
+            tableStr += ' colspan="' + col.colspan + '"';
 
-            tableStr += '>' + (col.html === undefined ? '' : col.html);
+            tableStr += '>' + (col.text === undefined ? '' : col.text);
             tableStr += '</td>';
         }
         tableStr += '</tr>';
@@ -124,4 +129,11 @@ function drawTable (table) {
     document.getElementById('crosstab-div').innerHTML = tableStr;
 }
 
-drawTable(table);
+function createCrosstab () {
+    createCol(table, obj, colOrder, 0, '');
+    table.push([]);
+    createRow(table, obj, rowOrder, 0, '');
+    drawTable(table);
+}
+
+createCrosstab();

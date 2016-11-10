@@ -108,6 +108,9 @@ class CrosstabExt {
         this.measure = 'sale';
         this.measureOnRow = false;
         this.globalData = this.buildGlobalData();
+        this.columnKeyArr = [];
+        this.cellWidth = 320;
+        this.cellHeight = 130;
     }
 
     buildGlobalData () {
@@ -160,60 +163,100 @@ class CrosstabExt {
         this.createMultiChart(matrix);
     }
 
-    createCornerMatrix (rowObj, colObj) {
-        let matrix = [],
-            rowLen = Object.keys(rowObj).length,
-            colLen = Object.keys(colObj).length;
+    createRow (table, data, rowOrder, currentIndex, filteredDataStore) {
+        var rowspan = 0,
+            fieldComponent = rowOrder[currentIndex],
+            fieldValues = data[fieldComponent],
+            i, l = fieldValues.length,
+            element,
+            hasFurtherDepth = currentIndex < (rowOrder.length - 1),
+            filteredDataHashKey,
+            colLength = this.columnKeyArr.length;
 
-        matrix.push({html: '', rowspan: colLen, colspan: rowLen});
-        return matrix;
+        for (i = 0; i < l; i += 1) {
+            element = {
+                width: this.cellWidth,
+                height: this.cellHeight,
+                rowspan: 1,
+                cplSpan: 1,
+                html: fieldValues[i]
+            };
+
+            filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
+
+            if (i) {
+                table.push([element]);
+            } else {
+                table[table.length - 1].push(element);
+            }
+            if (hasFurtherDepth) {
+                element.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
+            } else {
+                for (let j = 0; j < colLength; j += 1) {
+                    table[table.length - 1].push({
+                        width: this.cellWidth,
+                        height: this.cellHeight,
+                        rowspan: 1,
+                        cplSpan: 1,
+                        html: 'rowFilter- ' + filteredDataHashKey + '<br/>colFilter- ' + this.columnKeyArr[j]
+                    });
+                }
+            }
+            rowspan += element.rowspan;
+        }
+        return rowspan;
     }
 
-    createColumnMatrix (object) {
-        return object;
-        // let keys = Object.keys(object);
-    };
+    createCol (table, data, colOrder, currentIndex, filteredDataStore) {
+        var colspan = 0,
+            fieldComponent = colOrder[currentIndex],
+            fieldValues = data[fieldComponent],
+            i, l = fieldValues.length,
+            element,
+            hasFurtherDepth = currentIndex < (colOrder.length - 1),
+            filteredDataHashKey;
 
-    createRowMatrix (object) {
-        let keysAr = Object.keys(object),
-            array2d = [],
-            i = 0,
-            key = '',
-            matrix = [[]],
-            storeIndex = 0,
-            depthAr = [1];
-
-        for (key in object) {
-            array2d.push(object[key]);
+        if (table.length <= currentIndex) {
+            table.push([]);
         }
+        for (i = 0; i < l; i += 1) {
+            element = {
+                width: this.cellWidth,
+                height: this.cellHeight,
+                rowspan: 1,
+                colspan: 1,
+                html: fieldValues[i]
+            };
 
-        i = keysAr.length;
-        while (--i) {
-            depthAr.unshift(array2d[i].length * depthAr[0]);
-        }
+            filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
 
-        function recurse (index) {
-            var i = 0,
-                arr = array2d[index],
-                ii = arr && arr.length;
+            table[currentIndex].push(element);
 
-            if (!arr) {
-                return;
+            if (hasFurtherDepth) {
+                element.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
+            } else {
+                this.columnKeyArr.push(filteredDataHashKey);
             }
-            for (; i < ii; ++i) {
-                if (i) {
-                    matrix.push([]);
-                    storeIndex++;
-                }
-                matrix[storeIndex].push({
-                    html: arr[i],
-                    rowspan: depthAr[index]
-                });
-                recurse(index + 1);
-            }
+            colspan += element.colspan;
         }
-        recurse(0);
-        return matrix;
+        return colspan;
+    }
+
+    createCrosstab () {
+        var obj = this.globalData,
+            rowOrder = ['product', 'state'],
+            colOrder = ['year'],
+            table = [[{
+                width: this.cellWidth,
+                height: this.cellHeight,
+                rowspan: colOrder.length,
+                colspan: rowOrder.length
+            }]];
+        this.createCol(table, obj, colOrder, 0, '');
+        table.push([]);
+        this.createRow(table, obj, rowOrder, 0, '');
+        this.createMultiChart(table);
+        // drawTable(table);
     }
 
     mergeDimensions () {
