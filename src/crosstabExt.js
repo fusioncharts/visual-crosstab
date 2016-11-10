@@ -111,6 +111,7 @@ class CrosstabExt {
         this.columnKeyArr = [];
         this.cellWidth = 320;
         this.cellHeight = 130;
+        window.a = this;
     }
 
     buildGlobalData () {
@@ -203,7 +204,7 @@ class CrosstabExt {
 
     createCrosstab () {
         var obj = this.globalData,
-            rowOrder = ['product', 'state'],
+            rowOrder = this.rowDimensions, // possible conflict
             colOrder = ['year'],
             table = [[{
                 width: this.cellWidth,
@@ -214,8 +215,30 @@ class CrosstabExt {
         this.createCol(table, obj, colOrder, 0, '');
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
+        console.log(table);
         this.createMultiChart(table);
         // drawTable(table);
+    }
+
+    rowReorder (subject, target) {
+        var buffer = '',
+            i;
+        if (this.rowDimensions.indexOf(Math.max(subject, target)) >= this.rowDimensions.length) {
+            return 'wrong index';
+        } else if (subject > target) {
+            buffer = this.rowDimensions[subject];
+            for (i = subject - 1; i >= target; i--) {
+                this.rowDimensions[i + 1] = this.rowDimensions[i];
+            }
+            this.rowDimensions[target] = buffer;
+        } else if (subject < target) {
+            buffer = this.rowDimensions[subject];
+            for (i = subject + 1; i <= target; i++) {
+                this.rowDimensions[i - 1] = this.rowDimensions[i];
+            }
+            this.rowDimensions[target] = buffer;
+        }
+        this.createCrosstab();
     }
 
     mergeDimensions () {
@@ -377,7 +400,18 @@ class CrosstabExt {
                 });
             }
         }
-        this.mc.createMatrix('crosstab-div', matrix).draw();
+        if (this.multichartOb === undefined) {
+            console.log(matrix);
+            this.multichartOb = this.mc.createMatrix('crosstab-div', matrix);
+            this.multichartOb.draw();
+            this.rowReorder(0, 1);
+            this.multichartOb.update(matrix);
+            console.log('=-=-=-=-=-=-= UPDATED');
+            console.log(matrix);
+        } else {
+            // console.log('update');
+            this.multichartOb.update(matrix);
+        }
     }
 
     filterGen (key, val) {
