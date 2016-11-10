@@ -111,6 +111,7 @@ class CrosstabExt {
         this.columnKeyArr = [];
         this.cellWidth = 320;
         this.cellHeight = 130;
+        this.crosstabContainer = 'crosstab-div';
     }
 
     buildGlobalData () {
@@ -141,7 +142,7 @@ class CrosstabExt {
                 html: fieldValues[i]
             };
 
-            filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
+            filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
             if (i) {
                 table.push([element]);
@@ -157,7 +158,8 @@ class CrosstabExt {
                         height: this.cellHeight,
                         rowspan: 1,
                         cplSpan: 1,
-                        html: 'rowFilter- ' + filteredDataHashKey + '<br/>colFilter- ' + this.columnKeyArr[j]
+                        html: 'rowFilter- ' + filteredDataHashKey + '<br/>colFilter- ' + this.columnKeyArr[j],
+                        chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])
                     });
                 }
             }
@@ -187,7 +189,7 @@ class CrosstabExt {
                 html: fieldValues[i]
             };
 
-            filteredDataHashKey = filteredDataStore + ' => ' + fieldComponent + '=' + fieldValues[i];
+            filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
             table[currentIndex].push(element);
 
@@ -215,7 +217,6 @@ class CrosstabExt {
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
         this.createMultiChart(table);
-        // drawTable(table);
     }
 
     mergeDimensions () {
@@ -259,8 +260,8 @@ class CrosstabExt {
             max = globalArray.length - 1;
 
         function recurse (arr, i) {
-            var a = arr.slice(0);
             for (let j = 0, l = globalArray[i].length; j < l; j++) {
+                var a = arr.slice(0);
                 a.push(globalArray[i][j]);
                 if (i === max) {
                     r.push(a);
@@ -269,7 +270,6 @@ class CrosstabExt {
                 }
             }
         }
-
         recurse([], 0);
         return r;
     }
@@ -322,62 +322,63 @@ class CrosstabExt {
     };
 
     createMultiChart (matrix) {
-        let chartArr = [],
-            hash = this.getFilterHashMap();
+        this.mc.createMatrix(this.crosstabContainer, matrix).draw();
+    }
 
-        for (var key in hash) {
-            if (hash.hasOwnProperty(key)) {
-                let dataProcessors = [],
-                    filters = hash[key],
-                    chartObj = {},
-                    filteredData = {};
+    getChartObj (rowFilter, columnFilter) {
+        let filters = [],
+            filterStr = '',
+            rowFilters = rowFilter.split('|'),
+            colFilters = columnFilter.split('|'),
+            hash = this.getFilterHashMap(),
+            dataProcessors = [],
+            dataProcessor = {},
+            matchedHashes = [],
+            filteredData = {};
 
-                for (let i = 0; i < filters.length; i++) {
-                    let dataProcessor = this.mc.createDataProcessor();
-                    dataProcessor.filter(filters[i]);
-                    dataProcessors.push(dataProcessor);
-                }
-                filteredData = this.dataStore.getData(dataProcessors);
-                filteredData = filteredData[filteredData.length - 1];
+        rowFilters.push.apply(rowFilters, colFilters);
+        filters = rowFilters.filter((a) => {
+            return (a !== '');
+        });
+        filterStr = filters.join('|');
+        matchedHashes = hash[filterStr];
+        for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
+            dataProcessor = this.mc.createDataProcessor();
+            dataProcessor.filter(matchedHashes[i]);
+            dataProcessors.push(dataProcessor);
+        }
+        filteredData = this.dataStore.getData(dataProcessors);
+        filteredData = filteredData[filteredData.length - 1];
 
-                chartObj = {
-                    type: 'column2d',
-                    width: '100%',
-                    height: '100%',
-                    jsonData: filteredData.getJSON(),
-                    configuration: {
-                        data: {
-                            dimension: ['month'],
-                            measure: ['sale'],
-                            seriesType: 'SS',
-                            config: {
-                                chart: {
-                                    'yAxisName': 'Revenues (In INR)',
-                                    'numberPrefix': '₹',
-                                    'paletteColors': '#0075c2',
-                                    'bgColor': '#ffffff',
-                                    'valueFontColor': '#ffffff',
-                                    'usePlotGradientColor': '0',
-                                    'showYAxisValues': '0',
-                                    'placevaluesInside': '1',
-                                    'showXAxisLine': '1',
-                                    'divLineIsDashed': '1',
-                                    'showXaxisValues': '1',
-                                    'rotateValues': '1'
-                                }
-                            }
+        return {
+            type: 'column2d',
+            width: '100%',
+            height: '100%',
+            jsonData: filteredData.getJSON(),
+            configuration: {
+                data: {
+                    dimension: ['month'],
+                    measure: ['sale'],
+                    seriesType: 'SS',
+                    config: {
+                        chart: {
+                            'yAxisName': 'Revenues (In INR)',
+                            'numberPrefix': '₹',
+                            'paletteColors': '#0075c2',
+                            'bgColor': '#ffffff',
+                            'valueFontColor': '#ffffff',
+                            'usePlotGradientColor': '0',
+                            'showYAxisValues': '0',
+                            'placevaluesInside': '1',
+                            'showXAxisLine': '1',
+                            'divLineIsDashed': '1',
+                            'showXaxisValues': '1',
+                            'rotateValues': '1'
                         }
                     }
-                };
-                chartArr.push({
-                    width: 161,
-                    height: 200,
-                    id: 'div-' + Object.keys(hash).indexOf(key),
-                    chart: chartObj
-                });
+                }
             }
-        }
-        this.mc.createMatrix('crosstab-div', matrix).draw();
+        };
     }
 
     filterGen (key, val) {
