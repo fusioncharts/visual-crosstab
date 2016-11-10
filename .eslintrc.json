@@ -19,6 +19,10 @@
         ],
         "no-debugger": [
             "warn"
+        ],
+        "one-var": [
+            "error",
+            "always"
         ]
     }
 }

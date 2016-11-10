@@ -111,67 +111,108 @@ class CrosstabExt {
     }
 
     buildGlobalData () {
-        let fields = this.dataStore.getKey();
-        let globalData = {};
+        let fields = this.dataStore.getKey(),
+            globalData = {};
         for (let i = 0, ii = fields.length; i < ii; i++) {
             globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
         }
         return globalData;
     }
 
-    createMatrix () {
-        let matrix = [];
-        let rowDims = [];
-        let colDims = [];
+    separateDimensions () {
+        let matrix = [],
+            rowDimMatrix = [],
+            colDimMatrix = [];
 
-        for (let i = 0, ii = this.rowDimensions.length; i < ii; i++) {
-            if (this.measureOnRow) {
-                if (i !== this.rowDimensions.length - 1) {
-                    rowDims.push(this.rowDimensions[i]);
+        this.rowObj = {};
+        this.colObj = {};
+
+        for (var keys in this.globalData) {
+            if (this.globalData.hasOwnProperty(keys)) {
+                if (this.dimensions.indexOf(keys) !== -1) {
+                    if (this.measureOnRow) {
+                        if (keys !== this.dimensions[this.rowDimensions.length - 1]) {
+                            if (this.rowDimensions.indexOf(keys) !== -1) {
+                                this.rowObj[keys] = this.globalData[keys];
+                            } else if (this.colDimensions.indexOf(keys) !== -1) {
+                                this.colObj[keys] = this.globalData[keys];
+                            }
+                        }
+                    } else {
+                        if (keys !== this.colDimensions[this.colDimensions.length - 1]) {
+                            if (this.rowDimensions.indexOf(keys) !== -1) {
+                                this.rowObj[keys] = this.globalData[keys];
+                            } else if (this.colDimensions.indexOf(keys) !== -1) {
+                                this.colObj[keys] = this.globalData[keys];
+                            }
+                        }
+                    }
                 }
-            } else {
-                rowDims.push(this.rowDimensions[i]);
             }
         }
-
-        for (let i = 0, ii = this.colDimensions.length; i < ii; i++) {
-            if (this.measureOnRow) {
-                colDims.push(this.colDimensions[i]);
-            } else {
-                if (i !== this.colDimensions.length - 1) {
-                    colDims.push(this.colDimensions[i]);
-                }
-            }
-        }
-
-        for (let i = 0; i < rowDims.length; i++) {
-            matrix.push([]);
-        }
-
-        for (let i = 0; i < colDims.length; i++) {
-            matrix[0].push({
-                html: '',
-                rowspan: colDims.length,
-                colspan: rowDims.length
-            });
-        }
-
-        function recurseRows (idx) {
-            return idx;
+        matrix.push(this.createCornerMatrix(this.rowObj, this.colObj));
+        rowDimMatrix = this.createRowMatrix(this.rowObj);
+        colDimMatrix = this.createColumnMatrix(this.colObj);
+        console.log(colDimMatrix);
+        for (let i = 0, ii = rowDimMatrix.length; i < ii; i++) {
+            matrix.push(rowDimMatrix[i]);
         };
+        this.createMultiChart(matrix);
+    }
 
-        for (let i = 0, ii = rowDims.length; i < ii; i++) {
-            console.log(recurseRows(rowDims[i]));
+    createCornerMatrix (rowObj, colObj) {
+        let matrix = [],
+            rowLen = Object.keys(rowObj).length,
+            colLen = Object.keys(colObj).length;
+
+        matrix.push({html: '', rowspan: colLen, colspan: rowLen});
+        return matrix;
+    }
+
+    createColumnMatrix (object) {
+        return object;
+        // let keys = Object.keys(object);
+    };
+
+    createRowMatrix (object) {
+        let keysAr = Object.keys(object),
+            array2d = [],
+            i = 0,
+            key = '',
+            matrix = [[]],
+            storeIndex = 0,
+            depthAr = [1];
+
+        for (key in object) {
+            array2d.push(object[key]);
         }
-        matrix = [
-            [{html: '', rowspan: 1, colspan: 2}, {html: '2013', rowspan: 1, colspan: 1}, {html: '2014', rowspan: 1, colspan: 1}],
-            [{html: 'Tea', rowspan: 2, colspan: 1}, {html: 'New York', rowspan: 1, colspan: 1}, {html: '1'}, {html: '2'}],
-            [{html: 'Washington', rowspan: 1, colspan: 1}, {html: '3'}, {html: '4'}],
-            [{html: 'Coffee', rowspan: 2, colspan: 1}, {html: 'New York', rowspan: 1, colspan: 1}, {html: '5'}, {html: '6'}],
-            [{html: 'Washington', rowspan: 1, colspan: 1}, {html: '7'}, {html: '8'}]
-        ];
-        console.log(JSON.stringify(matrix, null, 2));
-        console.log(JSON.stringify(this.globalData, null, 2));
+
+        i = keysAr.length;
+        while (--i) {
+            depthAr.unshift(array2d[i].length * depthAr[0]);
+        }
+
+        function recurse (index) {
+            var i = 0,
+                arr = array2d[index],
+                ii = arr && arr.length;
+
+            if (!arr) {
+                return;
+            }
+            for (; i < ii; ++i) {
+                if (i) {
+                    matrix.push([]);
+                    storeIndex++;
+                }
+                matrix[storeIndex].push({
+                    html: arr[i],
+                    rowspan: depthAr[index]
+                });
+                recurse(index + 1);
+            }
+        }
+        recurse(0);
         return matrix;
     }
 
@@ -211,13 +252,13 @@ class CrosstabExt {
     }
 
     createDataCombos () {
-        let r = [];
-        let globalArray = this.makeGlobalArray();
-        let max = globalArray.length - 1;
+        let r = [],
+            globalArray = this.makeGlobalArray(),
+            max = globalArray.length - 1;
 
         function recurse (arr, i) {
-            for (var j = 0, l = globalArray[i].length; j < l; j++) {
-                var a = arr.slice(0);
+            var a = arr.slice(0);
+            for (let j = 0, l = globalArray[i].length; j < l; j++) {
                 a.push(globalArray[i][j]);
                 if (i === max) {
                     r.push(a);
@@ -232,8 +273,8 @@ class CrosstabExt {
     }
 
     makeGlobalArray () {
-        let tempObj = {};
-        let tempArr = [];
+        let tempObj = {},
+            tempArr = [];
         for (let key in this.globalData) {
             if (this.globalData.hasOwnProperty(key) && key !== this.measure) {
                 if (this.measureOnRow && key !== this.rowDimensions[this.rowDimensions.length - 1]) {
@@ -248,13 +289,14 @@ class CrosstabExt {
     }
 
     getFilterHashMap () {
-        let filters = this.createFilters();
-        let dataCombos = this.createDataCombos();
-        let hashMap = {};
+        let filters = this.createFilters(),
+            dataCombos = this.createDataCombos(),
+            hashMap = {};
         for (let i = 0, l = dataCombos.length; i < l; i++) {
-            let dataCombo = dataCombos[i];
-            let key = '';
-            let value = [];
+            let dataCombo = dataCombos[i],
+                key = '',
+                value = [];
+
             for (let j = 0, len = dataCombo.length; j < len; j++) {
                 for (let k = 0, length = filters.length; k < length; k++) {
                     let filterVal = filters[k].filterVal;
@@ -278,24 +320,25 @@ class CrosstabExt {
     };
 
     createMultiChart (matrix) {
-        let chartArr = [];
-        let hash = this.getFilterHashMap();
-        // this.drawSpans('crosstab-div', Object.keys(hash).length);
-        // console.log(hash);
+        let chartArr = [],
+            hash = this.getFilterHashMap();
 
         for (var key in hash) {
             if (hash.hasOwnProperty(key)) {
-                let dataProcessors = [];
-                let filters = hash[key];
-                for (var i = 0; i < filters.length; i++) {
+                let dataProcessors = [],
+                    filters = hash[key],
+                    chartObj = {},
+                    filteredData = {};
+
+                for (let i = 0; i < filters.length; i++) {
                     let dataProcessor = this.mc.createDataProcessor();
                     dataProcessor.filter(filters[i]);
                     dataProcessors.push(dataProcessor);
                 }
-                let filteredData = this.dataStore.getData(dataProcessors);
+                filteredData = this.dataStore.getData(dataProcessors);
                 filteredData = filteredData[filteredData.length - 1];
 
-                let chartObj = {
+                chartObj = {
                     type: 'column2d',
                     width: '100%',
                     height: '100%',
