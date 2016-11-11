@@ -357,8 +357,10 @@ class CrosstabExt {
                 jsonData: filteredData.getJSON(),
                 configuration: {
                     data: {
-                        dimension: ['month'],
-                        measure: ['sale'],
+                        dimension: this.measureOnRow
+                            ? [this.rowDimensions[this.rowDimensions.length - 1]]
+                            : [this.colDimensions[this.colDimensions.length - 1]],
+                        measure: [this.measure],
                         seriesType: 'SS',
                         config: this.chartConfig
                     }

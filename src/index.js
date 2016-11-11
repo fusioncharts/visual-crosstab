@@ -2,9 +2,9 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    rowDimensions: ['product', 'state'],
+    rowDimensions: ['product', 'state', 'quality'],
     colDimensions: ['year', 'month'],
-    chartType: 'line',
+    chartType: 'bar2d',
     measure: 'sale',
     measureOnRow: false,
     cellWidth: 320,
@@ -21,7 +21,9 @@ var config = {
             'showValues': '0',
             'showXAxisLine': '1',
             'showXaxisValues': '0',
-            'rotateValues': '1'
+            'rotateValues': '1',
+            'alternateVGridAlpha': '0',
+            'divLineAlpha': '0'
         }
     }
 };
