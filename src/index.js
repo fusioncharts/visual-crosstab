@@ -2,8 +2,8 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'quality', 'month'],
+    rowDimensions: ['product'],
+    colDimensions: ['year', 'quality', 'state', 'month'],
     chartType: 'bar2d',
     measure: 'sale',
     measureOnRow: false,
@@ -13,7 +13,7 @@ var config = {
     chartConfig: {
         chart: {
             'numberPrefix': '₹',
-            'paletteColors': '#b5b9ba',
+            'paletteColors': '#9f9f9f',
             'bgColor': '#ffffff',
             'valueFontColor': '#ffffff',
             'usePlotGradientColor': '0',
@@ -23,6 +23,7 @@ var config = {
             'showXaxisValues': '0',
             'rotateValues': '1',
             'alternateVGridAlpha': '0',
+            'alternateHGridAlpha': '0',
             'divLineAlpha': '0',
             'xAxisLineColor': '#ffffff',
             'plotBorderAlpha': '0',
