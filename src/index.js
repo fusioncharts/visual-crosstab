@@ -13,7 +13,7 @@ var config = {
     chartConfig: {
         chart: {
             'numberPrefix': '₹',
-            'paletteColors': '#b5b9ba',
+            'paletteColors': '#9f9f9f',
             'bgColor': '#ffffff',
             'valueFontColor': '#ffffff',
             'usePlotGradientColor': '0',
@@ -23,6 +23,7 @@ var config = {
             'showXaxisValues': '0',
             'rotateValues': '1',
             'alternateVGridAlpha': '0',
+            'alternateHGridAlpha': '0',
             'divLineAlpha': '0',
             'xAxisLineColor': '#ffffff',
             'plotBorderAlpha': '0',
