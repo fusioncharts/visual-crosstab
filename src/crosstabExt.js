@@ -158,7 +158,6 @@ class CrosstabExt {
                         height: this.cellHeight,
                         rowspan: 1,
                         cplSpan: 1,
-                        html: 'rowFilter- ' + filteredDataHashKey + '<br/>colFilter- ' + this.columnKeyArr[j],
                         chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])
                     });
                 }
@@ -204,15 +203,33 @@ class CrosstabExt {
     }
 
     createCrosstab () {
-        var obj = this.globalData,
-            rowOrder = this.rowDimensions, // possible conflict
-            colOrder = ['year'],
+        var self = this,
+            obj = this.globalData,
+            rowOrder = this.rowDimensions.filter(function (val, i, arr) {
+                if (self.measureOnRow) {
+                    if (val !== arr[arr.length - 1]) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }),
+            colOrder = this.colDimensions.filter(function (val, i, arr) {
+                if (self.measureOnRow) {
+                    return true;
+                } else {
+                    if (val !== arr[arr.length - 1]) {
+                        return true;
+                    }
+                }
+            }),
             table = [[{
                 width: this.cellWidth,
                 height: this.cellHeight,
                 rowspan: colOrder.length,
                 colspan: rowOrder.length
             }]];
+        console.log(colOrder);
         this.createCol(table, obj, colOrder, 0, '');
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
@@ -317,6 +334,7 @@ class CrosstabExt {
         let filters = this.createFilters(),
             dataCombos = this.createDataCombos(),
             hashMap = {};
+
         for (let i = 0, l = dataCombos.length; i < l; i++) {
             let dataCombo = dataCombos[i],
                 key = '',
@@ -345,7 +363,46 @@ class CrosstabExt {
     };
 
     createMultiChart (matrix) {
-        this.mc.createMatrix(this.crosstabContainer, matrix).draw();
+        if (this.multichartObject === undefined) {
+            this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
+            this.multichartObject.draw();
+        } else {
+            this.multichartObject.update(matrix);
+        }
+    }
+
+    permuteArr (arr) {
+        let results = [];
+        function permute (arr, mem) {
+            let current;
+            mem = mem || [];
+
+            for (let i = 0, ii = arr.length; i < ii; i++) {
+                current = arr.splice(i, 1);
+                if (arr.length === 0) {
+                    results.push(mem.concat(current).join('|'));
+                }
+                permute(arr.slice(), mem.concat(current));
+                arr.splice(i, 0, current[0]);
+            }
+            return results;
+        }
+        var permuteStrs = permute(arr);
+        return permuteStrs.join('*!%^');
+    }
+
+    matchHash (filterStr, hash) {
+        for (let key in hash) {
+            if (hash.hasOwnProperty(key)) {
+                let keys = key.split('|'),
+                    keyPermutations = this.permuteArr(keys).split('*!%^');
+                if (filterStr.indexOf[keyPermutations] !== -1) {
+                    return keyPermutations[0];
+                } else {
+                    return false;
+                }
+            }
+        }
     }
 
     getChartObj (rowFilter, columnFilter) {
@@ -364,7 +421,7 @@ class CrosstabExt {
             return (a !== '');
         });
         filterStr = filters.join('|');
-        matchedHashes = hash[filterStr];
+        matchedHashes = hash[this.matchHash(filterStr, hash)];
         for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
             dataProcessor = this.mc.createDataProcessor();
             dataProcessor.filter(matchedHashes[i]);
