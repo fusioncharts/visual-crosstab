@@ -149,7 +149,7 @@ class CrosstabExt {
             }),
             cornerCellObj = {
                 width: 1,
-                height: 40,
+                height: 30 * this.colDimensions.length,
                 rowspan: colOrder.length,
                 colspan: rowOrder.length
             },

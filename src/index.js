@@ -13,7 +13,7 @@ var config = {
     chartConfig: {
         chart: {
             'numberPrefix': '₹',
-            'paletteColors': '#0075c2',
+            'paletteColors': '#b5b9ba',
             'bgColor': '#ffffff',
             'valueFontColor': '#ffffff',
             'usePlotGradientColor': '0',
@@ -23,7 +23,11 @@ var config = {
             'showXaxisValues': '0',
             'rotateValues': '1',
             'alternateVGridAlpha': '0',
-            'divLineAlpha': '0'
+            'divLineAlpha': '0',
+            'xAxisLineColor': '#ffffff',
+            'plotBorderAlpha': '0',
+            'canvasBorderColor': '#000000',
+            'canvasBorderAlpha': '100'
         }
     }
 };

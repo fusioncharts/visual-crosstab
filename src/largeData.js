@@ -1,6 +1,6 @@
 module.exports = [
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Jun',
@@ -8,7 +8,7 @@ module.exports = [
         'sale': 2
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Jun',
@@ -16,7 +16,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'July',
@@ -24,7 +24,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'July',
@@ -32,7 +32,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Aug',
@@ -40,7 +40,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Aug',
@@ -48,7 +48,7 @@ module.exports = [
         'sale': 1
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Sept',
@@ -56,7 +56,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Sept',
@@ -64,7 +64,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Jun',
@@ -72,7 +72,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Jun',
@@ -80,7 +80,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'July',
@@ -88,7 +88,7 @@ module.exports = [
         'sale': 2
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'July',
@@ -96,7 +96,7 @@ module.exports = [
         'sale': 1
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Aug',
@@ -104,7 +104,7 @@ module.exports = [
         'sale': 3
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Aug',
@@ -112,7 +112,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Sept',
@@ -120,7 +120,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Sept',
@@ -128,7 +128,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Jun',
@@ -136,7 +136,7 @@ module.exports = [
         'sale': 3
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Jun',
@@ -144,7 +144,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'July',
@@ -152,7 +152,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'July',
@@ -160,7 +160,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Aug',
@@ -168,7 +168,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Aug',
@@ -176,7 +176,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Sept',
@@ -184,7 +184,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Sept',
@@ -192,7 +192,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Jun',
@@ -200,7 +200,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Jun',
@@ -208,7 +208,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'July',
@@ -216,7 +216,7 @@ module.exports = [
         'sale': 1
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'July',
@@ -224,7 +224,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Aug',
@@ -232,7 +232,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Aug',
@@ -240,7 +240,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Sept',
@@ -248,7 +248,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'rice',
+        'product': 'Rice',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Sept',
@@ -256,7 +256,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Jun',
@@ -264,7 +264,7 @@ module.exports = [
         'sale': 3
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Jun',
@@ -272,7 +272,7 @@ module.exports = [
         'sale': 2
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'July',
@@ -280,7 +280,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'July',
@@ -288,7 +288,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Aug',
@@ -296,7 +296,7 @@ module.exports = [
         'sale': 2
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Aug',
@@ -304,7 +304,7 @@ module.exports = [
         'sale': 3
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Sept',
@@ -312,7 +312,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2015',
         'month': 'Sept',
@@ -320,7 +320,7 @@ module.exports = [
         'sale': 1
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Jun',
@@ -328,7 +328,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Jun',
@@ -336,7 +336,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'July',
@@ -344,7 +344,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'July',
@@ -352,7 +352,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Aug',
@@ -360,7 +360,7 @@ module.exports = [
         'sale': 1
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Aug',
@@ -368,7 +368,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Sept',
@@ -376,7 +376,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bihar',
         'year': '2016',
         'month': 'Sept',
@@ -384,7 +384,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Jun',
@@ -392,7 +392,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Jun',
@@ -400,7 +400,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'July',
@@ -408,7 +408,7 @@ module.exports = [
         'sale': 9
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'July',
@@ -416,7 +416,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Aug',
@@ -424,7 +424,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Aug',
@@ -432,7 +432,7 @@ module.exports = [
         'sale': 2
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Sept',
@@ -440,7 +440,7 @@ module.exports = [
         'sale': 5
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2015',
         'month': 'Sept',
@@ -448,7 +448,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Jun',
@@ -456,7 +456,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Jun',
@@ -464,7 +464,7 @@ module.exports = [
         'sale': 4
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'July',
@@ -472,7 +472,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'July',
@@ -480,7 +480,7 @@ module.exports = [
         'sale': 7
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Aug',
@@ -488,7 +488,7 @@ module.exports = [
         'sale': 8
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Aug',
@@ -496,7 +496,7 @@ module.exports = [
         'sale': 6
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Sept',
@@ -504,7 +504,7 @@ module.exports = [
         'sale': 10
     },
     {
-        'product': 'wheat',
+        'product': 'Wheat',
         'state': 'Bengal',
         'year': '2016',
         'month': 'Sept',
