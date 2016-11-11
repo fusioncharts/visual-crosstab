@@ -1,117 +1,21 @@
 class CrosstabExt {
-    constructor () {
-        this.data = [
-            {
-                'product': 'Tea',
-                'state': 'New York',
-                'year': '2013',
-                'month': 'Jan',
-                'sale': 1550
-            }, {
-                'product': 'Tea',
-                'state': 'New York',
-                'year': '2013',
-                'month': 'Feb',
-                'sale': 2550
-            }, {
-                'product': 'Tea',
-                'state': 'New York',
-                'year': '2014',
-                'month': 'Jan',
-                'sale': 3550
-            }, {
-                'product': 'Tea',
-                'state': 'New York',
-                'year': '2014',
-                'month': 'Feb',
-                'sale': 4550
-            }, {
-                'product': 'Tea',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2013',
-                'month': 'Jan',
-                'sale': 5550
-            }, {
-                'product': 'Tea',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2013',
-                'month': 'Feb',
-                'sale': 6550
-            }, {
-                'product': 'Tea',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2014',
-                'month': 'Jan',
-                'sale': 7550
-            }, {
-                'product': 'Tea',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2014',
-                'month': 'Feb',
-                'sale': 8550
-            }, {
-                'product': 'Coffee',
-                'state': 'New York',
-                'year': '2013',
-                'month': 'Jan',
-                'sale': 9550
-            }, {
-                'product': 'Coffee',
-                'state': 'New York',
-                'year': '2013',
-                'month': 'Feb',
-                'sale': 10550
-            }, {
-                'product': 'Coffee',
-                'state': 'New York',
-                'year': '2014',
-                'month': 'Jan',
-                'sale': 11550
-            }, {
-                'product': 'Coffee',
-                'state': 'New York',
-                'year': '2014',
-                'month': 'Feb',
-                'sale': 12550
-            }, {
-                'product': 'Coffee',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2013',
-                'month': 'Jan',
-                'sale': 13550
-            }, {
-                'product': 'Coffee',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2013',
-                'month': 'Feb',
-                'sale': 14550
-            }, {
-                'product': 'Coffee',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2014',
-                'month': 'Jan',
-                'sale': 15550
-            }, {
-                'product': 'Coffee',
-                'state': 'WashingtonDCgasjhgasagk',
-                'year': '2014',
-                'month': 'Feb',
-                'sale': 16550
-            }
-        ];
+    constructor (data, config) {
+        this.data = data;
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
         this.dataStore.setData({ dataSource: this.data });
-        this.rowDimensions = ['product', 'state'];
-        this.colDimensions = ['year', 'month'];
+        this.chartType = config.chartType;
+        this.chartConfig = config.chartConfig;
+        this.rowDimensions = config.rowDimensions;
+        this.colDimensions = config.colDimensions;
         this.dimensions = this.mergeDimensions();
-        this.measure = 'sale';
-        this.measureOnRow = false;
+        this.measure = config.measure;
+        this.measureOnRow = config.measureOnRow;
         this.globalData = this.buildGlobalData();
         this.columnKeyArr = [];
-        this.cellWidth = 250;
-        this.cellHeight = 120;
-        this.crosstabContainer = 'crosstab-div';
+        this.cellWidth = config.cellWidth;
+        this.cellHeight = config.cellHeight;
+        this.crosstabContainer = config.crosstabContainer;
     }
 
     buildGlobalData () {
@@ -250,11 +154,9 @@ class CrosstabExt {
                 colspan: rowOrder.length
             },
             table = [[cornerCellObj]];
-        console.log(colOrder);
         this.createCol(table, obj, colOrder, 0, '');
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
-        console.log(table);
         this.createMultiChart(table);
     }
 
@@ -379,10 +281,6 @@ class CrosstabExt {
         return hashMap;
     }
 
-    filter (a) {
-        return (a.product === 'Tea' && a.state === 'New York' && a.year === '2013');
-    };
-
     createMultiChart (matrix) {
         if (this.multichartObject === undefined) {
             this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
@@ -413,17 +311,18 @@ class CrosstabExt {
     }
 
     matchHash (filterStr, hash) {
-        for (let key in hash) {
+        for (var key in hash) {
             if (hash.hasOwnProperty(key)) {
                 let keys = key.split('|'),
                     keyPermutations = this.permuteArr(keys).split('*!%^');
-                if (filterStr.indexOf[keyPermutations] !== -1) {
+                if (keyPermutations.indexOf(filterStr) !== -1) {
                     return keyPermutations[0];
                 } else {
-                    return false;
+                    continue;
                 }
             }
         }
+        return false;
     }
 
     getChartObj (rowFilter, columnFilter) {
@@ -443,55 +342,29 @@ class CrosstabExt {
         });
         filterStr = filters.join('|');
         matchedHashes = hash[this.matchHash(filterStr, hash)];
-        for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
-            dataProcessor = this.mc.createDataProcessor();
-            dataProcessor.filter(matchedHashes[i]);
-            dataProcessors.push(dataProcessor);
-        }
-        filteredData = this.dataStore.getData(dataProcessors);
-        filteredData = filteredData[filteredData.length - 1];
-
-        return {
-            type: 'column2d',
-            width: '100%',
-            height: '100%',
-            jsonData: filteredData.getJSON(),
-            configuration: {
-                data: {
-                    dimension: ['month'],
-                    measure: ['sale'],
-                    seriesType: 'SS',
-                    config: {
-                        chart: {
-                            'numberPrefix': '₹',
-                            'paletteColors': '#0075c2',
-                            'bgColor': '#ffffff',
-                            'valueFontColor': '#ffffff',
-                            'usePlotGradientColor': '0',
-                            'showYAxisValues': '0',
-                            'placevaluesInside': '1',
-                            'showXAxisLine': '1',
-                            'divLineIsDashed': '1',
-                            'showXaxisValues': '0',
-                            'rotateValues': '1',
-                            'divLineAlpha': '0'
-                        }
+        if (matchedHashes) {
+            for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
+                dataProcessor = this.mc.createDataProcessor();
+                dataProcessor.filter(matchedHashes[i]);
+                dataProcessors.push(dataProcessor);
+            }
+            filteredData = this.dataStore.getData(dataProcessors);
+            filteredData = filteredData[filteredData.length - 1];
+            return {
+                type: this.chartType,
+                width: '100%',
+                height: '100%',
+                jsonData: filteredData.getJSON(),
+                configuration: {
+                    data: {
+                        dimension: ['month'],
+                        measure: ['sale'],
+                        seriesType: 'SS',
+                        config: this.chartConfig
                     }
                 }
-            }
-        };
-        // if (this.multichartOb === undefined) {
-        //     console.log(matrix);
-        //     this.multichartOb = this.mc.createMatrix('crosstab-div', matrix);
-        //     this.multichartOb.draw();
-        //     this.rowReorder(0, 1);
-        //     this.multichartOb.update(matrix);
-        //     console.log('=-=-=-=-=-=-= UPDATED');
-        //     console.log(matrix);
-        // } else {
-        //     // console.log('update');
-        //     this.multichartOb.update(matrix);
-        // }
+            };
+        }
     }
 
     filterGen (key, val) {

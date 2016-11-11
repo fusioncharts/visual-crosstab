@@ -1,4 +1,30 @@
-const CrosstabExt = require('./crosstabExt');
+const CrosstabExt = require('./crosstabExt'),
+    data = require('./largeData');
 
-window.crosstab = new CrosstabExt();
+var config = {
+    rowDimensions: ['product', 'state'],
+    colDimensions: ['year', 'month'],
+    chartType: 'line',
+    measure: 'sale',
+    measureOnRow: false,
+    cellWidth: 320,
+    cellHeight: 130,
+    crosstabContainer: 'crosstab-div',
+    chartConfig: {
+        chart: {
+            'numberPrefix': '₹',
+            'paletteColors': '#0075c2',
+            'bgColor': '#ffffff',
+            'valueFontColor': '#ffffff',
+            'usePlotGradientColor': '0',
+            'showYAxisValues': '0',
+            'showValues': '0',
+            'showXAxisLine': '1',
+            'showXaxisValues': '0',
+            'rotateValues': '1'
+        }
+    }
+};
+
+window.crosstab = new CrosstabExt(data, config);
 window.crosstab.createCrosstab();
