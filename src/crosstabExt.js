@@ -46,7 +46,6 @@ class CrosstabExt {
             htmlRef.style.visibility = 'hidden';
             document.body.appendChild(htmlRef);
             this.cornerWidth = fieldValues[i].length * 10;
-            console.log(this.cornerWidth);
             document.body.removeChild(htmlRef);
             htmlRef.style.visibility = 'visible';
             rowElement = {
@@ -56,7 +55,6 @@ class CrosstabExt {
                 cplSpan: 1,
                 html: htmlRef.outerHTML
             };
-            console.log(fieldValues[i]);
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
             if (i) {
@@ -103,7 +101,6 @@ class CrosstabExt {
             document.body.appendChild(htmlRef);
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
-            console.log(htmlRef);
             colElement = {
                 width: this.cellWidth,
                 height: this.cornerHeight,
@@ -160,7 +157,7 @@ class CrosstabExt {
         this.createMultiChart(table);
     }
 
-    rowReorder (subject, target) {
+    rowDimReorder (subject, target) {
         var buffer = '',
             i;
         if (this.rowDimensions.indexOf(Math.max(subject, target)) >= this.rowDimensions.length) {
@@ -177,6 +174,27 @@ class CrosstabExt {
                 this.rowDimensions[i - 1] = this.rowDimensions[i];
             }
             this.rowDimensions[target] = buffer;
+        }
+        this.createCrosstab();
+    }
+
+    colDimReorder (subject, target) {
+        var buffer = '',
+            i;
+        if (this.colDimensions.indexOf(Math.max(subject, target)) >= this.colDimensions.length) {
+            return 'wrong index';
+        } else if (subject > target) {
+            buffer = this.colDimensions[subject];
+            for (i = subject - 1; i >= target; i--) {
+                this.colDimensions[i + 1] = this.colDimensions[i];
+            }
+            this.colDimensions[target] = buffer;
+        } else if (subject < target) {
+            buffer = this.colDimensions[subject];
+            for (i = subject + 1; i <= target; i++) {
+                this.colDimensions[i - 1] = this.colDimensions[i];
+            }
+            this.colDimensions[target] = buffer;
         }
         this.createCrosstab();
     }

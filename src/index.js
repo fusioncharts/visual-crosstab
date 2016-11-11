@@ -2,8 +2,8 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'quality', 'month'],
+    rowDimensions: ['product'],
+    colDimensions: ['year', 'quality', 'state', 'month'],
     chartType: 'bar2d',
     measure: 'sale',
     measureOnRow: false,
