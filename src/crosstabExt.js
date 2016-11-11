@@ -5,6 +5,7 @@ class CrosstabExt {
         this.dataStore = this.mc.createDataStore();
         this.dataStore.setData({ dataSource: this.data });
         this.chartType = config.chartType;
+        this.chartConfig = config.chartConfig;
         this.rowDimensions = config.rowDimensions;
         this.colDimensions = config.colDimensions;
         this.dimensions = this.mergeDimensions();
@@ -338,20 +339,7 @@ class CrosstabExt {
                         dimension: ['month'],
                         measure: ['sale'],
                         seriesType: 'SS',
-                        config: {
-                            chart: {
-                                'numberPrefix': '₹',
-                                'paletteColors': '#0075c2',
-                                'bgColor': '#ffffff',
-                                'valueFontColor': '#ffffff',
-                                'usePlotGradientColor': '0',
-                                'showYAxisValues': '0',
-                                'showValues': '0',
-                                'showXAxisLine': '1',
-                                'showXaxisValues': '0',
-                                'rotateValues': '1'
-                            }
-                        }
+                        config: this.chartConfig
                     }
                 }
             };
