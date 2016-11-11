@@ -27,25 +27,25 @@ class CrosstabExt {
                 'sale': 4550
             }, {
                 'product': 'Tea',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2013',
                 'month': 'Jan',
                 'sale': 5550
             }, {
                 'product': 'Tea',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2013',
                 'month': 'Feb',
                 'sale': 6550
             }, {
                 'product': 'Tea',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2014',
                 'month': 'Jan',
                 'sale': 7550
             }, {
                 'product': 'Tea',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2014',
                 'month': 'Feb',
                 'sale': 8550
@@ -75,25 +75,25 @@ class CrosstabExt {
                 'sale': 12550
             }, {
                 'product': 'Coffee',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2013',
                 'month': 'Jan',
                 'sale': 13550
             }, {
                 'product': 'Coffee',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2013',
                 'month': 'Feb',
                 'sale': 14550
             }, {
                 'product': 'Coffee',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2014',
                 'month': 'Jan',
                 'sale': 15550
             }, {
                 'product': 'Coffee',
-                'state': 'Washington',
+                'state': 'WashingtonDCgasjhgasagk',
                 'year': '2014',
                 'month': 'Feb',
                 'sale': 16550
@@ -109,8 +109,8 @@ class CrosstabExt {
         this.measureOnRow = false;
         this.globalData = this.buildGlobalData();
         this.columnKeyArr = [];
-        this.cellWidth = 320;
-        this.cellHeight = 130;
+        this.cellWidth = 250;
+        this.cellHeight = 120;
         this.crosstabContainer = 'crosstab-div';
     }
 
@@ -128,41 +128,53 @@ class CrosstabExt {
             fieldComponent = rowOrder[currentIndex],
             fieldValues = data[fieldComponent],
             i, l = fieldValues.length,
-            element,
+            rowElement,
             hasFurtherDepth = currentIndex < (rowOrder.length - 1),
             filteredDataHashKey,
-            colLength = this.columnKeyArr.length;
+            colLength = this.columnKeyArr.length,
+            htmlRef;
 
         for (i = 0; i < l; i += 1) {
-            element = {
-                width: this.cellWidth,
-                height: this.cellHeight,
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = fieldValues[i];
+            htmlRef.style.textAlign = 'center';
+            htmlRef.style.marginTop = ((this.cellHeight - 10) / 2) + 'px';
+            htmlRef.style.visibility = 'hidden';
+            document.body.appendChild(htmlRef);
+            this.cornerWidth = fieldValues[i].length * 10;
+            console.log(this.cornerWidth);
+            document.body.removeChild(htmlRef);
+            htmlRef.style.visibility = 'visible';
+            rowElement = {
+                width: this.cornerWidth,
+                height: 35,
                 rowspan: 1,
                 cplSpan: 1,
-                html: fieldValues[i]
+                html: htmlRef.outerHTML
             };
-
+            console.log(fieldValues[i]);
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
             if (i) {
-                table.push([element]);
+                table.push([rowElement]);
             } else {
-                table[table.length - 1].push(element);
+                table[table.length - 1].push(rowElement);
             }
             if (hasFurtherDepth) {
-                element.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
+                rowElement.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
             } else {
                 for (let j = 0; j < colLength; j += 1) {
-                    table[table.length - 1].push({
+                    let chartCellObj = {
                         width: this.cellWidth,
                         height: this.cellHeight,
                         rowspan: 1,
                         cplSpan: 1,
                         chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])
-                    });
+                    };
+                    table[table.length - 1].push(chartCellObj);
                 }
             }
-            rowspan += element.rowspan;
+            rowspan += rowElement.rowspan;
         }
         return rowspan;
     }
@@ -172,32 +184,40 @@ class CrosstabExt {
             fieldComponent = colOrder[currentIndex],
             fieldValues = data[fieldComponent],
             i, l = fieldValues.length,
-            element,
+            colElement,
             hasFurtherDepth = currentIndex < (colOrder.length - 1),
-            filteredDataHashKey;
+            filteredDataHashKey,
+            htmlRef;
 
         if (table.length <= currentIndex) {
             table.push([]);
         }
         for (i = 0; i < l; i += 1) {
-            element = {
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = fieldValues[i];
+            htmlRef.style.textAlign = 'center';
+            document.body.appendChild(htmlRef);
+            this.cornerHeight = htmlRef.offsetHeight;
+            document.body.removeChild(htmlRef);
+            console.log(htmlRef);
+            colElement = {
                 width: this.cellWidth,
-                height: this.cellHeight,
+                height: this.cornerHeight,
                 rowspan: 1,
                 colspan: 1,
-                html: fieldValues[i]
+                html: htmlRef.outerHTML
             };
 
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
-            table[currentIndex].push(element);
+            table[currentIndex].push(colElement);
 
             if (hasFurtherDepth) {
-                element.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
+                colElement.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
             } else {
                 this.columnKeyArr.push(filteredDataHashKey);
             }
-            colspan += element.colspan;
+            colspan += colElement.colspan;
         }
         return colspan;
     }
@@ -223,12 +243,13 @@ class CrosstabExt {
                     }
                 }
             }),
-            table = [[{
-                width: this.cellWidth,
-                height: this.cellHeight,
+            cornerCellObj = {
+                width: 1,
+                height: 40,
                 rowspan: colOrder.length,
                 colspan: rowOrder.length
-            }]];
+            },
+            table = [[cornerCellObj]];
         console.log(colOrder);
         this.createCol(table, obj, colOrder, 0, '');
         table.push([]);
@@ -442,7 +463,6 @@ class CrosstabExt {
                     seriesType: 'SS',
                     config: {
                         chart: {
-                            'yAxisName': 'Revenues (In INR)',
                             'numberPrefix': '₹',
                             'paletteColors': '#0075c2',
                             'bgColor': '#ffffff',
@@ -452,8 +472,9 @@ class CrosstabExt {
                             'placevaluesInside': '1',
                             'showXAxisLine': '1',
                             'divLineIsDashed': '1',
-                            'showXaxisValues': '1',
-                            'rotateValues': '1'
+                            'showXaxisValues': '0',
+                            'rotateValues': '1',
+                            'divLineAlpha': '0'
                         }
                     }
                 }
