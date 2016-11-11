@@ -1,5 +1,4 @@
 const CrosstabExt = require('./crosstabExt');
 
-var crosstab = new CrosstabExt();
-crosstab.createCrosstab();
-window.ctExt = new CrosstabExt();
+window.crosstab = new CrosstabExt();
+window.crosstab.createCrosstab();
