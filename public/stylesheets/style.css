@@ -1,7 +1,17 @@
-body {
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+#crosstab-div {
+    color: #5C6061;
+    font-family: 'Arial', sans-serif;
+    font-weight: bold;
 }
 
-a {
-  color: #00B7FF;
+#crosstab-div .corner-cell {
+    background-color: #F4F5F7;
+}
+
+#crosstab-div .row-dimensions.product, #crosstab-div .column-dimensions.year {
+    background-color: #E4EAEA;
+}
+
+#crosstab-div .row-dimensions.state, #crosstab-div .column-dimensions.quality {
+    background-color: #EEF4F4;
 }

@@ -3,7 +3,7 @@ const CrosstabExt = require('./crosstabExt'),
 
 var config = {
     rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'month'],
+    colDimensions: ['year', 'quality', 'month'],
     chartType: 'bar2d',
     measure: 'sale',
     measureOnRow: false,
@@ -13,9 +13,10 @@ var config = {
     chartConfig: {
         chart: {
             'numberPrefix': '₹',
-            'paletteColors': '#9f9f9f',
+            'paletteColors': '#B5B9BA',
             'bgColor': '#ffffff',
             'valueFontColor': '#ffffff',
+            'showBorder': '0',
             'usePlotGradientColor': '0',
             'showYAxisValues': '0',
             'showValues': '0',
