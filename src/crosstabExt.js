@@ -144,14 +144,39 @@ class CrosstabExt {
                     }
                 }
             }),
-            cornerCellObj = {
-                width: 1,
+            cornerCellObj = [],
+            table = [],
+            htmlRef,
+            i;
+
+        for (i = 0; i < this.rowDimensions.length; i++) {
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = this.rowDimensions[i][0].toUpperCase() + this.rowDimensions[i].substr(1);
+            htmlRef.style.textAlign = 'center';
+            htmlRef.style.marginTop = ((30 * this.colDimensions.length - 15) / 2) + 'px';
+            cornerCellObj.push({
+                width: this.rowDimensions[i] * 10,
                 height: 30 * this.colDimensions.length,
                 rowspan: colOrder.length,
-                colspan: rowOrder.length
-            },
-            table = [[cornerCellObj]];
+                colspan: 1,
+                html: htmlRef.outerHTML
+            });
+        }
+        table.push([]);
+        table = [cornerCellObj];
         this.createCol(table, obj, colOrder, 0, '');
+        for (i = 0; i < table.length; i++) {
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = this.colDimensions[i][0].toUpperCase() + this.colDimensions[i].substr(1);
+            htmlRef.style.textAlign = 'center';
+            table[i].push({
+                width: this.colDimensions[i].length * 10,
+                height: 30,
+                rowspan: 1,
+                colspan: 1,
+                html: htmlRef.outerHTML
+            });
+        }
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
         this.createMultiChart(table);
