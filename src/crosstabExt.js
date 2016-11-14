@@ -16,6 +16,7 @@ class CrosstabExt {
         this.cellWidth = config.cellWidth;
         this.cellHeight = config.cellHeight;
         this.crosstabContainer = config.crosstabContainer;
+        this.hash = this.getFilterHashMap();
     }
 
     buildGlobalData () {
@@ -39,10 +40,17 @@ class CrosstabExt {
             htmlRef;
 
         for (i = 0; i < l; i += 1) {
+            let classStr = '';
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldValues[i];
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = ((this.cellHeight - 10) / 2) + 'px';
+            classStr += 'row-dimensions' +
+                ' ' + this.rowDimensions[currentIndex] +
+                ' ' + fieldValues[i].toLowerCase();
+            // if (currentIndex > 0) {
+            //     htmlRef.classList.add(this.rowDimensions[currentIndex - 1].toLowerCase());
+            // }
             htmlRef.style.visibility = 'hidden';
             document.body.appendChild(htmlRef);
             this.cornerWidth = fieldValues[i].length * 10;
@@ -53,7 +61,8 @@ class CrosstabExt {
                 height: 35,
                 rowspan: 1,
                 colspan: 1,
-                html: htmlRef.outerHTML
+                html: htmlRef.outerHTML,
+                className: classStr
             };
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
@@ -95,10 +104,14 @@ class CrosstabExt {
             table.push([]);
         }
         for (i = 0; i < l; i += 1) {
+            let classStr = '';
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldValues[i];
             htmlRef.style.textAlign = 'center';
             document.body.appendChild(htmlRef);
+            classStr += 'column-dimensions' +
+                ' ' + this.colDimensions[currentIndex] +
+                ' ' + fieldValues[i].toLowerCase();
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
             colElement = {
@@ -106,7 +119,8 @@ class CrosstabExt {
                 height: this.cornerHeight,
                 rowspan: 1,
                 colspan: 1,
-                html: htmlRef.outerHTML
+                html: htmlRef.outerHTML,
+                className: classStr
             };
 
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
@@ -156,7 +170,8 @@ class CrosstabExt {
                 height: 30,
                 rowspan: 1,
                 colspan: 1,
-                html: htmlRef.outerHTML
+                html: htmlRef.outerHTML,
+                className: 'corner-cell'
             });
         }
         return table;
@@ -275,6 +290,7 @@ class CrosstabExt {
             if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
+                    console.log(this.dimensions[i], matchedValues[j]);
                     filters.push({
                         filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
                         filterVal: matchedValues[j]
@@ -407,7 +423,6 @@ class CrosstabExt {
             filterStr = '',
             rowFilters = rowFilter.split('|'),
             colFilters = columnFilter.split('|'),
-            hash = this.getFilterHashMap(),
             dataProcessors = [],
             dataProcessor = {},
             matchedHashes = [],
@@ -418,7 +433,7 @@ class CrosstabExt {
             return (a !== '');
         });
         filterStr = filters.join('|');
-        matchedHashes = hash[this.matchHash(filterStr, hash)];
+        matchedHashes = this.hash[this.matchHash(filterStr, this.hash)];
         if (matchedHashes) {
             for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
                 dataProcessor = this.mc.createDataProcessor();
