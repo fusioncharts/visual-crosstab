@@ -16,6 +16,7 @@ class CrosstabExt {
         this.cellWidth = config.cellWidth;
         this.cellHeight = config.cellHeight;
         this.crosstabContainer = config.crosstabContainer;
+        this.hash = this.getFilterHashMap();
     }
 
     buildGlobalData () {
@@ -217,6 +218,7 @@ class CrosstabExt {
             if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
+                    console.log(this.dimensions[i], matchedValues[j]);
                     filters.push({
                         filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
                         filterVal: matchedValues[j]
@@ -225,6 +227,7 @@ class CrosstabExt {
             } else if (!this.measureOnRow && this.dimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
+                    console.log(this.dimensions[i], matchedValues[j]);
                     filters.push({
                         filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
                         filterVal: matchedValues[j]
@@ -349,7 +352,6 @@ class CrosstabExt {
             filterStr = '',
             rowFilters = rowFilter.split('|'),
             colFilters = columnFilter.split('|'),
-            hash = this.getFilterHashMap(),
             dataProcessors = [],
             dataProcessor = {},
             matchedHashes = [],
@@ -360,7 +362,7 @@ class CrosstabExt {
             return (a !== '');
         });
         filterStr = filters.join('|');
-        matchedHashes = hash[this.matchHash(filterStr, hash)];
+        matchedHashes = this.hash[this.matchHash(filterStr, this.hash)];
         if (matchedHashes) {
             for (let i = 0, ii = matchedHashes.length; i < ii; i++) {
                 dataProcessor = this.mc.createDataProcessor();
