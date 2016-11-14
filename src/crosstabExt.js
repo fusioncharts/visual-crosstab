@@ -123,6 +123,45 @@ class CrosstabExt {
         return colspan;
     }
 
+    createRowDimHeading (table, colOrderLength) {
+        var cornerCellArr = [],
+            i = 0,
+            htmlRef;
+
+        for (i = 0; i < this.rowDimensions.length; i++) {
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = this.rowDimensions[i][0].toUpperCase() + this.rowDimensions[i].substr(1);
+            htmlRef.style.textAlign = 'center';
+            htmlRef.style.marginTop = ((30 * this.colDimensions.length - 15) / 2) + 'px';
+            cornerCellArr.push({
+                width: this.rowDimensions[i] * 10,
+                height: 30 * this.colDimensions.length,
+                rowspan: colOrderLength,
+                colspan: 1,
+                html: htmlRef.outerHTML
+            });
+        }
+        return cornerCellArr;
+    }
+
+    createColDimHeading (table, index) {
+        var i = index,
+            htmlRef;
+        for (; i < table.length; i++) {
+            htmlRef = document.createElement('p');
+            htmlRef.innerHTML = this.colDimensions[i][0].toUpperCase() + this.colDimensions[i].substr(1);
+            htmlRef.style.textAlign = 'center';
+            table[i].push({
+                width: this.colDimensions[i].length * 10,
+                height: 30,
+                rowspan: 1,
+                colspan: 1,
+                html: htmlRef.outerHTML
+            });
+        }
+        return table;
+    }
+
     createCrosstab () {
         var self = this,
             obj = this.globalData,
@@ -144,43 +183,29 @@ class CrosstabExt {
                     }
                 }
             }),
-            cornerCellObj = [],
             table = [],
-            htmlRef,
-            i;
+            i = 0,
+            maxLength = 0;
 
-        for (i = 0; i < this.rowDimensions.length; i++) {
-            htmlRef = document.createElement('p');
-            htmlRef.innerHTML = this.rowDimensions[i][0].toUpperCase() + this.rowDimensions[i].substr(1);
-            htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = ((30 * this.colDimensions.length - 15) / 2) + 'px';
-            cornerCellObj.push({
-                width: this.rowDimensions[i] * 10,
-                height: 30 * this.colDimensions.length,
-                rowspan: colOrder.length,
-                colspan: 1,
-                html: htmlRef.outerHTML
-            });
-        }
-        table.push([]);
-        table = [cornerCellObj];
+        table.push(this.createRowDimHeading(table, colOrder.length));
         this.createCol(table, obj, colOrder, 0, '');
-        for (i = 0; i < table.length; i++) {
-            htmlRef = document.createElement('p');
-            htmlRef.innerHTML = this.colDimensions[i][0].toUpperCase() + this.colDimensions[i].substr(1);
-            htmlRef.style.textAlign = 'center';
-            table[i].push({
-                width: this.colDimensions[i].length * 10,
-                height: 30,
-                rowspan: 1,
-                colspan: 1,
-                html: htmlRef.outerHTML
-            });
-        }
+        table = this.createColDimHeading(table, 0);
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
+        for (i = 0; i < table.length; i++) {
+            maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
+        }
+
+        table.unshift([{
+            height: 30,
+            rowspan: 1,
+            colspan: (maxLength + 1),
+            html: 'CAPTION'
+        }]);
+
         this.createMultiChart(table);
         this.columnKeyArr = [];
+        console.log(table);
     }
 
     rowDimReorder (subject, target) {
