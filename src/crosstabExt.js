@@ -52,7 +52,7 @@ class CrosstabExt {
                 width: this.cornerWidth,
                 height: 35,
                 rowspan: 1,
-                cplSpan: 1,
+                colspan: 1,
                 html: htmlRef.outerHTML
             };
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
@@ -70,7 +70,7 @@ class CrosstabExt {
                         width: this.cellWidth,
                         height: this.cellHeight,
                         rowspan: 1,
-                        cplSpan: 1,
+                        colspan: 1,
                         chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])
                     };
                     table[table.length - 1].push(chartCellObj);
@@ -155,6 +155,7 @@ class CrosstabExt {
         table.push([]);
         this.createRow(table, obj, rowOrder, 0, '');
         this.createMultiChart(table);
+        this.columnKeyArr = [];
     }
 
     rowDimReorder (subject, target) {
