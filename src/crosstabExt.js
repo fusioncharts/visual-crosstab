@@ -160,42 +160,50 @@ class CrosstabExt {
 
     rowDimReorder (subject, target) {
         var buffer = '',
-            i;
-        if (this.rowDimensions.indexOf(Math.max(subject, target)) >= this.rowDimensions.length) {
+            i,
+            rowDimensions = this.rowDimensions;
+        if (this.measureOnRow === true) {
+            rowDimensions.splice(rowDimensions.length - 1, 1);
+        }
+        if (rowDimensions.indexOf(Math.max(subject, target)) >= rowDimensions.length) {
             return 'wrong index';
         } else if (subject > target) {
-            buffer = this.rowDimensions[subject];
+            buffer = rowDimensions[subject];
             for (i = subject - 1; i >= target; i--) {
-                this.rowDimensions[i + 1] = this.rowDimensions[i];
+                rowDimensions[i + 1] = rowDimensions[i];
             }
-            this.rowDimensions[target] = buffer;
+            rowDimensions[target] = buffer;
         } else if (subject < target) {
-            buffer = this.rowDimensions[subject];
+            buffer = rowDimensions[subject];
             for (i = subject + 1; i <= target; i++) {
-                this.rowDimensions[i - 1] = this.rowDimensions[i];
+                rowDimensions[i - 1] = rowDimensions[i];
             }
-            this.rowDimensions[target] = buffer;
+            rowDimensions[target] = buffer;
         }
         this.createCrosstab();
     }
 
     colDimReorder (subject, target) {
         var buffer = '',
-            i;
-        if (this.colDimensions.indexOf(Math.max(subject, target)) >= this.colDimensions.length) {
+            i,
+            colDimensions = this.colDimensions;
+        if (this.measureOnRow === false) {
+            colDimensions.splice(colDimensions.length - 1, 1);
+        }
+        if (colDimensions.indexOf(Math.max(subject, target)) >= colDimensions.length) {
             return 'wrong index';
         } else if (subject > target) {
-            buffer = this.colDimensions[subject];
+            buffer = colDimensions[subject];
             for (i = subject - 1; i >= target; i--) {
-                this.colDimensions[i + 1] = this.colDimensions[i];
+                colDimensions[i + 1] = colDimensions[i];
             }
-            this.colDimensions[target] = buffer;
+            colDimensions[target] = buffer;
         } else if (subject < target) {
-            buffer = this.colDimensions[subject];
+            buffer = colDimensions[subject];
             for (i = subject + 1; i <= target; i++) {
-                this.colDimensions[i - 1] = this.colDimensions[i];
+                colDimensions[i - 1] = colDimensions[i];
             }
-            this.colDimensions[target] = buffer;
+            colDimensions[target] = buffer;
         }
         this.createCrosstab();
     }
