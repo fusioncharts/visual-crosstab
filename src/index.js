@@ -4,7 +4,7 @@ const CrosstabExt = require('./crosstabExt'),
 var config = {
     rowDimensions: ['product', 'state'],
     colDimensions: ['year', 'quality', 'month'],
-    chartType: 'bar2d',
+    chartType: 'column2d',
     measure: 'sale',
     measureOnRow: false,
     cellWidth: 320,
@@ -35,4 +35,5 @@ var config = {
 };
 
 window.crosstab = new CrosstabExt(data, config);
-window.crosstab.createCrosstab();
+window.crosstab.createCrosstab(true);
+window.crosstab.createCrosstab(false);
