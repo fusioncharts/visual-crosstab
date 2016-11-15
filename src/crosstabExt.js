@@ -1,5 +1,6 @@
 class CrosstabExt {
     constructor (data, config) {
+        let self = this;
         this.data = data;
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
@@ -22,15 +23,26 @@ class CrosstabExt {
         this.max = [];
         this.count = 0;
         this.axes = [];
+        if (typeof FCDataFilterExt === 'function') {
+            this.dataFilterExt = new FCDataFilterExt(this.dataStore, {}, 'control-box', function (data) {
+                self.dataStore = data;
+                self.globalData = self.buildGlobalData();
+                self.createCrosstab();
+            });
+        }
     }
 
     buildGlobalData () {
-        let fields = this.dataStore.getKeys(),
-            globalData = {};
-        for (let i = 0, ii = fields.length; i < ii; i++) {
-            globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
+        if (this.dataStore.getKeys()) {
+            let fields = this.dataStore.getKeys(),
+                globalData = {};
+            for (let i = 0, ii = fields.length; i < ii; i++) {
+                globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
+            }
+            return globalData;
+        } else {
+            return false;
         }
-        return globalData;
     }
 
     createRow (table, data, rowOrder, currentIndex, filteredDataStore, isFirstRender) {
@@ -122,7 +134,7 @@ class CrosstabExt {
                             }
                         }
                     });
-                } else {
+                } else if (this.axes[this.count++] !== undefined) {
                     table[table.length - 1].push(this.axes[this.count++]);
                 }
             }
@@ -269,56 +281,65 @@ class CrosstabExt {
             xAxisRow = [],
             i = 0,
             maxLength = 0;
-        table.push(this.createRowDimHeading(table, colOrder.length));
-        this.createCol(table, obj, colOrder, 0, '');
-        table = this.createColDimHeading(table, 0);
-        table.push([]);
-        this.createRow(table, obj, rowOrder, 0, '', isFirstRender);
-        for (i = 0; i < table.length; i++) {
-            maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
-        }
-        for (i = 0; i < this.rowDimensions.length; i++) {
-            xAxisRow.push({
-                rowspan: 1,
-                colspan: 1
-            });
-        }
+        if (obj) {
+            table.push(this.createRowDimHeading(table, colOrder.length));
+            this.createCol(table, obj, colOrder, 0, '');
+            table = this.createColDimHeading(table, 0);
+            table.push([]);
+            this.createRow(table, obj, rowOrder, 0, '', isFirstRender);
+            for (i = 0; i < table.length; i++) {
+                maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
+            }
+            for (i = 0; i < this.rowDimensions.length; i++) {
+                xAxisRow.push({
+                    rowspan: 1,
+                    colspan: 1
+                });
+            }
 
-        for (i = 0; i < maxLength - 1 - this.rowDimensions.length; i++) {
-            xAxisRow.push({
-                width: '100%',
-                height: 50,
-                rowspan: 1,
-                colspan: 1,
-                chart: {
+            for (i = 0; i < maxLength - 1 - this.rowDimensions.length; i++) {
+                xAxisRow.push({
+                    width: '100%',
+                    height: 50,
+                    rowspan: 1,
+                    colspan: 1,
                     chart: {
-                        'type': 'axis',
-                        'width': '100%',
-                        'height': '100%',
-                        'dataFormat': 'json',
-                        'axisType': 'x',
-                        'configuration': {
-                            'data': {
-                                'config': {
-                                    'chart': {
-                                        'isAxisOpposite': true,
-                                        'canvasBorderThickness': 5,
-                                        'chartBottomMargin': 20,
-                                        'borderthickness': 0
-                                    },
-                                    'dataset': [{}]
+                        chart: {
+                            'type': 'axis',
+                            'width': '100%',
+                            'height': '100%',
+                            'dataFormat': 'json',
+                            'axisType': 'x',
+                            'configuration': {
+                                'data': {
+                                    'config': {
+                                        'chart': {
+                                            'isAxisOpposite': true,
+                                            'canvasBorderThickness': 5,
+                                            'chartBottomMargin': 20,
+                                            'borderthickness': 0
+                                        },
+                                        'dataset': [{}]
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
-        }
+                });
+            }
 
-        table.push(xAxisRow);
-        table = this.createCaption(table, maxLength);
-        this.createMultiChart(table, isFirstRender);
-        this.columnKeyArr = [];
+            table.push(xAxisRow);
+            table = this.createCaption(table, maxLength);
+            this.createMultiChart(table, isFirstRender);
+            this.columnKeyArr = [];
+        } else {
+            table.push([{
+                html: '<p style="text-align: center">No data to display.</p>',
+                height: 50,
+                colspan: this.rowDimensions.length * this.colDimensions.length
+            }]);
+            this.createMultiChart(table);
+        }
     }
 
     rowDimReorder (subject, target) {
@@ -388,7 +409,6 @@ class CrosstabExt {
             if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
-                    // console.log(this.dimensions[i], matchedValues[j]);
                     filters.push({
                         filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
                         filterVal: matchedValues[j]
@@ -474,6 +494,7 @@ class CrosstabExt {
 
     createMultiChart (matrix, isFirstRender) {
         // var count = 0;
+        console.log(matrix);
         if (this.multichartObject === undefined) {
             if (isFirstRender) {
                 console.log(matrix);

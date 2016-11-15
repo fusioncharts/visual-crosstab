@@ -29,4 +29,8 @@ node_modules
 # Debug log from npm
 npm-debug.log
 
+<<<<<<< HEAD
 public/javascripts/vendor
+=======
+publix/javascripts/vendor
+>>>>>>> develop
