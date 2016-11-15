@@ -1,5 +1,6 @@
 class CrosstabExt {
     constructor (data, config) {
+        let self = this;
         this.data = data;
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
@@ -17,15 +18,26 @@ class CrosstabExt {
         this.cellHeight = config.cellHeight;
         this.crosstabContainer = config.crosstabContainer;
         this.hash = this.getFilterHashMap();
+        if (typeof FCDataFilterExt === 'function') {
+            this.dataFilterExt = new FCDataFilterExt(this.dataStore, {}, 'control-box', function (data) {
+                self.dataStore = data;
+                self.globalData = self.buildGlobalData();
+                self.createCrosstab();
+            });
+        }
     }
 
     buildGlobalData () {
-        let fields = this.dataStore.getKeys(),
-            globalData = {};
-        for (let i = 0, ii = fields.length; i < ii; i++) {
-            globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
+        if (this.dataStore.getKeys()) {
+            let fields = this.dataStore.getKeys(),
+                globalData = {};
+            for (let i = 0, ii = fields.length; i < ii; i++) {
+                globalData[fields[i]] = this.dataStore.getUniqueValues(fields[i]);
+            }
+            return globalData;
+        } else {
+            return false;
         }
-        return globalData;
     }
 
     createRow (table, data, rowOrder, currentIndex, filteredDataStore) {
@@ -202,25 +214,33 @@ class CrosstabExt {
             i = 0,
             maxLength = 0;
 
-        table.push(this.createRowDimHeading(table, colOrder.length));
-        this.createCol(table, obj, colOrder, 0, '');
-        table = this.createColDimHeading(table, 0);
-        table.push([]);
-        this.createRow(table, obj, rowOrder, 0, '');
-        for (i = 0; i < table.length; i++) {
-            maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
+        if (obj) {
+            table.push(this.createRowDimHeading(table, colOrder.length));
+            this.createCol(table, obj, colOrder, 0, '');
+            table = this.createColDimHeading(table, 0);
+            table.push([]);
+            this.createRow(table, obj, rowOrder, 0, '');
+            for (i = 0; i < table.length; i++) {
+                maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
+            }
+
+            table.unshift([{
+                height: 30,
+                rowspan: 1,
+                colspan: (maxLength + 1),
+                html: 'CAPTION'
+            }]);
+
+            this.createMultiChart(table);
+            this.columnKeyArr = [];
+        } else {
+            table.push([{
+                html: '<p style="text-align: center">No data to display.</p>',
+                height: 50,
+                colspan: this.rowDimensions.length * this.colDimensions.length
+            }]);
+            this.createMultiChart(table);
         }
-
-        table.unshift([{
-            height: 30,
-            rowspan: 1,
-            colspan: (maxLength + 1),
-            html: 'CAPTION'
-        }]);
-
-        this.createMultiChart(table);
-        this.columnKeyArr = [];
-        console.log(table);
     }
 
     rowDimReorder (subject, target) {
@@ -290,7 +310,6 @@ class CrosstabExt {
             if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
                 let matchedValues = this.globalData[this.dimensions[i]];
                 for (let j = 0, len = matchedValues.length; j < len; j++) {
-                    console.log(this.dimensions[i], matchedValues[j]);
                     filters.push({
                         filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
                         filterVal: matchedValues[j]

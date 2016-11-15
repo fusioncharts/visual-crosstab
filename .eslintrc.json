@@ -6,7 +6,8 @@
     ],
     "globals": {
         "FusionCharts": true,
-        "MultiCharting": true
+        "MultiCharting": true,
+        "FCDataFilterExt": true
     },
     "rules": {
         "semi": [
