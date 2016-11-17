@@ -1,15 +1,17 @@
 const CrosstabExt = require('./crosstabExt'),
-    data = require('./largeData');
+    data = require('./data');
 
 var config = {
     rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'quality', 'month'],
+    colDimensions: ['year', 'month'],
     chartType: 'column2d',
+    noDataMessage: 'No data to be displayed.',
     measure: 'sale',
     measureOnRow: false,
     cellWidth: 120,
     cellHeight: 100,
     crosstabContainer: 'crosstab-div',
+    aggregation: 'sum',
     chartConfig: {
         chart: {
             'showBorder': '0',
@@ -22,6 +24,7 @@ var config = {
             'plotBorderAlpha': '0',
             'showXaxisValues': '0',
             'showYAxisValues': '0',
+            'animation': '1',
             'alternateHGridAlpha': '0',
             'canvasBorderAlpha': '100',
             'alternateVGridAlpha': '0',

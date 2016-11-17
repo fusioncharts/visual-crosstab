@@ -5,6 +5,7 @@ class CrosstabExt {
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
         this.dataStore.setData({ dataSource: this.data });
+        this.t1 = performance.now();
         this.chartType = config.chartType;
         this.chartConfig = config.chartConfig;
         this.rowDimensions = config.rowDimensions;
@@ -19,7 +20,9 @@ class CrosstabExt {
         this.crosstabContainer = config.crosstabContainer;
         this.hash = this.getFilterHashMap();
         this.count = 0;
+        this.aggregation = config.aggregation;
         this.axes = [];
+        this.noDataMessage = config.noDataMessage;
         if (typeof FCDataFilterExt === 'function') {
             let filterConfig = {};
             this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box', function (data) {
@@ -323,7 +326,7 @@ class CrosstabExt {
             this.columnKeyArr = [];
         } else {
             table.push([{
-                html: '<p style="text-align: center">No data to display.</p>',
+                html: '<p style="text-align: center">' + this.noDataMessage + '</p>',
                 height: 50,
                 colspan: this.rowDimensions.length * this.colDimensions.length
             }]);
@@ -483,9 +486,8 @@ class CrosstabExt {
 
     renderCrosstab () {
         let crosstab = this.createCrosstab(),
-            matrix = this.createMultiChart(crosstab);
-        console.log(crosstab);
-        console.log(matrix);
+            matrix = this.createMultiChart(crosstab),
+            t2 = performance.now();
         for (let i = 0, ii = matrix.length; i < ii; i++) {
             let row = matrix[i];
             for (let j = 0, jj = row.length; j < jj; j++) {
@@ -501,8 +503,10 @@ class CrosstabExt {
                     chart.configuration.data.config.chart.yAxisMinValue = minLimit;
                     chart.configuration.data.config.chart.yAxisMaxValue = maxLimit;
                     crosstabElement.chart = chart;
+                    window.ctPerf += (performance.now() - t2);
                     cell.update(crosstabElement);
                 }
+                t2 = performance.now();
             }
         }
     }
@@ -510,6 +514,7 @@ class CrosstabExt {
     createMultiChart (matrix) {
         if (this.multichartObject === undefined) {
             this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
+            window.ctPerf = performance.now() - this.t1;
             this.multichartObject.draw();
         } else {
             this.multichartObject.update(matrix);
@@ -562,7 +567,8 @@ class CrosstabExt {
             matchedHashes = [],
             filteredJSON = [],
             max = -Infinity,
-            min = Infinity;
+            min = Infinity,
+            categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]];
         this.filteredData = {};
 
         rowFilters.push.apply(rowFilters, colFilters);
@@ -603,6 +609,8 @@ class CrosstabExt {
                             : [this.colDimensions[this.colDimensions.length - 1]],
                         measure: [this.measure],
                         seriesType: 'SS',
+                        aggregateMode: this.aggregation,
+                        categories: categories,
                         config: this.chartConfig
                     }
                 }
