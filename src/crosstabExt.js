@@ -5,7 +5,6 @@ class CrosstabExt {
         this.mc = new MultiCharting();
         this.dataStore = this.mc.createDataStore();
         this.dataStore.setData({ dataSource: this.data });
-        // this.dataFilter = new FCDataFilterExt(this.dataStore, {}, );
         this.chartType = config.chartType;
         this.chartConfig = config.chartConfig;
         this.rowDimensions = config.rowDimensions;
@@ -19,15 +18,14 @@ class CrosstabExt {
         this.cellHeight = config.cellHeight;
         this.crosstabContainer = config.crosstabContainer;
         this.hash = this.getFilterHashMap();
-        this.min = [];
-        this.max = [];
         this.count = 0;
         this.axes = [];
         if (typeof FCDataFilterExt === 'function') {
-            this.dataFilterExt = new FCDataFilterExt(this.dataStore, {}, 'control-box', function (data) {
+            let filterConfig = {};
+            this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box', function (data) {
                 self.dataStore = data;
                 self.globalData = self.buildGlobalData();
-                self.createCrosstab();
+                self.renderCrosstab();
             });
         }
     }
@@ -45,7 +43,7 @@ class CrosstabExt {
         }
     }
 
-    createRow (table, data, rowOrder, currentIndex, filteredDataStore, isFirstRender) {
+    createRow (table, data, rowOrder, currentIndex, filteredDataStore) {
         var rowspan = 0,
             fieldComponent = rowOrder[currentIndex],
             fieldValues = data[fieldComponent],
@@ -92,51 +90,43 @@ class CrosstabExt {
                 table[table.length - 1].push(rowElement);
             }
             if (hasFurtherDepth) {
-                rowElement.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey, isFirstRender);
+                rowElement.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
             } else {
                 for (let j = 0; j < colLength; j += 1) {
                     let chartCellObj = {
                         width: this.cellWidth,
                         height: this.cellHeight,
                         rowspan: 1,
-                        colspan: 1
+                        colspan: 1,
+                        rowHash: filteredDataHashKey,
+                        colHash: this.columnKeyArr[j]
                     };
-                    if (!isFirstRender) {
-                        chartCellObj.chart = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[1];
-                    }
                     table[table.length - 1].push(chartCellObj);
                     minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
-                    max = (minmaxObj.max > max) ? minmaxObj.max : max;
-                    min = (minmaxObj.max < min) ? minmaxObj.min : min;
+                    max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
+                    min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
                 }
-                this.max.push(max);
-                this.min.push(min);
-                if (isFirstRender) {
-                    table[table.length - 1].push({
-                        chart: {
-                            'type': 'axis',
-                            'width': '100%',
-                            'height': '100%',
-                            'dataFormat': 'json',
-                            'axisType': 'y',
-                            'configuration': {
-                                'data': {
-                                    'config': {
-                                        'chart': {
-                                            'isAxisOpposite': true,
-                                            'canvasBorderThickness': 5,
-                                            'chartBottomMargin': 20,
-                                            'borderthickness': 0
-                                        },
-                                        'dataset': [{}]
+                table[table.length - 1].push({
+                    chart: {
+                        'type': 'axis',
+                        'axisType': 'y',
+                        'width': '100%',
+                        'height': '100%',
+                        'dataFormat': 'json',
+                        'configuration': {
+                            'data': {
+                                'config': {
+                                    'chart': {
+                                        'dataMin': min,
+                                        'dataMax': max,
+                                        'isAxisOpposite': true,
+                                        'borderthickness': 0
                                     }
                                 }
                             }
                         }
-                    });
-                } else if (this.axes[this.count++] !== undefined) {
-                    table[table.length - 1].push(this.axes[this.count++]);
-                }
+                    }
+                });
             }
             rowspan += rowElement.rowspan;
         }
@@ -205,7 +195,8 @@ class CrosstabExt {
                 height: 30 * this.colDimensions.length,
                 rowspan: colOrderLength,
                 colspan: 1,
-                html: htmlRef.outerHTML
+                html: htmlRef.outerHTML,
+                className: 'corner-cell'
             });
         }
         return cornerCellArr;
@@ -234,7 +225,7 @@ class CrosstabExt {
         table.unshift([{
             height: 50,
             rowspan: 1,
-            colspan: (maxLength),
+            colspan: maxLength,
             chart: {
                 'type': 'caption',
                 'width': '100%',
@@ -244,10 +235,10 @@ class CrosstabExt {
                     'data': {
                         'config': {
                             'chart': {
-                                'caption': 'CAPTION',
-                                'subcaption': 'SUB-CAPTION'
-                            },
-                            'dataset': [{}]
+                                'caption': 'Sale of Cereal',
+                                'subcaption': 'Across States, Across Years',
+                                'borderthickness': '0'
+                            }
                         }
                     }
                 }
@@ -256,7 +247,7 @@ class CrosstabExt {
         return table;
     }
 
-    createCrosstab (isFirstRender) {
+    createCrosstab () {
         var self = this,
             obj = this.globalData,
             rowOrder = this.rowDimensions.filter(function (val, i, arr) {
@@ -286,41 +277,40 @@ class CrosstabExt {
             this.createCol(table, obj, colOrder, 0, '');
             table = this.createColDimHeading(table, 0);
             table.push([]);
-            this.createRow(table, obj, rowOrder, 0, '', isFirstRender);
+            this.createRow(table, obj, rowOrder, 0, '');
             for (i = 0; i < table.length; i++) {
                 maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
             }
             for (i = 0; i < this.rowDimensions.length; i++) {
                 xAxisRow.push({
                     rowspan: 1,
-                    colspan: 1
+                    colspan: 1,
+                    height: 30,
+                    className: 'blank-cell'
                 });
             }
 
             for (i = 0; i < maxLength - 1 - this.rowDimensions.length; i++) {
+                let categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]];
                 xAxisRow.push({
                     width: '100%',
-                    height: 50,
+                    height: 20,
                     rowspan: 1,
                     colspan: 1,
                     chart: {
-                        chart: {
-                            'type': 'axis',
-                            'width': '100%',
-                            'height': '100%',
-                            'dataFormat': 'json',
-                            'axisType': 'x',
-                            'configuration': {
-                                'data': {
-                                    'config': {
-                                        'chart': {
-                                            'isAxisOpposite': true,
-                                            'canvasBorderThickness': 5,
-                                            'chartBottomMargin': 20,
-                                            'borderthickness': 0
-                                        },
-                                        'dataset': [{}]
-                                    }
+                        'type': 'axis',
+                        'width': '100%',
+                        'height': '100%',
+                        'dataFormat': 'json',
+                        'axisType': 'x',
+                        'configuration': {
+                            'data': {
+                                'config': {
+                                    'chart': {
+                                        'borderthickness': 0,
+                                        'canvasPadding': 15
+                                    },
+                                    'categories': categories
                                 }
                             }
                         }
@@ -330,7 +320,6 @@ class CrosstabExt {
 
             table.push(xAxisRow);
             table = this.createCaption(table, maxLength);
-            this.createMultiChart(table, isFirstRender);
             this.columnKeyArr = [];
         } else {
             table.push([{
@@ -338,8 +327,8 @@ class CrosstabExt {
                 height: 50,
                 colspan: this.rowDimensions.length * this.colDimensions.length
             }]);
-            this.createMultiChart(table);
         }
+        return table;
     }
 
     rowDimReorder (subject, target) {
@@ -492,32 +481,40 @@ class CrosstabExt {
         return hashMap;
     }
 
-    createMultiChart (matrix, isFirstRender) {
-        // var count = 0;
+    renderCrosstab () {
+        let crosstab = this.createCrosstab(),
+            matrix = this.createMultiChart(crosstab);
+        console.log(crosstab);
         console.log(matrix);
-        if (this.multichartObject === undefined) {
-            if (isFirstRender) {
-                console.log(matrix);
-                this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
-                this.multichartObject.draw();
-                let placeholders = this.multichartObject.placeHolder;
-                for (let i = 0, ii = placeholders.length; i < ii; i++) {
-                    for (let j = 0, jj = placeholders[i].length; j < jj; j++) {
-                        if (placeholders[i][j].config.chart && placeholders[i][j].config.chart.type === 'axis') {
-                            console.log(placeholders[i][j]);
-                            this.axes.push(placeholders[i][j]);
-                            placeholders[i][j].chart.chartObj.setAxis([this.min[this.count], this.max[this.count]]);
-                        }
-                    }
+        for (let i = 0, ii = matrix.length; i < ii; i++) {
+            let row = matrix[i];
+            for (let j = 0, jj = row.length; j < jj; j++) {
+                let cell = row[j],
+                    crosstabElement = crosstab[i][j],
+                    rowAxis = row[row.length - 1];
+                if (!(crosstabElement.hasOwnProperty('chart') || crosstabElement.hasOwnProperty('html')) &&
+                    crosstabElement.className !== 'blank-cell') {
+                    let limits = rowAxis.chart.chartObj.getLimits(),
+                        minLimit = limits[0],
+                        maxLimit = limits[1],
+                        chart = this.getChartObj(crosstabElement.rowHash, crosstabElement.colHash)[1];
+                    chart.configuration.data.config.chart.yAxisMinValue = minLimit;
+                    chart.configuration.data.config.chart.yAxisMaxValue = maxLimit;
+                    crosstabElement.chart = chart;
+                    cell.update(crosstabElement);
                 }
-            } else {
-                this.multichartObject.update(matrix);
-                console.log(matrix);
             }
+        }
+    }
+
+    createMultiChart (matrix) {
+        if (this.multichartObject === undefined) {
+            this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
+            this.multichartObject.draw();
         } else {
             this.multichartObject.update(matrix);
         }
-        console.log(this.multichartObject.placeHolder);
+        return this.multichartObject.placeHolder;
     }
 
     permuteArr (arr) {
