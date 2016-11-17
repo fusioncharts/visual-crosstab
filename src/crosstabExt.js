@@ -109,25 +109,51 @@ class CrosstabExt {
                     max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
                     min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
                 }
+                let adapterCfg = {
+                        config: {
+                            config: {
+                                chart: {
+                                    'dataMin': min,
+                                    'dataMax': max,
+                                    'isAxisOpposite': true,
+                                    'borderthickness': 0
+                                }
+                            }
+                        },
+                        datastore: this.dataStore
+                    },
+                    adapter = this.mc.dataadapter(adapterCfg);
+                // table[table.length - 1].push({
+                //     chart: {
+                //         'type': 'axis',
+                //         'axisType': 'y',
+                //         'width': '100%',
+                //         'height': '100%',
+                //         'dataFormat': 'json',
+                //         'configuration': {
+                //             'data': {
+                //                 'config': {
+                //                     'chart': {
+                //                         'dataMin': min,
+                //                         'dataMax': max,
+                //                         'isAxisOpposite': true,
+                //                         'borderthickness': 0
+                //                     }
+                //                 }
+                //             }
+                //         }
+                //     }
+                // });
                 table[table.length - 1].push({
+                    rowspan: 1,
+                    colspan: 1,
                     chart: {
                         'type': 'axis',
                         'axisType': 'y',
                         'width': '100%',
                         'height': '100%',
                         'dataFormat': 'json',
-                        'configuration': {
-                            'data': {
-                                'config': {
-                                    'chart': {
-                                        'dataMin': min,
-                                        'dataMax': max,
-                                        'isAxisOpposite': true,
-                                        'borderthickness': 0
-                                    }
-                                }
-                            }
-                        }
+                        'configuration': adapter
                     }
                 });
             }
@@ -225,6 +251,41 @@ class CrosstabExt {
     }
 
     createCaption (table, maxLength) {
+        let adapterCfg = {
+                config: {
+                    config: {
+                        chart: {
+                            'caption': 'Sale of Cereal',
+                            'subcaption': 'Across States, Across Years',
+                            'borderthickness': '0'
+                        }
+                    }
+                },
+                datastore: this.dataStore
+            },
+            adapter = this.mc.dataadapter(adapterCfg);
+        // table.unshift([{
+        //     height: 50,
+        //     rowspan: 1,
+        //     colspan: maxLength,
+        //     chart: {
+        //         'type': 'caption',
+        //         'width': '100%',
+        //         'height': '100%',
+        //         'dataFormat': 'json',
+        //         'configuration': {
+        //             'data': {
+        //                 'config': {
+        //                     'chart': {
+        //                         'caption': 'Sale of Cereal',
+        //                         'subcaption': 'Across States, Across Years',
+        //                         'borderthickness': '0'
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // }]);
         table.unshift([{
             height: 50,
             rowspan: 1,
@@ -234,17 +295,7 @@ class CrosstabExt {
                 'width': '100%',
                 'height': '100%',
                 'dataFormat': 'json',
-                'configuration': {
-                    'data': {
-                        'config': {
-                            'chart': {
-                                'caption': 'Sale of Cereal',
-                                'subcaption': 'Across States, Across Years',
-                                'borderthickness': '0'
-                            }
-                        }
-                    }
-                }
+                'configuration': adapter
             }
         }]);
         return table;
@@ -294,7 +345,44 @@ class CrosstabExt {
             }
 
             for (i = 0; i < maxLength - 1 - this.rowDimensions.length; i++) {
-                let categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]];
+                let categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]],
+                    adapterCfg = {
+                        config: {
+                            config: {
+                                chart: {
+                                    'borderthickness': 0,
+                                    'canvasPadding': 15
+                                },
+                                categories: categories
+                            }
+                        },
+                        datastore: this.dataStore
+                    },
+                    adapter = this.mc.dataadapter(adapterCfg);
+                // xAxisRow.push({
+                //     width: '100%',
+                //     height: 20,
+                //     rowspan: 1,
+                //     colspan: 1,
+                //     chart: {
+                //         'type': 'axis',
+                //         'width': '100%',
+                //         'height': '100%',
+                //         'dataFormat': 'json',
+                //         'axisType': 'x',
+                //         'configuration': {
+                //             'data': {
+                //                 'config': {
+                //                     'chart': {
+                //                         'borderthickness': 0,
+                //                         'canvasPadding': 15
+                //                     },
+                //                     'categories': categories
+                //                 }
+                //             }
+                //         }
+                //     }
+                // });
                 xAxisRow.push({
                     width: '100%',
                     height: 20,
@@ -306,17 +394,7 @@ class CrosstabExt {
                         'height': '100%',
                         'dataFormat': 'json',
                         'axisType': 'x',
-                        'configuration': {
-                            'data': {
-                                'config': {
-                                    'chart': {
-                                        'borderthickness': 0,
-                                        'canvasPadding': 15
-                                    },
-                                    'categories': categories
-                                }
-                            }
-                        }
+                        'configuration': adapter
                     }
                 });
             }
@@ -568,8 +646,10 @@ class CrosstabExt {
             filteredJSON = [],
             max = -Infinity,
             min = Infinity,
+            filteredData = {},
+            adapterCfg = {},
+            adapter = {},
             categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]];
-        this.filteredData = {};
 
         rowFilters.push.apply(rowFilters, colFilters);
         filters = rowFilters.filter((a) => {
@@ -583,9 +663,9 @@ class CrosstabExt {
                 dataProcessor.filter(matchedHashes[i]);
                 dataProcessors.push(dataProcessor);
             }
-            this.filteredData = this.dataStore.getData(dataProcessors);
-            this.filteredData = this.filteredData[this.filteredData.length - 1];
-            filteredJSON = this.filteredData.getJSON();
+            filteredData = this.dataStore.getData(dataProcessors);
+            filteredData = filteredData[filteredData.length - 1];
+            filteredJSON = filteredData.getJSON();
             for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
                 if (filteredJSON[i][this.measure] > max) {
                     max = filteredJSON[i][this.measure];
@@ -594,6 +674,41 @@ class CrosstabExt {
                     min = filteredJSON[i][this.measure];
                 }
             }
+            adapterCfg = {
+                config: {
+                    dimension: this.measureOnRow
+                        ? [this.rowDimensions[this.rowDimensions.length - 1]]
+                        : [this.colDimensions[this.colDimensions.length - 1]],
+                    measure: [this.measure],
+                    seriesType: 'SS',
+                    aggregateMode: this.aggregation,
+                    categories: categories,
+                    config: this.chartConfig
+                },
+                datastore: filteredData
+            };
+            adapter = this.mc.dataadapter(adapterCfg);
+            // return [{
+            //     'max': max,
+            //     'min': min
+            // }, {
+            //     type: this.chartType,
+            //     width: '100%',
+            //     height: '100%',
+            //     jsonData: filteredJSON,
+            //     configuration: {
+            //         data: {
+            //             dimension: this.measureOnRow
+            //                 ? [this.rowDimensions[this.rowDimensions.length - 1]]
+            //                 : [this.colDimensions[this.colDimensions.length - 1]],
+            //             measure: [this.measure],
+            //             seriesType: 'SS',
+            //             aggregateMode: this.aggregation,
+            //             categories: categories,
+            //             config: this.chartConfig
+            //         }
+            //     }
+            // }];
             return [{
                 'max': max,
                 'min': min
@@ -602,18 +717,7 @@ class CrosstabExt {
                 width: '100%',
                 height: '100%',
                 jsonData: filteredJSON,
-                configuration: {
-                    data: {
-                        dimension: this.measureOnRow
-                            ? [this.rowDimensions[this.rowDimensions.length - 1]]
-                            : [this.colDimensions[this.colDimensions.length - 1]],
-                        measure: [this.measure],
-                        seriesType: 'SS',
-                        aggregateMode: this.aggregation,
-                        categories: categories,
-                        config: this.chartConfig
-                    }
-                }
+                configuration: adapter
             }];
         }
     }
