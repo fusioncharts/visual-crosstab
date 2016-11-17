@@ -1,9 +1,9 @@
 const CrosstabExt = require('./crosstabExt'),
-    data = require('./data');
+    data = require('./largeData');
 
 var config = {
     rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'month'],
+    colDimensions: ['year', 'quality', 'month'],
     chartType: 'column2d',
     noDataMessage: 'No data to be displayed.',
     measure: 'sale',
