@@ -3,36 +3,36 @@ const CrosstabExt = require('./crosstabExt'),
 
 var config = {
     rowDimensions: ['product', 'state'],
-    colDimensions: ['year', 'month'],
-    chartType: 'bar2d',
+    colDimensions: ['year', 'quality', 'month'],
+    chartType: 'column2d',
     measure: 'sale',
     measureOnRow: false,
-    cellWidth: 320,
-    cellHeight: 130,
+    cellWidth: 120,
+    cellHeight: 100,
     crosstabContainer: 'crosstab-div',
     chartConfig: {
         chart: {
-            'numberPrefix': '₹',
-            'paletteColors': '#B5B9BA',
-            'bgColor': '#ffffff',
-            'valueFontColor': '#ffffff',
             'showBorder': '0',
-            'usePlotGradientColor': '0',
-            'showYAxisValues': '0',
             'showValues': '0',
-            'showXAxisLine': '1',
-            'showXaxisValues': '0',
-            'rotateValues': '1',
-            'alternateVGridAlpha': '0',
-            'alternateHGridAlpha': '0',
             'divLineAlpha': '0',
-            'xAxisLineColor': '#ffffff',
+            'numberPrefix': '₹',
+            'rotateValues': '1',
+            'bgColor': '#ffffff',
+            'showXAxisLine': '1',
             'plotBorderAlpha': '0',
-            'canvasBorderColor': '#000000',
-            'canvasBorderAlpha': '100'
+            'showXaxisValues': '0',
+            'showYAxisValues': '0',
+            'alternateHGridAlpha': '0',
+            'canvasBorderAlpha': '100',
+            'alternateVGridAlpha': '0',
+            'paletteColors': '#B5B9BA',
+            'usePlotGradientColor': '0',
+            'valueFontColor': '#ffffff',
+            'xAxisLineColor': '#ffffff',
+            'canvasBorderColor': '#000000'
         }
     }
 };
 
 window.crosstab = new CrosstabExt(data, config);
-window.crosstab.createCrosstab();
+window.crosstab.renderCrosstab();

@@ -61,7 +61,7 @@ module.exports = [
         'year': '2015',
         'month': 'Sept',
         'quality': 'Medium',
-        'sale': 10
+        'sale': 5
     },
     {
         'product': 'Rice',
