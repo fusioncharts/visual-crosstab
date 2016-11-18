@@ -119,8 +119,7 @@ class CrosstabExt {
                                     'borderthickness': 0
                                 }
                             }
-                        },
-                        datastore: this.dataStore
+                        }
                     },
                     adapter = this.mc.dataadapter(adapterCfg);
                 // table[table.length - 1].push({
@@ -260,8 +259,7 @@ class CrosstabExt {
                             'borderthickness': '0'
                         }
                     }
-                },
-                datastore: this.dataStore
+                }
             },
             adapter = this.mc.dataadapter(adapterCfg);
         // table.unshift([{
@@ -355,8 +353,7 @@ class CrosstabExt {
                                 },
                                 categories: categories
                             }
-                        },
-                        datastore: this.dataStore
+                        }
                     },
                     adapter = this.mc.dataadapter(adapterCfg);
                 // xAxisRow.push({
@@ -578,15 +575,37 @@ class CrosstabExt {
                         minLimit = limits[0],
                         maxLimit = limits[1],
                         chart = this.getChartObj(crosstabElement.rowHash, crosstabElement.colHash)[1];
-                    chart.configuration.data.config.chart.yAxisMinValue = minLimit;
-                    chart.configuration.data.config.chart.yAxisMaxValue = maxLimit;
+                    chart.configuration.FCjson.chart.yAxisMinValue = minLimit;
+                    chart.configuration.FCjson.chart.yAxisMaxValue = maxLimit;
+                    cell.config.chart = chart;
                     crosstabElement.chart = chart;
                     window.ctPerf += (performance.now() - t2);
-                    cell.update(crosstabElement);
+                    cell.update(cell.config);
                 }
                 t2 = performance.now();
             }
         }
+
+        this.mc.addEventListener('hoverin', (evt, data) => {
+            if (data.data) {
+                console.log('Event:', evt);
+                console.log('Data:', data);
+                for (let i = 0, ii = matrix.length; i < ii; i++) {
+                    let row = crosstab[i];
+                    for (var j = 0; j < row.length; j++) {
+                        if (row[j].chart) {
+                            if (!(row[j].chart.type === 'caption' || row[j].chart.type === 'axis')) {
+                                let cellAdapter = row[j].chart.configuration,
+                                    category = this.dimensions[this.dimensions.length - 1],
+                                    categoryVal = data.data[category];
+                                console.log(cellAdapter, category, categoryVal);
+                                // cellAdapter.highlight();
+                            }
+                        }
+                    }
+                }
+            }
+        });
     }
 
     createMultiChart (matrix) {
