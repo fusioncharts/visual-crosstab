@@ -524,6 +524,11 @@ class CrosstabExt {
         }
 
         this.mc.addEventListener('hoverin', (evt, data) => {
+            // debugger;
+            if (new Date().getTime() - window.time < 200) {
+                return;
+            }
+            window.time = new Date().getTime();
             if (data.data) {
                 console.log('Event:', evt);
                 console.log('Data:', data);
@@ -535,8 +540,8 @@ class CrosstabExt {
                                 let cellAdapter = row[j].chart.configuration,
                                     category = this.dimensions[this.dimensions.length - 1],
                                     categoryVal = data.data[category];
-                                console.log(cellAdapter, category, categoryVal);
-                                // cellAdapter.highlight();
+                                // console.log(cellAdapter, category, categoryVal);
+                                cellAdapter.highlight(categoryVal);
                             }
                         }
                     }
