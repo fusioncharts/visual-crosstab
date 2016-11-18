@@ -116,36 +116,17 @@ class CrosstabExt {
                                     'dataMin': min,
                                     'dataMax': max,
                                     'isAxisOpposite': true,
-                                    'borderthickness': 0
+                                    'borderthickness': 0,
+                                    'chartBottomMargin': 5
                                 }
                             }
                         }
                     },
                     adapter = this.mc.dataadapter(adapterCfg);
-                // table[table.length - 1].push({
-                //     chart: {
-                //         'type': 'axis',
-                //         'axisType': 'y',
-                //         'width': '100%',
-                //         'height': '100%',
-                //         'dataFormat': 'json',
-                //         'configuration': {
-                //             'data': {
-                //                 'config': {
-                //                     'chart': {
-                //                         'dataMin': min,
-                //                         'dataMax': max,
-                //                         'isAxisOpposite': true,
-                //                         'borderthickness': 0
-                //                     }
-                //                 }
-                //             }
-                //         }
-                //     }
-                // });
                 table[table.length - 1].push({
                     rowspan: 1,
                     colspan: 1,
+                    className: 'y-axis-chart',
                     chart: {
                         'type': 'axis',
                         'axisType': 'y',
@@ -262,32 +243,11 @@ class CrosstabExt {
                 }
             },
             adapter = this.mc.dataadapter(adapterCfg);
-        // table.unshift([{
-        //     height: 50,
-        //     rowspan: 1,
-        //     colspan: maxLength,
-        //     chart: {
-        //         'type': 'caption',
-        //         'width': '100%',
-        //         'height': '100%',
-        //         'dataFormat': 'json',
-        //         'configuration': {
-        //             'data': {
-        //                 'config': {
-        //                     'chart': {
-        //                         'caption': 'Sale of Cereal',
-        //                         'subcaption': 'Across States, Across Years',
-        //                         'borderthickness': '0'
-        //                     }
-        //                 }
-        //             }
-        //         }
-        //     }
-        // }]);
         table.unshift([{
             height: 50,
             rowspan: 1,
             colspan: maxLength,
+            className: 'caption-chart',
             chart: {
                 'type': 'caption',
                 'width': '100%',
@@ -356,35 +316,12 @@ class CrosstabExt {
                         }
                     },
                     adapter = this.mc.dataadapter(adapterCfg);
-                // xAxisRow.push({
-                //     width: '100%',
-                //     height: 20,
-                //     rowspan: 1,
-                //     colspan: 1,
-                //     chart: {
-                //         'type': 'axis',
-                //         'width': '100%',
-                //         'height': '100%',
-                //         'dataFormat': 'json',
-                //         'axisType': 'x',
-                //         'configuration': {
-                //             'data': {
-                //                 'config': {
-                //                     'chart': {
-                //                         'borderthickness': 0,
-                //                         'canvasPadding': 15
-                //                     },
-                //                     'categories': categories
-                //                 }
-                //             }
-                //         }
-                //     }
-                // });
                 xAxisRow.push({
                     width: '100%',
                     height: 20,
                     rowspan: 1,
                     colspan: 1,
+                    className: 'x-axis-chart',
                     chart: {
                         'type': 'axis',
                         'width': '100%',
@@ -707,27 +644,6 @@ class CrosstabExt {
                 datastore: filteredData
             };
             adapter = this.mc.dataadapter(adapterCfg);
-            // return [{
-            //     'max': max,
-            //     'min': min
-            // }, {
-            //     type: this.chartType,
-            //     width: '100%',
-            //     height: '100%',
-            //     jsonData: filteredJSON,
-            //     configuration: {
-            //         data: {
-            //             dimension: this.measureOnRow
-            //                 ? [this.rowDimensions[this.rowDimensions.length - 1]]
-            //                 : [this.colDimensions[this.colDimensions.length - 1]],
-            //             measure: [this.measure],
-            //             seriesType: 'SS',
-            //             aggregateMode: this.aggregation,
-            //             categories: categories,
-            //             config: this.chartConfig
-            //         }
-            //     }
-            // }];
             return [{
                 'max': max,
                 'min': min

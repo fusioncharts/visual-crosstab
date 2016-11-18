@@ -9,10 +9,12 @@
         <link rel="stylesheet" href="stylesheets/styles.css" media="screen" title="no title" charset="utf-8">
         <!-- <link rel="stylesheet" href="http://192.168.0.59:8888/data-filters/lib/css/styles.css" media="screen" title="no title" charset="utf-8"> -->
         <style media="screen">
-            #crosstab-div {
+            .crosstab {
                 display: inline-block;
                 vertical-align: top;
                 margin-top: 16px;
+                width: 800px;
+                overflow-x: auto;
             }
             #crosstab-div div {
                 border: 1px solid #E6E6E6;
@@ -29,7 +31,9 @@
         <div class="github-issue">
             <a href="https://github.com/fusioncharts/visual-crosstab/issues/new" target="_blank">Log an issue on Github!</a>
         </div>
-        <div id="crosstab-div"></div>
+        <div class="crosstab">
+            <div id="crosstab-div"></div>
+        </div>
         <div id="control-box"></div>
 
         <script src="javascripts/vendor/fusioncharts.js" charset="utf-8"></script>
