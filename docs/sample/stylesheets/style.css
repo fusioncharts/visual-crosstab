@@ -5,8 +5,11 @@
 }
 
 #crosstab-div .corner-cell {
-    background-color: #000000;
-    color: #ffffff;
+    background-color: #F4F5F7;
+}
+
+#crosstab-div .blank-cell {
+    border: none;
 }
 
 #crosstab-div .row-dimensions.product, #crosstab-div .column-dimensions.year {
