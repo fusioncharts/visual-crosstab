@@ -25,12 +25,13 @@ class CrosstabExt {
         this.noDataMessage = config.noDataMessage;
         if (typeof FCDataFilterExt === 'function') {
             let filterConfig = {};
-            this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box', function (data) {
-                self.dataStore = data;
-                self.globalData = self.buildGlobalData();
-                self.renderCrosstab();
-            });
+            this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box');
         }
+        this.mc.addEventListener('dataModified', function () {
+            self.dataStore = data;
+            self.globalData = self.buildGlobalData();
+            self.renderCrosstab();
+        });
     }
 
     buildGlobalData () {
@@ -309,7 +310,9 @@ class CrosstabExt {
                             config: {
                                 chart: {
                                     'borderthickness': 0,
-                                    'canvasPadding': 15
+                                    'canvasPadding': 13,
+                                    'chartLeftMargin': 5,
+                                    'chartRightMargin': 5
                                 },
                                 categories: categories
                             }
