@@ -28,7 +28,6 @@ class CrosstabExt {
             this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box');
         }
         this.mc.addEventListener('dataModified', function () {
-            self.dataStore = data;
             self.globalData = self.buildGlobalData();
             self.renderCrosstab();
         });
@@ -533,8 +532,6 @@ class CrosstabExt {
             }
             window.time = new Date().getTime();
             if (data.data) {
-                console.log('Event:', evt);
-                console.log('Data:', data);
                 for (let i = 0, ii = matrix.length; i < ii; i++) {
                     let row = crosstab[i];
                     for (var j = 0; j < row.length; j++) {
