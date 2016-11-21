@@ -43,5 +43,9 @@ var config = {
     }
 };
 
-window.crosstab = new CrosstabExt(data, config);
-window.crosstab.renderCrosstab();
+if (typeof window === 'object') {
+    window.crosstab = new CrosstabExt(data, config);
+    window.crosstab.renderCrosstab();
+} else {
+    module.exports = CrosstabExt;
+}

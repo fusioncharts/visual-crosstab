@@ -1,11 +1,22 @@
+/**
+ * Represents a crosstab.
+ */
 class CrosstabExt {
     constructor (data, config) {
         let self = this;
         this.data = data;
-        this.mc = new MultiCharting();
-        this.dataStore = this.mc.createDataStore();
-        this.dataStore.setData({ dataSource: this.data });
-        this.t1 = performance.now();
+        if (typeof MultiCharting === 'function') {
+            this.mc = new MultiCharting();
+            this.dataStore = this.mc.createDataStore();
+            this.dataStore.setData({ dataSource: this.data });
+            this.t1 = performance.now();
+        } else {
+            return {
+                test: function (a) {
+                    return a;
+                }
+            };
+        }
         this.chartType = config.chartType;
         this.chartConfig = config.chartConfig;
         this.rowDimensions = config.rowDimensions;
@@ -33,6 +44,9 @@ class CrosstabExt {
         });
     }
 
+    /**
+     * Build global data from the data store for internal use.
+     */
     buildGlobalData () {
         if (this.dataStore.getKeys()) {
             let fields = this.dataStore.getKeys(),

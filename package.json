@@ -10,9 +10,22 @@
   "author": "Nakshatra Mukhopadhyay <nakshatra@fusioncharts.com>",
   "scripts": {
     "start": "node ./bin/www",
-    "build": "webpack --progress --colors",
-    "build-watch": "webpack --progress --colors --watch",
-    "dev-server": "webpack-dev-server --progress --colors --content-base public/"
+    "build-es6": "NODE_ENV=es6 webpack --progress --colors",
+    "build-es6-watch": "NODE_ENV=es6 webpack --progress --colors --watch",
+    "build-es6-min": "NODE_ENV=es6-min webpack --progress --colors",
+    "build-es6-min-watch": "NODE_ENV=es6-min webpack --progress --colors --watch",
+    "build-es6-prod": "NODE_ENV=es6-prod webpack --progress --colors",
+    "build-es5": "NODE_ENV=es5 webpack --progress --colors",
+    "build-es5-watch": "NODE_ENV=es5 webpack --progress --colors --watch",
+    "build-es5-min": "NODE_ENV=es5-min webpack --progress --colors",
+    "build-es5-min-watch": "NODE_ENV=es5-min webpack --progress --colors --watch",
+    "build-es5-prod": "NODE_ENV=es5-prod webpack --progress --colors",
+    "dev-server-es6": "NODE_ENV=es6 webpack-dev-server --progress --colors --content-base public/",
+    "dev-server-es5": "NODE_ENV=es5 webpack-dev-server --progress --colors --content-base public/",
+    "docs": "documentation build src/crosstabExt.js --name 'Visual Crosstab' -o docs/gen/ -f html > index.html",
+    "test": "mocha",
+    "build": "npm run build-es6 \n npm run build-es6-min \n npm run build-es5 \n npm run build-es5-min \n npm test",
+    "build-prod": "npm run build-es6-prod \n npm run build-es5-prod \n npm run docs \n npm test"
   },
   "dependencies": {
     "body-parser": "~1.15.2",
@@ -24,11 +37,18 @@
     "serve-favicon": "~2.3.0"
   },
   "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-preset-babili": "0.0.8",
+    "babel-preset-latest": "^6.16.0",
+    "chai": "^3.5.0",
+    "documentation": "^4.0.0-beta13",
     "eslint": "^3.9.1",
     "eslint-config-standard": "^6.2.1",
     "eslint-loader": "^1.6.1",
     "eslint-plugin-promise": "^3.3.1",
     "eslint-plugin-standard": "^2.0.1",
+    "mocha": "^3.1.2",
     "webpack": "^1.13.3",
     "webpack-dev-server": "^1.16.2"
   }
