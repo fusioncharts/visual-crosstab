@@ -1,6 +1,6 @@
-var expect = require('chai').expect,
-    describe = require('mocha').describe,
+var describe = require('mocha').describe,
     it = require('mocha').it,
+    expect = require('chai').expect,
     Crosstab = require('../src/crosstabExt.js'),
     data = require('../src/data.js'),
     config = {
@@ -45,6 +45,9 @@ var expect = require('chai').expect,
         }
     },
     ct = new Crosstab(data, config);
+
+// Environment setup (used by Babel as well, see .babelrc)
+process.env['NODE_ENV'] = 'test';
 
 describe('Crosstab', () => {
     describe('#test', () => {
