@@ -540,10 +540,6 @@ class CrosstabExt {
         }
 
         this.mc.addEventListener('hoverin', (evt, data) => {
-            if (new Date().getTime() - window.time < 200) {
-                return;
-            }
-            window.time = new Date().getTime();
             if (data.data) {
                 for (let i = 0, ii = matrix.length; i < ii; i++) {
                     let row = crosstab[i];
@@ -553,7 +549,6 @@ class CrosstabExt {
                                 let cellAdapter = row[j].chart.configuration,
                                     category = this.dimensions[this.dimensions.length - 1],
                                     categoryVal = data.data[category];
-                                // console.log(cellAdapter, category, categoryVal);
                                 cellAdapter.highlight(categoryVal);
                             }
                         }
@@ -562,7 +557,19 @@ class CrosstabExt {
             }
         });
         this.mc.addEventListener('hoverout', (evt, data) => {
-            console.log(data);
+            if (data.data) {
+                for (let i = 0, ii = matrix.length; i < ii; i++) {
+                    let row = crosstab[i];
+                    for (var j = 0; j < row.length; j++) {
+                        if (row[j].chart) {
+                            if (!(row[j].chart.type === 'caption' || row[j].chart.type === 'axis')) {
+                                let cellAdapter = row[j].chart.configuration;
+                                cellAdapter.highlight();
+                            }
+                        }
+                    }
+                }
+            }
         });
     }
 
