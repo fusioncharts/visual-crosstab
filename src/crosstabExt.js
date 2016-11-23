@@ -766,8 +766,11 @@ class CrosstabExt {
         // Getting only labels
         let origConfig = this.storeParams.config,
             dimensions = origConfig.dimensions || [],
+            measures = origConfig.measures || [],
+            measuresLength = measures.length,
             dimensionsLength = 0,
             dimensionsHolder,
+            measuresHolder,
             self = this;
         // let end
         placeHolder = placeHolder[1];
@@ -776,40 +779,48 @@ class CrosstabExt {
         dimensionsLength = dimensions.length;
         // Setting up dimension holder
         dimensionsHolder = placeHolder.slice(0, dimensionsLength);
-        for (let i = 0; i < dimensionsLength; ++i) {
-            let el = dimensionsHolder[i].graphics,
-                item = dimensionsHolder[i];
-            item.cellValue = dimensions[i];
-            item.origLeft = parseInt(el.style.left);
-            item.redZone = item.origLeft + parseInt(el.style.width) / 2;
-            item.index = i;
-            item.adjust = 0;
-            item.origZ = el.style.zIndex;
-            this._setupDrag(item.graphics, function dragStart (dx, dy) {
-                el.style.left = item.origLeft + dx + item.adjust + 'px';
-                el.style.zIndex = 1000;
-                manageShifting(item.index, false, dimensionsHolder);
-                manageShifting(item.index, true, dimensionsHolder);
-            }, function dragEnd () {
-                let change = false,
-                    j = 0;
+        // Setting up measures holder
+        measuresHolder = placeHolder.slice(dimensionsLength, dimensionsLength + measuresLength);
+        setupListener(dimensionsHolder, dimensions, dimensionsLength, this.dimensions);
+        setupListener(measuresHolder, measures, measuresLength, this.measures);
+        function setupListener (holder, arr, arrLen, globalArr) {
+            for (let i = 0; i < arrLen; ++i) {
+                let el = holder[i].graphics,
+                    item = holder[i];
+                item.cellValue = arr[i];
+                item.origLeft = parseInt(el.style.left);
+                item.redZone = item.origLeft + parseInt(el.style.width) / 2;
+                item.index = i;
                 item.adjust = 0;
-                el.style.zIndex = item.origZ;
-                el.style.left = item.origLeft + 'px';
-                for (; j < dimensionsLength; ++j) {
-                    if (self.dimensions[j] !== dimensionsHolder[j].cellValue) {
-                        self.dimensions[j] = dimensionsHolder[j].cellValue;
-                        change = true;
+                item.origZ = el.style.zIndex;
+                debugger;
+                self._setupDrag(item.graphics, function dragStart (dx, dy) {
+                    el.style.left = item.origLeft + dx + item.adjust + 'px';
+                    el.style.zIndex = 1000;
+                    manageShifting(item.index, false, holder);
+                    manageShifting(item.index, true, holder);
+                }, function dragEnd () {
+                    let change = false,
+                        j = 0;
+                    item.adjust = 0;
+                    el.style.zIndex = item.origZ;
+                    el.style.left = item.origLeft + 'px';
+                    for (; j < arrLen; ++j) {
+                        if (globalArr[j] !== holder[j].cellValue) {
+                            globalArr[j] = holder[j].cellValue;
+                            change = true;
+                        }
                     }
-                }
-                if (change) {
-                    window.setTimeout(function () {
-                        self.globalData = self.buildGlobalData();
-                        self.renderCrosstab();
-                    }, 10);
-                }
-            });
+                    if (change) {
+                        window.setTimeout(function () {
+                            self.globalData = self.buildGlobalData();
+                            self.renderCrosstab();
+                        }, 10);
+                    }
+                });
+            }
         }
+
         function manageShifting (index, isRight, holder) {
             let stack = [],
                 dragItem = holder[index],
@@ -818,7 +829,7 @@ class CrosstabExt {
             // Saving data for later use
             if (nextItem) {
                 stack.push(!isRight && (parseInt(dragItem.graphics.style.left) < nextItem.redZone));
-                stack.push(stack.pop() || (isRight && parseInt(dragItem.graphics.style.left) > nextItem.redZone));
+                stack.push(stack.pop() || (isRight && parseInt(dragItem.graphics.style.left) > nextItem.origLeft));
                 if (stack.pop()) {
                     stack.push(nextItem.redZone);
                     stack.push(nextItem.origLeft);
