@@ -79,7 +79,7 @@ class CrosstabExt {
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = ((this.cellHeight - 10) / 2) + 'px';
             classStr += 'row-dimensions' +
-                ' ' + this.dimensions[currentIndex] +
+                ' ' + this.dimensions[currentIndex].toLowerCase() +
                 ' ' + fieldValues[i].toLowerCase();
             // if (currentIndex > 0) {
             //     htmlRef.classList.add(this.dimensions[currentIndex - 1].toLowerCase());
@@ -208,15 +208,14 @@ class CrosstabExt {
 
         for (i = 0; i < l; i += 1) {
             let classStr = '',
-                fieldComponent = measureOrder[i],
-                fieldValues = data[fieldComponent];
+                fieldComponent = measureOrder[i];
+                // fieldValues = data[fieldComponent];
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldComponent;
             htmlRef.style.textAlign = 'center';
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
-                ' ' + this.measures[i] +
-                ' ' + fieldValues[i].toLowerCase();
+                ' ' + this.measures[i].toLowerCase();
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
             colElement = {
