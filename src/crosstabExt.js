@@ -764,12 +764,9 @@ class CrosstabExt {
 
     dragListener (placeHolder) {
         // Getting only labels
-        let origData = this.storeParams.data,
-            origConfig = this.storeParams.config,
+        let origConfig = this.storeParams.config,
             dimensions = origConfig.dimensions || [],
-            measures = origConfig.measures || [],
             dimensionsLength = 0,
-            measuresLength = 0,
             dimensionsHolder,
             self = this;
         // let end
@@ -777,7 +774,6 @@ class CrosstabExt {
         // Omitting last dimension
         dimensions = dimensions.slice(0, dimensions.length - 1);
         dimensionsLength = dimensions.length;
-        measuresLength = measures.length;
         // Setting up dimension holder
         dimensionsHolder = placeHolder.slice(0, dimensionsLength);
         for (let i = 0; i < dimensionsLength; ++i) {
@@ -807,6 +803,7 @@ class CrosstabExt {
                 }
                 if (change) {
                     self.globalData = self.buildGlobalData();
+                    debugger;
                     self.renderCrosstab();
                 }
             });
@@ -858,8 +855,8 @@ class CrosstabExt {
         });
         window.document.addEventListener('mouseup', function (e) {
             el.style.opacity = 1;
-            handler2();
             window.document.removeEventListener('mousemove', customHandler);
+            handler2();
         });
     }
 
