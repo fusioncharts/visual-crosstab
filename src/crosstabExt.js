@@ -792,7 +792,8 @@ class CrosstabExt {
             this._setupDrag(item.graphics, function dragStart (dx, dy) {
                 el.style.left = item.origLeft + dx + item.adjust + 'px';
                 el.style.zIndex = 1000;
-                manageShifting(item.index);
+                manageShifting(item.index, false, dimensionsHolder);
+                manageShifting(item.index, true, dimensionsHolder);
             }, function dragEnd () {
                 let change = false,
                     j = 0;
@@ -813,36 +814,39 @@ class CrosstabExt {
                 }
             });
         }
-        function manageShifting (index) {
-            let i = 0,
-                dragItem = dimensionsHolder[index],
-                trd = dragItem.redZone,
-                tl = dragItem.origLeft,
-                ti = dragItem.index,
-                temp = {},
-                item,
-                nextItem;
-            for (i = index; i--;) {
-                item = dimensionsHolder[i];
-                nextItem = dimensionsHolder[i + 1];
-                if (parseInt(dragItem.graphics.style.left) < item.redZone) {
-                    trd = item.redZone;
-                    tl = item.origLeft;
-                    ti = item.index;
-                    nextItem.adjust += parseInt(item.graphics.style.width);
-                    item.origLeft = nextItem.origLeft;
-                    item.redZone = nextItem.redZone;
-                    item.index = nextItem.index;
-                    item.graphics.style.left = item.origLeft + 'px';
-                    temp = dimensionsHolder[i + 1];
-                    dimensionsHolder[i + 1] = dimensionsHolder[i];
-                    dimensionsHolder[i] = temp;
+        function manageShifting (index, isRight, holder) {
+            let stack = [],
+                dragItem = holder[index],
+                nextPos = isRight ? index + 1 : index - 1,
+                nextItem = holder[nextPos];
+            // Saving data for later use
+            if (nextItem) {
+                stack.push(!isRight && (parseInt(dragItem.graphics.style.left) < nextItem.redZone));
+                stack.push(stack.pop() || (isRight && parseInt(dragItem.graphics.style.left) > nextItem.redZone));
+                if (stack.pop()) {
+                    stack.push(nextItem.redZone);
+                    stack.push(nextItem.origLeft);
+                    stack.push(nextItem.index);
+                    if (!isRight) {
+                        dragItem.adjust += parseInt(nextItem.graphics.style.width);
+                    } else {
+                        dragItem.adjust -= parseInt(nextItem.graphics.style.width);
+                    }
+                    nextItem.origLeft = dragItem.origLeft;
+                    nextItem.redZone = dragItem.redZone;
+                    nextItem.index = dragItem.index;
+                    nextItem.graphics.style.left = nextItem.origLeft + 'px';
+                    stack.push(holder[nextPos]);
+                    holder[nextPos] = holder[index];
+                    holder[index] = stack.pop();
                 }
             }
             // Setting new values for dragitem
-            dragItem.origLeft = tl;
-            dragItem.redZone = trd;
-            dragItem.index = ti;
+            if (stack.length === 3) {
+                dragItem.index = stack.pop();
+                dragItem.origLeft = stack.pop();
+                dragItem.redZone = stack.pop();
+            }
         }
     }
 
