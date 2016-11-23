@@ -17,6 +17,10 @@ class CrosstabExt {
                 }
             };
         }
+        this.storeParams = {
+            data: data,
+            config: config
+        };
         this.chartType = config.chartType;
         this.chartConfig = config.chartConfig;
         this.dimensions = config.dimensions;
@@ -611,6 +615,7 @@ class CrosstabExt {
         } else {
             this.multichartObject.update(matrix);
         }
+        this.dragListener(this.multichartObject.placeHolder);
         return this.multichartObject.placeHolder;
     }
 
@@ -710,6 +715,107 @@ class CrosstabExt {
                 configuration: adapter
             }];
         }
+    }
+
+    dragListener (placeHolder) {
+        // Getting only labels
+        let origData = this.storeParams.data,
+            origConfig = this.storeParams.config,
+            dimensions = origConfig.dimensions || [],
+            measures = origConfig.measures || [],
+            dimensionsLength = 0,
+            measuresLength = 0,
+            dimensionsHolder,
+            self = this;
+        // let end
+        placeHolder = placeHolder[1];
+        // Omitting last dimension
+        dimensions = dimensions.slice(0, dimensions.length - 1);
+        dimensionsLength = dimensions.length;
+        measuresLength = measures.length;
+        // Setting up dimension holder
+        dimensionsHolder = placeHolder.slice(0, dimensionsLength);
+        for (let i = 0; i < dimensionsLength; ++i) {
+            let el = dimensionsHolder[i].graphics,
+                item = dimensionsHolder[i];
+            item.cellValue = dimensions[i];
+            item.origLeft = parseInt(el.style.left);
+            item.redZone = item.origLeft + parseInt(el.style.width) / 2;
+            item.index = i;
+            item.adjust = 0;
+            item.origZ = el.style.zIndex;
+            this._setupDrag(item.graphics, function dragStart (dx, dy) {
+                el.style.left = item.origLeft + dx + item.adjust + 'px';
+                el.style.zIndex = 1000;
+                manageShifting(item.index);
+            }, function dragEnd () {
+                let change = false,
+                    j = 0;
+                item.adjust = 0;
+                el.style.zIndex = item.origZ;
+                el.style.left = item.origLeft + 'px';
+                for (; j < dimensionsLength; ++j) {
+                    if (self.dimensions[i] !== dimensionsHolder[i].cellValue) {
+                        self.dimensions[i] = dimensionsHolder[i].cellValue;
+                        change = true;
+                    }
+                }
+                if (change) {
+                    self.globalData = self.buildGlobalData();
+                    self.renderCrosstab();
+                }
+            });
+        }
+        function manageShifting (index) {
+            let i = 0,
+                dragItem = dimensionsHolder[index],
+                trd = dragItem.redZone,
+                tl = dragItem.origLeft,
+                ti = dragItem.index,
+                temp = {},
+                item,
+                nextItem;
+            for (i = index; i--;) {
+                item = dimensionsHolder[i];
+                nextItem = dimensionsHolder[i + 1];
+                if (parseInt(dragItem.graphics.style.left) < item.redZone) {
+                    trd = item.redZone;
+                    tl = item.origLeft;
+                    ti = item.index;
+                    nextItem.adjust += parseInt(item.graphics.style.width);
+                    item.origLeft = nextItem.origLeft;
+                    item.redZone = nextItem.redZone;
+                    item.index = nextItem.index;
+                    item.graphics.style.left = item.origLeft + 'px';
+                    temp = dimensionsHolder[i + 1];
+                    dimensionsHolder[i + 1] = dimensionsHolder[i];
+                    dimensionsHolder[i] = temp;
+                }
+            }
+            // Setting new values for dragitem
+            dragItem.origLeft = tl;
+            dragItem.redZone = trd;
+            dragItem.index = ti;
+        }
+    }
+
+    _setupDrag (el, handler, handler2) {
+        let x = 0,
+            y = 0;
+        function customHandler (e) {
+            handler(e.clientX - x, e.clientY - y);
+        }
+        el.addEventListener('mousedown', function (e) {
+            x = e.clientX;
+            y = e.clientY;
+            el.style.opacity = 0.8;
+            window.document.addEventListener('mousemove', customHandler);
+        });
+        window.document.addEventListener('mouseup', function (e) {
+            el.style.opacity = 1;
+            handler2();
+            window.document.removeEventListener('mousemove', customHandler);
+        });
     }
 
     filterGen (key, val) {

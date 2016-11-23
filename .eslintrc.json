@@ -25,6 +25,9 @@
         "one-var": [
             "error",
             "always"
+        ],
+        "no-unused-vars": [
+            "warn"
         ]
     }
 }
