@@ -37,7 +37,8 @@ var config = {
             'alternateVGridAlpha': '0',
             'paletteColors': '#B5B9BA',
             'usePlotGradientColor': '0',
-            'valueFontColor': '#ffffff'
+            'valueFontColor': '#ffffff',
+            'drawTrendRegion': '1'
         }
     }
 };

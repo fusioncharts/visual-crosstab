@@ -24,7 +24,7 @@
     "dev-server-es5": "NODE_ENV=es5 webpack-dev-server --progress --colors --content-base public/",
     "docs": "documentation build src/crosstabExt.js --name 'Visual Crosstab' -f html -o docs/gen/",
     "test": "mocha",
-    "build": "npm run build-es6 \n npm run build-es6-min \n npm run build-es5 \n npm run build-es5-min \n npm test",
+    "build": "npm run build-es6 \n npm run build-es6-min \n npm run build-es5 \n npm run build-es5-min \n npm test \n npm start",
     "build-prod": "npm run build-es6-prod \n npm run build-es5-prod \n npm run docs \n npm test"
   },
   "dependencies": {

@@ -3,7 +3,7 @@
  */
 class CrosstabExt {
     constructor (data, config) {
-        let self = this;
+        // let self = this;
         this.data = data;
         if (typeof MultiCharting === 'function') {
             this.mc = new MultiCharting();
@@ -36,9 +36,9 @@ class CrosstabExt {
             let filterConfig = {};
             this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box');
         }
-        this.mc.addEventListener('dataModified', function () {
-            self.globalData = self.buildGlobalData();
-            self.renderCrosstab();
+        this.dataStore.addEventListener('tempEvent', (e, d) => {
+            this.globalData = this.buildGlobalData();
+            this.renderCrosstab();
         });
     }
 
@@ -125,6 +125,7 @@ class CrosstabExt {
                             config: {
                                 chart: {
                                     'dataMin': min,
+                                    'axisType': 'y',
                                     'dataMax': max,
                                     'isAxisOpposite': true,
                                     'borderthickness': 0,
@@ -140,7 +141,6 @@ class CrosstabExt {
                     className: 'y-axis-chart',
                     chart: {
                         'type': 'axis',
-                        'axisType': 'y',
                         'width': '100%',
                         'height': '100%',
                         'dataFormat': 'json',
@@ -360,6 +360,7 @@ class CrosstabExt {
                         config: {
                             config: {
                                 chart: {
+                                    'axisType': 'x',
                                     'borderthickness': 0,
                                     'canvasPadding': 13,
                                     'chartLeftMargin': 5,
@@ -381,7 +382,6 @@ class CrosstabExt {
                         'width': '100%',
                         'height': '100%',
                         'dataFormat': 'json',
-                        'axisType': 'x',
                         'configuration': adapter
                     }
                 });
@@ -570,10 +570,6 @@ class CrosstabExt {
         }
 
         this.mc.addEventListener('hoverin', (evt, data) => {
-            if (new Date().getTime() - window.time < 200) {
-                return;
-            }
-            window.time = new Date().getTime();
             if (data.data) {
                 for (let i = 0, ii = matrix.length; i < ii; i++) {
                     let row = crosstab[i];
@@ -584,6 +580,21 @@ class CrosstabExt {
                                     category = this.dimensions[this.dimensions.length - 1],
                                     categoryVal = data.data[category];
                                 cellAdapter.highlight(categoryVal);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        this.mc.addEventListener('hoverout', (evt, data) => {
+            if (data.data) {
+                for (let i = 0, ii = matrix.length; i < ii; i++) {
+                    let row = crosstab[i];
+                    for (var j = 0; j < row.length; j++) {
+                        if (row[j].chart) {
+                            if (!(row[j].chart.type === 'caption' || row[j].chart.type === 'axis')) {
+                                let cellAdapter = row[j].chart.configuration;
+                                cellAdapter.highlight();
                             }
                         }
                     }
