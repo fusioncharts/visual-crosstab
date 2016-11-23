@@ -800,14 +800,16 @@ class CrosstabExt {
                 el.style.zIndex = item.origZ;
                 el.style.left = item.origLeft + 'px';
                 for (; j < dimensionsLength; ++j) {
-                    if (self.dimensions[i] !== dimensionsHolder[i].cellValue) {
-                        self.dimensions[i] = dimensionsHolder[i].cellValue;
+                    if (self.dimensions[j] !== dimensionsHolder[j].cellValue) {
+                        self.dimensions[j] = dimensionsHolder[j].cellValue;
                         change = true;
                     }
                 }
                 if (change) {
-                    self.globalData = self.buildGlobalData();
-                    self.renderCrosstab();
+                    window.setTimeout(function () {
+                        self.globalData = self.buildGlobalData();
+                        self.renderCrosstab();
+                    }, 0);
                 }
             });
         }
@@ -855,12 +857,14 @@ class CrosstabExt {
             y = e.clientY;
             el.style.opacity = 0.8;
             window.document.addEventListener('mousemove', customHandler);
+            window.document.addEventListener('mouseup', mouseUpHandler);
         });
-        window.document.addEventListener('mouseup', function (e) {
+        function mouseUpHandler (e) {
             el.style.opacity = 1;
-            handler2();
             window.document.removeEventListener('mousemove', customHandler);
-        });
+            window.document.removeEventListener('mouseup', mouseUpHandler);
+            window.setTimeout(handler2, 10);
+        }
     }
 
     filterGen (key, val) {
