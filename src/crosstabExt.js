@@ -561,6 +561,9 @@ class CrosstabExt {
                 }
             }
         });
+        this.mc.addEventListener('hoverout', (evt, data) => {
+            console.log(data);
+        });
     }
 
     createMultiChart (matrix) {
