@@ -807,7 +807,7 @@ class CrosstabExt {
                     window.setTimeout(function () {
                         self.globalData = self.buildGlobalData();
                         self.renderCrosstab();
-                    }, 0);
+                    }, 10);
                 }
             });
         }
