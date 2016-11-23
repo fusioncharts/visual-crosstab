@@ -21,10 +21,6 @@
     border: none;
 }
 
-#crosstab-div .y-axis-chart {
-    border: none;
-}
-
 #crosstab-div .row-dimensions.product, #crosstab-div .column-dimensions.year {
     background-color: #E4EAEA;
 }

@@ -106,30 +106,11 @@ class CrosstabExt {
             if (hasFurtherDepth) {
                 rowElement.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
             } else {
-                for (let j = 0; j < colLength; j += 1) {
-                    let chartCellObj = {
-                        width: this.cellWidth,
-                        height: this.cellHeight,
-                        rowspan: 1,
-                        colspan: 1,
-                        rowHash: filteredDataHashKey,
-                        colHash: this.columnKeyArr[j]
-                    };
-                    table[table.length - 1].push(chartCellObj);
-                    minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
-                    max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
-                    min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
-                }
                 let adapterCfg = {
                         config: {
                             config: {
                                 chart: {
-                                    'dataMin': min,
-                                    'axisType': 'y',
-                                    'dataMax': max,
-                                    'isAxisOpposite': true,
-                                    'borderthickness': 0,
-                                    'chartBottomMargin': 5
+                                    'axisType': 'y'
                                 }
                             }
                         }
@@ -147,6 +128,22 @@ class CrosstabExt {
                         'configuration': adapter
                     }
                 });
+                for (let j = 0; j < colLength; j += 1) {
+                    let chartCellObj = {
+                        width: this.cellWidth,
+                        height: this.cellHeight,
+                        rowspan: 1,
+                        colspan: 1,
+                        rowHash: filteredDataHashKey,
+                        colHash: this.columnKeyArr[j]
+                    };
+                    table[table.length - 1].push(chartCellObj);
+                    minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
+                    max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
+                    min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
+                    chartCellObj.max = max;
+                    chartCellObj.min = min;
+                }
             }
             rowspan += rowElement.rowspan;
         }
@@ -337,14 +334,14 @@ class CrosstabExt {
         if (obj) {
             table.push(this.createRowDimHeading(table, colOrder.length));
             // this.createCol(table, obj, colOrder, 0, '');
-            this.createCol(table, obj, this.measures);
             table = this.createColDimHeading(table, 0);
+            this.createCol(table, obj, this.measures);
             table.push([]);
             this.createRow(table, obj, rowOrder, 0, '');
             for (i = 0; i < table.length; i++) {
                 maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
             }
-            for (i = 0; i < this.dimensions.length - 1; i++) {
+            for (i = 0; i < this.dimensions.length; i++) {
                 xAxisRow.push({
                     rowspan: 1,
                     colspan: 1,
@@ -544,13 +541,48 @@ class CrosstabExt {
     renderCrosstab () {
         let crosstab = this.createCrosstab(),
             matrix = this.createMultiChart(crosstab),
-            t2 = performance.now();
+            t2 = performance.now(),
+            globalMax = -Infinity,
+            globalMin = Infinity;
+        for (let i = 0, ii = crosstab.length; i < ii; i++) {
+            let rowLastChart = crosstab[i][crosstab[i].length - 1];
+            if (rowLastChart.max || rowLastChart.min) {
+                if (globalMax < rowLastChart.max) {
+                    globalMax = rowLastChart.max;
+                }
+                if (globalMin > rowLastChart.min) {
+                    globalMin = rowLastChart.min;
+                }
+            }
+        }
         for (let i = 0, ii = matrix.length; i < ii; i++) {
-            let row = matrix[i];
+            let row = matrix[i],
+                rowAxis = {};
             for (let j = 0, jj = row.length; j < jj; j++) {
                 let cell = row[j],
-                    crosstabElement = crosstab[i][j],
-                    rowAxis = row[row.length - 1];
+                    crosstabElement = crosstab[i][j];
+                if (crosstabElement.chart && crosstabElement.chart.type === 'axis') {
+                    rowAxis = cell;
+                    if (rowAxis.chart.chartConfig.dataSource.chart.axisType === 'y') {
+                        let adapterCfg = {
+                                config: {
+                                    config: {
+                                        chart: {
+                                            'dataMin': globalMin,
+                                            'axisType': 'y',
+                                            'dataMax': globalMax,
+                                            'borderthickness': 0,
+                                            'chartBottomMargin': 5,
+                                            'chartTopMargin': 5
+                                        }
+                                    }
+                                }
+                            },
+                            adapter = this.mc.dataadapter(adapterCfg);
+                        rowAxis.config.chart.configuration = adapter;
+                        rowAxis.update(rowAxis.config);
+                    }
+                }
                 if (!(crosstabElement.hasOwnProperty('chart') || crosstabElement.hasOwnProperty('html')) &&
                     crosstabElement.className !== 'blank-cell') {
                     let limits = rowAxis.chart.chartObj.getLimits(),
@@ -655,12 +687,13 @@ class CrosstabExt {
             dataProcessors = [],
             dataProcessor = {},
             matchedHashes = [],
-            filteredJSON = [],
-            max = -Infinity,
-            min = Infinity,
+            // filteredJSON = [],
+            // max = -Infinity,
+            // min = Infinity,
             filteredData = {},
             adapterCfg = {},
             adapter = {},
+            limits = {},
             categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
 
         rowFilters.push.apply(rowFilters);
@@ -677,15 +710,15 @@ class CrosstabExt {
             }
             filteredData = this.dataStore.getData(dataProcessors);
             filteredData = filteredData[filteredData.length - 1];
-            filteredJSON = filteredData.getJSON();
-            for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
-                if (filteredJSON[i][colFilter] > max) {
-                    max = filteredJSON[i][colFilter];
-                }
-                if (filteredJSON[i][colFilter] < min) {
-                    min = filteredJSON[i][colFilter];
-                }
-            }
+            // filteredJSON = filteredData.getJSON();
+            // for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
+            //     if (filteredJSON[i][colFilter] > max) {
+            //         max = filteredJSON[i][colFilter];
+            //     }
+            //     if (filteredJSON[i][colFilter] < min) {
+            //         min = filteredJSON[i][colFilter];
+            //     }
+            // }
             adapterCfg = {
                 config: {
                     dimension: [this.dimensions[this.dimensions.length - 1]],
@@ -698,14 +731,14 @@ class CrosstabExt {
                 datastore: filteredData
             };
             adapter = this.mc.dataadapter(adapterCfg);
+            limits = adapter.getLimit();
             return [{
-                'max': max,
-                'min': min
+                'max': limits.max,
+                'min': limits.min
             }, {
                 type: this.chartType,
                 width: '100%',
                 height: '100%',
-                jsonData: filteredJSON,
                 configuration: adapter
             }];
         }
