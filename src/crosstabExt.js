@@ -19,10 +19,8 @@ class CrosstabExt {
         }
         this.chartType = config.chartType;
         this.chartConfig = config.chartConfig;
-        this.rowDimensions = config.rowDimensions;
-        this.colDimensions = config.colDimensions;
-        this.dimensions = this.mergeDimensions();
-        this.measure = config.measure;
+        this.dimensions = config.dimensions;
+        this.measures = config.measures;
         this.measureOnRow = config.measureOnRow;
         this.globalData = this.buildGlobalData();
         this.columnKeyArr = [];
@@ -81,10 +79,10 @@ class CrosstabExt {
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = ((this.cellHeight - 10) / 2) + 'px';
             classStr += 'row-dimensions' +
-                ' ' + this.rowDimensions[currentIndex] +
+                ' ' + this.dimensions[currentIndex] +
                 ' ' + fieldValues[i].toLowerCase();
             // if (currentIndex > 0) {
-            //     htmlRef.classList.add(this.rowDimensions[currentIndex - 1].toLowerCase());
+            //     htmlRef.classList.add(this.dimensions[currentIndex - 1].toLowerCase());
             // }
             htmlRef.style.visibility = 'hidden';
             document.body.appendChild(htmlRef);
@@ -100,7 +98,6 @@ class CrosstabExt {
                 className: classStr
             };
             filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
-
             if (i) {
                 table.push([rowElement]);
             } else {
@@ -156,27 +153,69 @@ class CrosstabExt {
         return rowspan;
     }
 
-    createCol (table, data, colOrder, currentIndex, filteredDataStore) {
+    // createCol (table, data, colOrder, currentIndex, filteredDataStore) {
+    //     var colspan = 0,
+    //         fieldComponent = colOrder[currentIndex],
+    //         fieldValues = data[fieldComponent],
+    //         i, l = fieldValues.length,
+    //         colElement,
+    //         hasFurtherDepth = currentIndex < (colOrder.length - 1),
+    //         filteredDataHashKey,
+    //         htmlRef;
+
+    //     if (table.length <= currentIndex) {
+    //         table.push([]);
+    //     }
+    //     for (i = 0; i < l; i += 1) {
+    //         let classStr = '';
+    //         htmlRef = document.createElement('p');
+    //         htmlRef.innerHTML = fieldValues[i];
+    //         htmlRef.style.textAlign = 'center';
+    //         document.body.appendChild(htmlRef);
+    //         classStr += 'column-dimensions' +
+    //             ' ' + this.measures[currentIndex] +
+    //             ' ' + fieldValues[i].toLowerCase();
+    //         this.cornerHeight = htmlRef.offsetHeight;
+    //         document.body.removeChild(htmlRef);
+    //         colElement = {
+    //             width: this.cellWidth,
+    //             height: this.cornerHeight,
+    //             rowspan: 1,
+    //             colspan: 1,
+    //             html: htmlRef.outerHTML,
+    //             className: classStr
+    //         };
+
+    //         filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
+
+    //         table[currentIndex].push(colElement);
+
+    //         if (hasFurtherDepth) {
+    //             colElement.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
+    //         } else {
+    //             this.columnKeyArr.push(filteredDataHashKey);
+    //         }
+    //         colspan += colElement.colspan;
+    //     }
+    //     return colspan;
+    // }
+
+    createCol (table, data, measureOrder) {
         var colspan = 0,
-            fieldComponent = colOrder[currentIndex],
-            fieldValues = data[fieldComponent],
-            i, l = fieldValues.length,
+            i, l = this.measures.length,
             colElement,
-            hasFurtherDepth = currentIndex < (colOrder.length - 1),
-            filteredDataHashKey,
             htmlRef;
 
-        if (table.length <= currentIndex) {
-            table.push([]);
-        }
         for (i = 0; i < l; i += 1) {
-            let classStr = '';
+            let classStr = '',
+                fieldComponent = measureOrder[i],
+                fieldValues = data[fieldComponent];
             htmlRef = document.createElement('p');
-            htmlRef.innerHTML = fieldValues[i];
+            htmlRef.innerHTML = fieldComponent;
             htmlRef.style.textAlign = 'center';
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
-                ' ' + this.colDimensions[currentIndex] +
+                ' ' + this.measures[i] +
                 ' ' + fieldValues[i].toLowerCase();
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
@@ -188,17 +227,19 @@ class CrosstabExt {
                 html: htmlRef.outerHTML,
                 className: classStr
             };
+            this.columnKeyArr.push(this.measures[i]);
+            table[0].push(colElement);
 
-            filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
+            // filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
 
-            table[currentIndex].push(colElement);
+            // table[i].push(colElement);
 
-            if (hasFurtherDepth) {
-                colElement.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
-            } else {
-                this.columnKeyArr.push(filteredDataHashKey);
-            }
-            colspan += colElement.colspan;
+            // if (hasFurtherDepth) {
+            //     colElement.colspan = this.createCol(table, data, colOrder);
+            // } else {
+            //     this.columnKeyArr.push(filteredDataHashKey);
+            // }
+            // colspan += colElement.colspan;
         }
         return colspan;
     }
@@ -208,15 +249,15 @@ class CrosstabExt {
             i = 0,
             htmlRef;
 
-        for (i = 0; i < this.rowDimensions.length; i++) {
+        for (i = 0; i < this.dimensions.length - 1; i++) {
             htmlRef = document.createElement('p');
-            htmlRef.innerHTML = this.rowDimensions[i][0].toUpperCase() + this.rowDimensions[i].substr(1);
+            htmlRef.innerHTML = this.dimensions[i][0].toUpperCase() + this.dimensions[i].substr(1);
             htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = ((30 * this.colDimensions.length - 15) / 2) + 'px';
+            htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
             cornerCellArr.push({
-                width: this.rowDimensions[i] * 10,
-                height: 30 * this.colDimensions.length,
-                rowspan: colOrderLength,
+                width: this.dimensions[i] * 10,
+                height: 30 * this.measures.length,
+                rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
                 className: 'corner-cell'
@@ -230,10 +271,10 @@ class CrosstabExt {
             htmlRef;
         for (; i < table.length; i++) {
             htmlRef = document.createElement('p');
-            htmlRef.innerHTML = this.colDimensions[i][0].toUpperCase() + this.colDimensions[i].substr(1);
+            htmlRef.innerHTML = '';
             htmlRef.style.textAlign = 'center';
             table[i].push({
-                width: this.colDimensions[i].length * 10,
+                width: this.measures[i].length * 10,
                 height: 30,
                 rowspan: 1,
                 colspan: 1,
@@ -276,16 +317,12 @@ class CrosstabExt {
     createCrosstab () {
         var self = this,
             obj = this.globalData,
-            rowOrder = this.rowDimensions.filter(function (val, i, arr) {
-                if (self.measureOnRow) {
-                    if (val !== arr[arr.length - 1]) {
-                        return true;
-                    }
-                } else {
+            rowOrder = this.dimensions.filter(function (val, i, arr) {
+                if (val !== arr[arr.length - 1]) {
                     return true;
                 }
             }),
-            colOrder = this.colDimensions.filter(function (val, i, arr) {
+            colOrder = this.measures.filter(function (val, i, arr) {
                 if (self.measureOnRow) {
                     return true;
                 } else {
@@ -300,14 +337,15 @@ class CrosstabExt {
             maxLength = 0;
         if (obj) {
             table.push(this.createRowDimHeading(table, colOrder.length));
-            this.createCol(table, obj, colOrder, 0, '');
+            // this.createCol(table, obj, colOrder, 0, '');
+            this.createCol(table, obj, this.measures);
             table = this.createColDimHeading(table, 0);
             table.push([]);
             this.createRow(table, obj, rowOrder, 0, '');
             for (i = 0; i < table.length; i++) {
                 maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
             }
-            for (i = 0; i < this.rowDimensions.length; i++) {
+            for (i = 0; i < this.dimensions.length - 1; i++) {
                 xAxisRow.push({
                     rowspan: 1,
                     colspan: 1,
@@ -316,8 +354,8 @@ class CrosstabExt {
                 });
             }
 
-            for (i = 0; i < maxLength - 1 - this.rowDimensions.length; i++) {
-                let categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]],
+            for (i = 0; i < maxLength - this.dimensions.length; i++) {
+                let categories = this.globalData[this.dimensions[this.dimensions.length - 1]],
                     adapterCfg = {
                         config: {
                             config: {
@@ -356,7 +394,7 @@ class CrosstabExt {
             table.push([{
                 html: '<p style="text-align: center">' + this.noDataMessage + '</p>',
                 height: 50,
-                colspan: this.rowDimensions.length * this.colDimensions.length
+                colspan: this.dimensions.length * this.measures.length
             }]);
         }
         return table;
@@ -365,24 +403,24 @@ class CrosstabExt {
     rowDimReorder (subject, target) {
         var buffer = '',
             i,
-            rowDimensions = this.rowDimensions;
+            dimensions = this.dimensions;
         if (this.measureOnRow === true) {
-            rowDimensions.splice(rowDimensions.length - 1, 1);
+            dimensions.splice(dimensions.length - 1, 1);
         }
-        if (rowDimensions.indexOf(Math.max(subject, target)) >= rowDimensions.length) {
+        if (dimensions.indexOf(Math.max(subject, target)) >= dimensions.length) {
             return 'wrong index';
         } else if (subject > target) {
-            buffer = rowDimensions[subject];
+            buffer = dimensions[subject];
             for (i = subject - 1; i >= target; i--) {
-                rowDimensions[i + 1] = rowDimensions[i];
+                dimensions[i + 1] = dimensions[i];
             }
-            rowDimensions[target] = buffer;
+            dimensions[target] = buffer;
         } else if (subject < target) {
-            buffer = rowDimensions[subject];
+            buffer = dimensions[subject];
             for (i = subject + 1; i <= target; i++) {
-                rowDimensions[i - 1] = rowDimensions[i];
+                dimensions[i - 1] = dimensions[i];
             }
-            rowDimensions[target] = buffer;
+            dimensions[target] = buffer;
         }
         this.createCrosstab();
     }
@@ -390,58 +428,54 @@ class CrosstabExt {
     colDimReorder (subject, target) {
         var buffer = '',
             i,
-            colDimensions = this.colDimensions;
+            measures = this.measures;
         if (this.measureOnRow === false) {
-            colDimensions.splice(colDimensions.length - 1, 1);
+            measures.splice(measures.length - 1, 1);
         }
-        if (colDimensions.indexOf(Math.max(subject, target)) >= colDimensions.length) {
+        if (measures.indexOf(Math.max(subject, target)) >= measures.length) {
             return 'wrong index';
         } else if (subject > target) {
-            buffer = colDimensions[subject];
+            buffer = measures[subject];
             for (i = subject - 1; i >= target; i--) {
-                colDimensions[i + 1] = colDimensions[i];
+                measures[i + 1] = measures[i];
             }
-            colDimensions[target] = buffer;
+            measures[target] = buffer;
         } else if (subject < target) {
-            buffer = colDimensions[subject];
+            buffer = measures[subject];
             for (i = subject + 1; i <= target; i++) {
-                colDimensions[i - 1] = colDimensions[i];
+                measures[i - 1] = measures[i];
             }
-            colDimensions[target] = buffer;
+            measures[target] = buffer;
         }
         this.createCrosstab();
     }
 
     mergeDimensions () {
         let dimensions = [];
-        for (let i = 0, l = this.rowDimensions.length; i < l; i++) {
-            dimensions.push(this.rowDimensions[i]);
+        for (let i = 0, l = this.dimensions.length; i < l; i++) {
+            dimensions.push(this.dimensions[i]);
         }
-        for (let i = 0, l = this.colDimensions.length; i < l; i++) {
-            dimensions.push(this.colDimensions[i]);
+        for (let i = 0, l = this.measures.length; i < l; i++) {
+            dimensions.push(this.measures[i]);
         }
         return dimensions;
     }
 
     createFilters () {
-        let filters = [];
-        for (let i = 0, l = this.dimensions.length; i < l; i++) {
-            if (this.measureOnRow && this.dimensions[i] !== this.rowDimensions[this.rowDimensions.length - 1]) {
-                let matchedValues = this.globalData[this.dimensions[i]];
-                for (let j = 0, len = matchedValues.length; j < len; j++) {
-                    filters.push({
-                        filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
-                        filterVal: matchedValues[j]
-                    });
-                }
-            } else if (!this.measureOnRow && this.dimensions[i] !== this.colDimensions[this.colDimensions.length - 1]) {
-                let matchedValues = this.globalData[this.dimensions[i]];
-                for (let j = 0, len = matchedValues.length; j < len; j++) {
-                    filters.push({
-                        filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
-                        filterVal: matchedValues[j]
-                    });
-                }
+        let filters = [],
+            i = 0,
+            ii = this.dimensions.length - 1,
+            j = 0,
+            jj = 0,
+            matchedValues;
+
+        for (i = 0; i < ii; i++) {
+            matchedValues = this.globalData[this.dimensions[i]];
+            for (j = 0, jj = matchedValues.length; j < jj; j++) {
+                filters.push({
+                    filter: this.filterGen(this.dimensions[i], matchedValues[j].toString()),
+                    filterVal: matchedValues[j]
+                });
             }
         }
         return filters;
@@ -473,11 +507,7 @@ class CrosstabExt {
 
         for (let key in this.globalData) {
             if (this.globalData.hasOwnProperty(key) && key !== this.measure) {
-                if (this.measureOnRow && key !== this.rowDimensions[this.rowDimensions.length - 1]) {
-                    tempObj[key] = this.globalData[key];
-                } else if (!this.measureOnRow && key !== this.colDimensions[this.colDimensions.length - 1]) {
-                    tempObj[key] = this.globalData[key];
-                }
+                tempObj[key] = this.globalData[key];
             }
         }
         tempArr = Object.keys(tempObj).map(key => tempObj[key]);
@@ -540,7 +570,6 @@ class CrosstabExt {
         }
 
         this.mc.addEventListener('hoverin', (evt, data) => {
-            // debugger;
             if (new Date().getTime() - window.time < 200) {
                 return;
             }
@@ -554,7 +583,6 @@ class CrosstabExt {
                                 let cellAdapter = row[j].chart.configuration,
                                     category = this.dimensions[this.dimensions.length - 1],
                                     categoryVal = data.data[category];
-                                // console.log(cellAdapter, category, categoryVal);
                                 cellAdapter.highlight(categoryVal);
                             }
                         }
@@ -610,11 +638,10 @@ class CrosstabExt {
         return false;
     }
 
-    getChartObj (rowFilter, columnFilter) {
+    getChartObj (rowFilter, colFilter) {
         let filters = [],
             filterStr = '',
             rowFilters = rowFilter.split('|'),
-            colFilters = columnFilter.split('|'),
             dataProcessors = [],
             dataProcessor = {},
             matchedHashes = [],
@@ -624,9 +651,9 @@ class CrosstabExt {
             filteredData = {},
             adapterCfg = {},
             adapter = {},
-            categories = this.globalData[this.colDimensions[this.colDimensions.length - 1]];
+            categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
 
-        rowFilters.push.apply(rowFilters, colFilters);
+        rowFilters.push.apply(rowFilters);
         filters = rowFilters.filter((a) => {
             return (a !== '');
         });
@@ -642,19 +669,17 @@ class CrosstabExt {
             filteredData = filteredData[filteredData.length - 1];
             filteredJSON = filteredData.getJSON();
             for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
-                if (filteredJSON[i][this.measure] > max) {
-                    max = filteredJSON[i][this.measure];
+                if (filteredJSON[i][colFilter] > max) {
+                    max = filteredJSON[i][colFilter];
                 }
-                if (filteredJSON[i][this.measure] < min) {
-                    min = filteredJSON[i][this.measure];
+                if (filteredJSON[i][colFilter] < min) {
+                    min = filteredJSON[i][colFilter];
                 }
             }
             adapterCfg = {
                 config: {
-                    dimension: this.measureOnRow
-                        ? [this.rowDimensions[this.rowDimensions.length - 1]]
-                        : [this.colDimensions[this.colDimensions.length - 1]],
-                    measure: [this.measure],
+                    dimension: [this.dimensions[this.dimensions.length - 1]],
+                    measure: [colFilter],
                     seriesType: 'SS',
                     aggregateMode: this.aggregation,
                     categories: categories,
@@ -663,7 +688,7 @@ class CrosstabExt {
                 datastore: filteredData
             };
             adapter = this.mc.dataadapter(adapterCfg);
-            return [{
+            return rr = [{
                 'max': max,
                 'min': min
             }, {
