@@ -123,6 +123,7 @@ class CrosstabExt {
                 table[table.length - 1].push({
                     rowspan: 1,
                     colspan: 1,
+                    width: 40,
                     className: 'y-axis-chart',
                     chart: {
                         'type': 'axis',
@@ -214,6 +215,7 @@ class CrosstabExt {
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldComponent;
             htmlRef.style.textAlign = 'center';
+            htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
                 ' ' + this.measures[i].toLowerCase();
@@ -274,12 +276,12 @@ class CrosstabExt {
             htmlRef.innerHTML = '';
             htmlRef.style.textAlign = 'center';
             table[i].push({
-                width: this.measures[i].length * 10,
+                width: 40,
                 height: 30,
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
-                className: 'corner-cell'
+                className: 'axis-header-cell'
             });
         }
         return table;
@@ -345,7 +347,7 @@ class CrosstabExt {
             for (i = 0; i < table.length; i++) {
                 maxLength = (maxLength < table[i].length) ? table[i].length : maxLength;
             }
-            for (i = 0; i < this.dimensions.length; i++) {
+            for (i = 0; i < this.dimensions.length - 1; i++) {
                 xAxisRow.push({
                     rowspan: 1,
                     colspan: 1,
@@ -353,6 +355,15 @@ class CrosstabExt {
                     className: 'blank-cell'
                 });
             }
+
+            // Extra cell for y axis. Essentially Y axis footer.
+            xAxisRow.push({
+                rowspan: 1,
+                colspan: 1,
+                height: 30,
+                width: 40,
+                className: 'axis-footer-cell'
+            });
 
             for (i = 0; i < maxLength - this.dimensions.length; i++) {
                 let categories = this.globalData[this.dimensions[this.dimensions.length - 1]],
@@ -561,7 +572,7 @@ class CrosstabExt {
         }
         for (let i = 0, ii = matrix.length; i < ii; i++) {
             let row = matrix[i],
-                rowAxis = {};
+                rowAxis;
             for (let j = 0, jj = row.length; j < jj; j++) {
                 let cell = row[j],
                     crosstabElement = crosstab[i][j];
@@ -587,20 +598,22 @@ class CrosstabExt {
                         rowAxis.update(rowAxis.config);
                     }
                 }
-                if (!(crosstabElement.hasOwnProperty('chart') || crosstabElement.hasOwnProperty('html')) &&
+                if (rowAxis) {
+                    if (!(crosstabElement.hasOwnProperty('chart') || crosstabElement.hasOwnProperty('html')) &&
                     crosstabElement.className !== 'blank-cell') {
-                    let limits = rowAxis.chart.chartObj.getLimits(),
-                        minLimit = limits[0],
-                        maxLimit = limits[1],
-                        chart = this.getChartObj(crosstabElement.rowHash, crosstabElement.colHash)[1];
-                    chart.configuration.FCjson.chart.yAxisMinValue = minLimit;
-                    chart.configuration.FCjson.chart.yAxisMaxValue = maxLimit;
-                    cell.config.chart = chart;
-                    crosstabElement.chart = chart;
-                    window.ctPerf += (performance.now() - t2);
-                    cell.update(cell.config);
+                        let limits = rowAxis.chart.chartObj.getLimits(),
+                            minLimit = limits[0],
+                            maxLimit = limits[1],
+                            chart = this.getChartObj(crosstabElement.rowHash, crosstabElement.colHash)[1];
+                        chart.configuration.FCjson.chart.yAxisMinValue = minLimit;
+                        chart.configuration.FCjson.chart.yAxisMaxValue = maxLimit;
+                        cell.config.chart = chart;
+                        crosstabElement.chart = chart;
+                        window.ctPerf += (performance.now() - t2);
+                        cell.update(cell.config);
+                    }
+                    t2 = performance.now();
                 }
-                t2 = performance.now();
             }
         }
 
