@@ -2,11 +2,10 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    rowDimensions: ['Product', 'State'],
-    colDimensions: ['Year', 'Quality', 'Month'],
+    dimensions: ['Product', 'State', 'Month'],
+    measures: ['Sale', 'Visitors', 'Profit'],
     chartType: 'column2d',
     noDataMessage: 'No data to display.',
-    measure: 'Sale',
     measureOnRow: false,
     cellWidth: 120,
     cellHeight: 100,
