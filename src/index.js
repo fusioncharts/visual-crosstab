@@ -6,13 +6,12 @@ var config = {
     measures: ['Profit', 'Visitors', 'Sale'],
     chartType: 'column2d',
     noDataMessage: 'No data to display.',
-    measureOnRow: false,
-    cellWidth: 210,
-    cellHeight: 113,
-    showFilter: false,
-    draggableHeaders: true,
     crosstabContainer: 'crosstab-div',
-    aggregation: 'sum',
+    // cellWidth: 210,
+    // cellHeight: 113,
+    // showFilter: false,
+    // draggableHeaders: true,
+    // aggregation: 'sum',
     chartConfig: {
         chart: {
             'showBorder': '0',

@@ -28,20 +28,20 @@ class CrosstabExt {
             config: config
         };
         this.chartType = config.chartType;
-        this.showFilter = config.showFilter;
-        this.draggableHeaders = config.draggableHeaders;
+        this.showFilter = config.showFilter || false;
+        this.draggableHeaders = config.draggableHeaders || false;
         this.chartConfig = config.chartConfig;
         this.dimensions = config.dimensions;
         this.measures = config.measures;
-        this.measureOnRow = config.measureOnRow;
+        this.measureOnRow = false;
         this.globalData = this.buildGlobalData();
         this.columnKeyArr = [];
-        this.cellWidth = config.cellWidth;
-        this.cellHeight = config.cellHeight;
+        this.cellWidth = config.cellWidth || 210;
+        this.cellHeight = config.cellHeight || 113;
         this.crosstabContainer = config.crosstabContainer;
         this.hash = this.getFilterHashMap();
         this.count = 0;
-        this.aggregation = config.aggregation;
+        this.aggregation = config.aggregation || 'sum';
         this.axes = [];
         this.noDataMessage = config.noDataMessage;
         if (typeof FCDataFilterExt === 'function' && this.showFilter) {
