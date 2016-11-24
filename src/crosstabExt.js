@@ -726,7 +726,7 @@ class CrosstabExt {
                 dataProcessor.filter(matchedHashes[i]);
                 dataProcessors.push(dataProcessor);
             }
-            filteredData = this.dataStore.getData(dataProcessors);
+            filteredData = this.dataStore.getChildModel(dataProcessors);
             filteredData = filteredData[filteredData.length - 1];
             // filteredJSON = filteredData.getJSON();
             // for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
