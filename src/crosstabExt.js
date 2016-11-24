@@ -261,20 +261,25 @@ class CrosstabExt {
     createRowDimHeading (table, colOrderLength) {
         var cornerCellArr = [],
             i = 0,
-            htmlRef;
+            htmlRef,
+            classStr = '';
 
         for (i = 0; i < this.dimensions.length - 1; i++) {
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = this.dimensions[i][0].toUpperCase() + this.dimensions[i].substr(1);
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = '6px';
+            classStr = 'corner-cell no-select';
+            if (this.draggableHeaders) {
+                classStr += ' draggable';
+            }
             cornerCellArr.push({
                 width: this.dimensions[i] * 10,
                 height: 30,
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
-                className: 'corner-cell no-select'
+                className: classStr
             });
         }
         return cornerCellArr;

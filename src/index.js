@@ -10,7 +10,7 @@ var config = {
     cellWidth: 210,
     cellHeight: 113,
     showFilter: false,
-    draggableHeaders: false,
+    draggableHeaders: true,
     crosstabContainer: 'crosstab-div',
     aggregation: 'sum',
     chartConfig: {
