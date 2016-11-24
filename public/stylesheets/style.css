@@ -7,6 +7,18 @@
     user-select: none;
 }
 
+.draggable {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+}
+
+.dragging {
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+    cursor: grabbing;
+}
+
 #crosstab-div {
     color: #5C6061;
     font-family: 'Arial', sans-serif;

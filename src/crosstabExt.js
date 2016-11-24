@@ -29,6 +29,7 @@ class CrosstabExt {
         };
         this.chartType = config.chartType;
         this.showFilter = config.showFilter;
+        this.draggableHeaders = config.draggableHeaders;
         this.chartConfig = config.chartConfig;
         this.dimensions = config.dimensions;
         this.measures = config.measures;
@@ -227,6 +228,9 @@ class CrosstabExt {
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
                 ' ' + this.measures[i].toLowerCase() + ' no-select';
+            if (this.draggableHeaders) {
+                classStr += ' draggable';
+            }
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
             colElement = {
@@ -665,7 +669,9 @@ class CrosstabExt {
         } else {
             this.multichartObject.update(matrix);
         }
-        this.dragListener(this.multichartObject.placeHolder);
+        if (this.draggableHeaders) {
+            this.dragListener(this.multichartObject.placeHolder);
+        }
         return this.multichartObject.placeHolder;
     }
 
@@ -871,11 +877,13 @@ class CrosstabExt {
             x = e.clientX;
             y = e.clientY;
             el.style.opacity = 0.8;
+            el.classList.add('dragging');
             window.document.addEventListener('mousemove', customHandler);
             window.document.addEventListener('mouseup', mouseUpHandler);
         });
         function mouseUpHandler (e) {
             el.style.opacity = 1;
+            el.classList.remove('dragging');
             window.document.removeEventListener('mousemove', customHandler);
             window.document.removeEventListener('mouseup', mouseUpHandler);
             window.setTimeout(handler2, 10);
