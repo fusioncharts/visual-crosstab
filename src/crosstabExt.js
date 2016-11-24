@@ -119,7 +119,7 @@ class CrosstabExt {
                             }
                         }
                     },
-                    adapter = this.mc.dataadapter(adapterCfg);
+                    adapter = this.mc.dataAdapter(adapterCfg);
                 table[table.length - 1].push({
                     rowspan: 1,
                     colspan: 1,
@@ -299,7 +299,7 @@ class CrosstabExt {
                     }
                 }
             },
-            adapter = this.mc.dataadapter(adapterCfg);
+            adapter = this.mc.dataAdapter(adapterCfg);
         table.unshift([{
             height: 50,
             rowspan: 1,
@@ -381,7 +381,7 @@ class CrosstabExt {
                             }
                         }
                     },
-                    adapter = this.mc.dataadapter(adapterCfg);
+                    adapter = this.mc.dataAdapter(adapterCfg);
                 xAxisRow.push({
                     width: '100%',
                     height: 20,
@@ -593,7 +593,7 @@ class CrosstabExt {
                                     }
                                 }
                             },
-                            adapter = this.mc.dataadapter(adapterCfg);
+                            adapter = this.mc.dataAdapter(adapterCfg);
                         rowAxis.config.chart.configuration = adapter;
                         rowAxis.update(rowAxis.config);
                     }
@@ -748,7 +748,7 @@ class CrosstabExt {
                 },
                 datastore: filteredData
             };
-            adapter = this.mc.dataadapter(adapterCfg);
+            adapter = this.mc.dataAdapter(adapterCfg);
             limits = adapter.getLimit();
             return [{
                 'max': limits.max,
