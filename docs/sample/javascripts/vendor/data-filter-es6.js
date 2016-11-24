@@ -55,34 +55,72 @@
 
 	const FilterVisual = __webpack_require__(2);
 
+	/**
+	 * Class representing the Data Aggregator.
+	 */
 	class FCDataFilterExt {
-	  constructor (datastore, userconfig, id, cb) {
-	    /**
-	    * User configuration format
-	    * {
-	    *   hideControl: false,
-	    *   dynamicControl: false,
-	    *   blockedCategories: ['Product'],
-	    *   disabledCategories: ['Product'],
-	    *   disabledItems: {
-	    *     'Product' : ['Tea']
-	    *   },
-	    *   range: {
-	    *     year: {min: 2000, max: 2010, step: 3, precision: 2}
-	    *   }
-	    * }
-	    */
+	  /**
+	   * Create a Data Filter.
+	   * @param {Object} datastore - Defines the Global Data Store
+	   * @param {Object} userconfig - Defines the user's configauration
+	   * @param {Boolean} [userconfig.autoApply=true] - If 'true', filter applies on any change in filter
+	      else an apply button is provided to filter.
+	   * @param {Object} userconfig.fieldConfig - Defines the field configurations
+	   * @param {Object} userconfig.fieldConfig.fieldName - Defines the config for the particular field
+	   * @param {Boolean} [userconfig.fieldConfig.fieldName.visible=true] - If 'true', the field will be visible in control
+	     panel and vice versa.
+	   * @param {Boolean} [userconfig.fieldConfig.fieldName.selectable=true] - If 'false', all the values of the field
+	     cannot be interacted and vice versa.
+	   * @param {Array} [userconfig.fieldConfig.fieldName.nonSelectableValues=[]] - Defines the values of a field which
+	     cannot be interacted.
+	   * @param {Array} [userconfig.fieldConfig.fieldName.nonSelectedValues=[]] - Defines the values of a field which
+	     will not be selected (i.e., unchecked) initially.
+	   * @param {Boolean} [userconfig.fieldConfig.fieldName.collapsed=false] - If 'true', the field in control panel
+	     will be in collapsed mode else it will be expanded initially.
+	   * @param {number} [userconfig.fieldConfig.fieldName.step=0] - Defines the step interval of range slider, if '0' then
+	     the range slider will be continuos else it will be discrete.
+	   * @param {number} [userconfig.fieldConfig.fieldName.decimal=0] - Defines the number of decimal point in range
+	   * @param {number} [userconfig.fieldConfig.fieldName.scaleMin=min value of all fields] - Defines the minimum
+	     value of the scale in range slider
+	   * @param {number} [userconfig.fieldConfig.fieldName.scaleMax=max value of all fields] - Defines the maximum
+	     value of the scale in range slider
+	   * @param {number} [userconfig.fieldConfig.fieldName.activeMin=scaleMin] - Defines the value of min slider
+	     handle in range slider initially.
+	   * @param {number} [userconfig.fieldConfig.fieldName.activeMax=scaleMax] - Defines the value of max slider
+	     handle in range slider initially.
+	   * @param {string} containerId - Defines the container id of control box
+	   */
+	  constructor (datastore, userconfig, id) {
+	    this.separator = '&*fusioncharts_()76eqw';
 	    this.multiChart = new MultiCharting();
 	    this.datastore = datastore;
-	    this.callback = cb;
 	    this.userconfig = userconfig || {};
+	    // this.userconfig = {
+	    //   autoApply: true,
+	    //   fieldConfig: {
+	    //     'product': {
+	    //       selectable: true,
+	    //       collapsed: false,
+	    //       nonSelectableValues: ['Rice'],
+	    //       nonSelectedValues: ['Wheat']
+	    //     },
+	    //     'sale': {
+	    //       step: 2.5,
+	    //       decimal: 2,
+	    //       scaleMin: 1,
+	    //       scaleMax: 10
+	    //     }
+	    //   }
+	    // };
+
 	    this.displayConfig = this.createMenuConfigFromData();
 	    this.filterVisual = new FilterVisual(this.displayConfig, id, this);
 	    // data set
 	  }
 
 	  generateBlockList (_list) {
-	    var list = _list || [],
+	    var self = this,
+	      list = _list || [],
 	      i = 0,
 	      ii = list.length,
 	      key,
@@ -107,8 +145,8 @@
 	        for (j = 0, jj = item.items.length; j < jj; ++j) {
 	          subItem = item.items[j];
 	          if (!subItem.disabled && (includeAll || !subItem.checked)) {
-	            if (blockList.indexOf(item.category + subItem.value) === -1) {
-	              blockList.push(item.category + subItem.value);
+	            if (blockList.indexOf(item.field + self.separator + subItem.value) === -1) {
+	              blockList.push(item.field + self.separator + subItem.value);
 	            } // end if
 	          } // end if
 	        } // end for j
@@ -117,38 +155,43 @@
 	      if (item.type === 'number') {
 	        for (j = 0, jj = item.items.length; j < jj; ++j) {
 	          subItem = item.items[j];
-	          min = item.range.min;
-	          max = item.range.max;
-	          if (includeAll || subItem.value < min || subItem.value > max) {
-	            if (blockList.indexOf(item.category + subItem.value) === -1) {
-	              blockList.push(item.category + subItem.value);
+	          min = item.range.activeMin;
+	          max = item.range.activeMax;
+	          if (includeAll || +subItem.value < min || +subItem.value > max) {
+	            if (blockList.indexOf(item.field + self.separator + subItem.value) === -1) {
+	              blockList.push(item.field + self.separator + subItem.value);
 	            } // end if
 	          } // end if
 	        } // end for j
 	      } // end if
 	    } // end for i
-	    return blockList;
+	    // sving block list to instance
+	    this.blockList = blockList;
 	  } // end function
 
 	  /**
+	  * @private
 	  * function that will be called after
 	  * apply has been clicked in ui
 	  */
 	  apply (config) {
-	    var dataprocessor = this.multiChart.createDataProcessor(),
-	      datastore = this.multiChart.createDataStore();
-	    dataprocessor.filter(this.createFilter(config));
+	    var dataprocessor = this.dataprocessor || this.multiChart.createDataProcessor();
+	    this.generateBlockList(config);
+	    if (!this.dataprocessor) {
+	      this.dataprocessor = dataprocessor;
+	      dataprocessor.filter(this.createFilter(config));
+	    }
 	    // Executing the callback function whenever filter is applied
-	    this.callback(this.datastore.getData(dataprocessor));
+	    this.datastore.addDataProcessor(this.dataprocessor);
 	  }
 
 	  createFilter (_config) {
 	    var config = _config || this.displayConfig,
-	      blockList = this.generateBlockList(config);
-	    return function (object, index, array) {
+	      self = this;
+	    return (object, index, array) => {
 	      var key;
 	      for (key in object) {
-	        if (blockList.indexOf(key + object[key]) !== -1) {
+	        if (self.blockList.indexOf(key + self.separator + object[key]) !== -1) {
 	          return;
 	        }
 	      }
@@ -157,14 +200,14 @@
 	  }
 
 	  /**
+	  * @private
 	  * Create config menu according to which
 	  * view will be rendered.
 	  */
 	  createMenuConfigFromData () {
 	    var userconfig = this.userconfig,
 	      configOb = {
-	        visible: !userconfig.hideControl,
-	        dynamic: userconfig.dynamicControl === undefined ? true : userconfig.dynamicControl,
+	        autoApply: pluckNumber(userconfig.autoApply, true),
 	        data: []
 	      },
 	      config = configOb.data,
@@ -183,7 +226,7 @@
 	    for (i = 0, ii = keysArr.length; i < ii; ++i) {
 	      key = keysArr[i];
 	      temp = {
-	        category: key,
+	        field: key,
 	        visible: true
 	      };
 	      this.__createItemsList__(temp);
@@ -195,15 +238,20 @@
 
 	  __createItemsList__ (object) {
 	    var datastore = this.datastore,
-	      category = object.category,
+	      category = object.field,
 	      valuesArr = datastore.getUniqueValues(category),
 	      type = this.__getType__(valuesArr, category),
+	      userconfig = this.userconfig,
+	      fieldConfig = userconfig.fieldConfig,
 	      min = 0,
 	      max = 0,
+	      activeMin = 0,
+	      activeMax = 0,
 	      i = 0,
 	      ii = 0,
 	      step = 0,
-	      precision = 0;
+	      precision = 0,
+	      currentField = {};
 	    // setting type
 	    object.type = type;
 	    if (type === 'string') {
@@ -224,23 +272,35 @@
 	          value: valuesArr[i]
 	        });
 	      }
-	      min = Math.min.apply(null, valuesArr);
-	      max = Math.max.apply(null, valuesArr);
-	      if (this.userconfig.range && this.userconfig.range[category]) {
-	        if (this.userconfig.range[category].min && this.userconfig.range[category].min > min) {
-	          min = this.userconfig.range[category].min;
+	      activeMin = min = Math.min.apply(null, valuesArr);
+	      activeMax = max = Math.max.apply(null, valuesArr);
+	      if (fieldConfig && fieldConfig[category]) {
+	        currentField = fieldConfig[category];
+	        if (currentField.scaleMin && currentField.scaleMin > min) {
+	          min = currentField.scaleMin;
 	        }
-	        if (this.userconfig.range[category].max && this.userconfig.range[category].max < max) {
-	          max = this.userconfig.range[category].max;
+	        if (currentField.scaleMax && currentField.scaleMax < max) {
+	          max = currentField.scaleMax;
 	        }
-	        step = this.userconfig[category].step || 0;
-	        precision = this.userconfig[category].precision || 2;
-	      }
+	        activeMin = min;
+	        activeMax = max;
+	        if (currentField.activeMin && currentField.activeMin > activeMin) {
+	          activeMin = currentField.activeMin;
+	        }
+	        if (currentField.activeMax && currentField.activeMax < activeMax) {
+	          activeMax = currentField.activeMax;
+	        }
+	        step = pluckNumber(currentField.step, 0);
+	        precision = pluckNumber(currentField.decimal, 2);
+	      } // end if fieldConfig
+	      // Setting range to object
 	      object.range = {
-	        min: min,
-	        max: max,
+	        scaleMin: min,
+	        scaleMax: max,
+	        activeMin: activeMin,
+	        activeMax: activeMax,
 	        step: step,
-	        precision: precision
+	        decimal: precision
 	      };
 	    }
 	  }
@@ -248,25 +308,37 @@
 	  __applyUserConfig__ (object) {
 	    var userconfig = this.userconfig,
 	      type = object.type,
-	      category = object.category,
-	      blockedCategories = userconfig.blockedCategories,
-	      disabledCategories = userconfig.disabledCategories,
+	      category = object.field,
 	      disabledItems = userconfig.disabledItems && userconfig.disabledItems[category],
 	      items = object.items || [],
 	      i = 0,
-	      ii = items.length;
-
-	    if (Array.isArray(blockedCategories) && blockedCategories.indexOf(category) !== -1) {
-	      object.visible = false;
-	    }
-	    if (Array.isArray(disabledCategories) && disabledCategories.indexOf(category) !== -1) {
-	      object.disabled = true;
-	    }
-
-	    if (Array.isArray(disabledItems)) {
-	      for (; i < ii; ++i) {
-	        if (disabledItems.indexOf(items[i].value) !== -1) {
-	          object.items[i].disabled = true;
+	      ii = items.length,
+	      fieldConfig = userconfig.fieldConfig,
+	      currentField = {},
+	      nonSelectableValues = [],
+	      nonSelectedValues = [],
+	      selectable = true;
+	    // Check if field exists
+	    if (fieldConfig && fieldConfig[category]) {
+	      currentField = fieldConfig[object.field];
+	      nonSelectedValues = currentField.nonSelectedValues || [];
+	      nonSelectableValues = currentField.nonSelectableValues || [];
+	      // setting object properties
+	      selectable = pluckNumber(currentField.selectable, true);
+	      object.visible = pluckNumber(currentField.visible, true);
+	      object.collapsed = pluckNumber(currentField.collapsed, false);
+	      // setting field properties
+	      if (object.type === 'string') {
+	        for (i = 0, ii = items.length; i < ii; ++i) {
+	          if (!selectable) {
+	            items[i].disabled = true;
+	          }
+	          if (!items[i].disabled && nonSelectableValues.indexOf(items[i].value) !== -1) {
+	            items[i].disabled = true;
+	          }
+	          if (nonSelectedValues.indexOf(items[i].value) !== -1) {
+	            items[i].checked = false;
+	          }
 	        }
 	      }
 	    }
@@ -292,12 +364,22 @@
 	}
 	window.FCDataFilterExt = FCDataFilterExt;
 
+	var pluckNumber = (val, def) => {
+	  if (val === undefined) {
+	    return def;
+	  }
+	  return val;
+	};
+
 
 /***/ },
 /* 2 */
 /***/ function(module, exports) {
 
 	'use strict';
+	const HUNDREED = 100,
+	  PERCENTAGESTRING = '%',
+	  CLASS = 'class';
 
 	class FilterVisual {
 
@@ -309,8 +391,7 @@
 	    this.originalFilterState = this.makeCopy(this.filterState);
 	    this.filterExt = filterExt;
 	    this.config = {
-	      dynamic: filterObj.dynamic,
-	      visible: filterObj.visible,
+	      autoApply: filterObj.autoApply,
 	      containerId: containerId
 	    };
 	    this.draw();
@@ -353,7 +434,9 @@
 	    var self = this,
 	      sliderWrapper,
 	      inputWrapper,
+	      scaleWrapper,
 	      labelWrapper,
+	      scaleTick,
 	      minInput,
 	      maxInput,
 	      minLabel,
@@ -363,24 +446,30 @@
 	      minSliderHandle,
 	      maxSliderHandle,
 	      range = dataObj.range,
-	      minVal = range.min,
-	      maxVal = range.max,
-	      diffVal = maxVal - minVal,
-	      getInputValue = function () {
-	        var sliderBaseWidth = sliderBase.offsetWidth,
-	          valuePerPixel = diffVal / sliderBaseWidth;
-	        return {
-	          min: Math.round((valuePerPixel * parseInt(minSliderHandle.style.left)) + minVal),
-	          max: Math.round((valuePerPixel * parseInt(maxSliderHandle.style.left)) + minVal)
-	        };
+	      scaleMinVal = range.scaleMin,
+	      scaleMaxVal = range.scaleMax,
+	      activeMinVal = range.activeMin,
+	      activeMaxVal = range.activeMax,
+	      diffVal = scaleMaxVal - scaleMinVal,
+	      step = range.step,
+	      i,
+	      stepsPosArr = [],
+	      pos,
+	      setInputValue = function () {
+	        var min,
+	          max;
+
+	        min = (((parseInt(minSliderHandle.style.left) / HUNDREED) * diffVal) + scaleMinVal).toFixed(range.decimal);
+	        max = (((parseInt(maxSliderHandle.style.left) / HUNDREED) * diffVal) + scaleMinVal).toFixed(range.decimal);
+	        range.activeMin = minInput.value = min;
+	        range.activeMax = maxInput.value = max;
 	      },
 	      // Attach events to range slider handles
 	      attachHandlerEvent = function (elem, type) {
 	        var initX,
 	          mousePressX,
 	          flag = true,
-	          rangeObj,
-	          callBack = (event) => {
+	          moveHandler = (event) => {
 	            var element = this;
 	            if (flag) {
 	              setTimeout(() => {
@@ -388,91 +477,117 @@
 	                repositionElement.call(element, event);
 	              }, 100);
 	            }
+	            event.preventDefault();
 	          },
 
 	          // Set style to slider handle to reposition along drag
 	          repositionElement = (event) => {
 	            var sliderBaseWidth = sliderBase.offsetWidth,
-	              left = parseInt(initX) + event.clientX - mousePressX,
+	              clientX = event.touches ? event.touches[0].clientX : event.clientX,
+	              left = parseInt(initX) + clientX - mousePressX,
+	              leftPos,
 	              min,
 	              max;
 
 	            if (type === 'min') {
 	              min = 0;
-	              max = parseInt(maxSliderHandle.style.left) - 10;
+	              max = ((parseInt(maxSliderHandle.style.left) / HUNDREED) * sliderBaseWidth) - 10;
 	            } else {
-	              min = parseInt(minSliderHandle.style.left) + 10;
+	              min = ((parseInt(minSliderHandle.style.left) / HUNDREED) * sliderBaseWidth) + 10;
 	              max = sliderBaseWidth;
 	            }
 
 	            if (left >= min && left <= max) {
-	              elem.style.left = left + 'px';
+	              leftPos = ((HUNDREED / sliderBaseWidth) * left).toFixed(0);
+	              elem.style.left = leftPos + PERCENTAGESTRING;
+
 	              if (type === 'min') {
-	                sliderConnect.style.left = left + 'px';
+	                sliderConnect.style.left = leftPos + PERCENTAGESTRING;
 	              } else {
-	                sliderConnect.style.right = (sliderBaseWidth - left) + 'px';
+	                sliderConnect.style.right = (HUNDREED - leftPos) + PERCENTAGESTRING;
 	              }
-	              rangeObj = getInputValue();
-	              dataObj.range.min = minInput.value = rangeObj.min;
-	              dataObj.range.max = maxInput.value = rangeObj.max;
+
+	              setInputValue();
 	            }
 	            flag = true;
+	          },
+	          stepHandler = () => {
+	            var posArr = range.stepsPosArr,
+	              pos = parseInt(elem.style.left),
+	              closest = posArr
+	             .reduce((prev, curr) => Math.abs(curr - pos) < Math.abs(prev - pos) ? curr : prev);
+
+	            elem.style.left = closest.toFixed(0) + PERCENTAGESTRING;
+
+	            if (type === 'min') {
+	              sliderConnect.style.left = closest.toFixed(0) + PERCENTAGESTRING;
+	            } else {
+	              sliderConnect.style.right = (HUNDREED - closest) + PERCENTAGESTRING;
+	            }
+	            setInputValue();
+	          },
+	          downHandler = (evnt) => {
+	            var body = document.body,
+	              upHandler = function () {
+	                body.style.cursor = '';
+	                body.removeEventListener('mousemove', moveHandler, false);
+	                body.removeEventListener('touchmove', moveHandler, false);
+	                body.removeEventListener('mouseup', upHandler, false);
+	                body.removeEventListener('touchend', upHandler, false);
+	                if (step) {
+	                  stepHandler();
+	                }
+	                self.applyFilter();
+	              };
+	            initX = (parseInt(elem.style.left) / HUNDREED) * sliderBase.offsetWidth;
+	            mousePressX = evnt.touches ? evnt.touches[0].clientX : evnt.clientX;
+	            body.style.cursor = 'pointer';
+	            body.addEventListener('mousemove', moveHandler, false);
+	            body.addEventListener('touchmove', moveHandler, false);
+	            body.addEventListener('mouseup', upHandler, false);
+	            body.addEventListener('touchend', upHandler, false);
+	            evnt.preventDefault();
 	          };
 
-	        elem.addEventListener('mousedown', function (evnt) {
-	          var body = document.body,
-	            mouseUpCallBack = function () {
-	              body.style.cursor = '';
-	              body.removeEventListener('mousemove', callBack, false);
-	              body.removeEventListener('mouseup', mouseUpCallBack, false);
-	              self.applyFilter();
-	            };
-	          initX = elem.style.left;
-	          mousePressX = evnt.clientX;
-	          body.style.cursor = 'pointer';
-	          body.addEventListener('mousemove', callBack, false);
-	          body.addEventListener('mouseup', mouseUpCallBack, false);
-	        }, false);
+	        elem.addEventListener('mousedown', downHandler, false);
+	        elem.addEventListener('touchstart', downHandler, false);
+	      },
+
+	      changeInputHandler = function (event) {
+	        var minInputVal = Number(minInput.value),
+	          maxInputVal = Number(maxInput.value),
+	          tempVal;
+
+	        if ((minInputVal >= scaleMinVal) && (maxInputVal <= scaleMaxVal) && (minInputVal <= maxInputVal)) {
+	          sliderConnect.style.left = minSliderHandle.style.left =
+	            ((HUNDREED / diffVal) * (minInputVal - scaleMinVal)).toFixed(0) + PERCENTAGESTRING;
+	          tempVal = ((HUNDREED / diffVal) * (maxInputVal - scaleMinVal));
+	          maxSliderHandle.style.left = tempVal + PERCENTAGESTRING;
+	          sliderConnect.style.right = (HUNDREED - tempVal) + PERCENTAGESTRING;
+	        }
+	        setInputValue();
+	        event && (self.applyFilter());
 	      },
 
 	      // Attach event to min max input text field of range slider
 	      attachInputEvent = function (elem, type) {
-	        elem.addEventListener('blur', function (evnt) {
-	          var sliderBaseWidth = sliderBase.offsetWidth,
-	            pixelPerValue = sliderBaseWidth / diffVal,
-	            minInputVal = Number(minInput.value),
-	            maxInputVal = Number(maxInput.value),
-	            tempVal,
-	            rangeObj;
-
-	          if ((minInputVal >= minVal) && (maxInputVal <= maxVal) && (minInputVal <= maxInputVal)) {
-	            sliderConnect.style.left = minSliderHandle.style.left =
-	              Math.round((pixelPerValue * (minInputVal - minVal))) + 'px';
-	            tempVal = Math.round(pixelPerValue * (maxInputVal - minVal));
-	            maxSliderHandle.style.left = tempVal + 'px';
-	            sliderConnect.style.right = (sliderBaseWidth - tempVal) + 'px';
-	          }
-	          rangeObj = getInputValue();
-	          dataObj.range.min = minInput.value = rangeObj.min;
-	          dataObj.range.max = maxInput.value = rangeObj.max;
-	          self.applyFilter();
-	        }, false);
+	        elem.addEventListener('blur', changeInputHandler, false);
 	      };
 
 	    // Create slider elements
 	    sliderWrapper = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_wrapper'
+	      CLASS: 'fc_ext_filter_slider_wrapper'
 	    });
 	    parentElement.appendChild(sliderWrapper);
 
 	    inputWrapper = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_input'
+	      CLASS: 'fc_ext_filter_slider_input'
 	    });
 	    sliderWrapper.appendChild(inputWrapper);
 
 	    minInput = self.createElements('input', {
 	      'type': 'text',
-	      'value': minVal,
+	      'value': activeMinVal,
 	      'style': 'margin-left: 9px;'
 	    });
 	    inputWrapper.appendChild(minInput);
@@ -480,52 +595,85 @@
 
 	    maxInput = self.createElements('input', {
 	      'type': 'text',
-	      'value': maxVal,
+	      'value': activeMaxVal,
 	      'style': 'float: right; margin-right: 9px;'
 	    });
 	    inputWrapper.appendChild(maxInput);
 	    attachInputEvent(maxInput, 'max');
 
 	    sliderBase = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_base'
+	      CLASS: 'fc_ext_filter_slider_base'
 	    });
 	    sliderWrapper.appendChild(sliderBase);
 
 	    sliderConnect = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_connect',
-	      'style': 'left: 0px; right: 0px;'
+	      CLASS: 'fc_ext_filter_slider_connect',
+	      'style': 'left: 0%; right: 0%;'
 	    });
 	    sliderBase.appendChild(sliderConnect);
 
 	    minSliderHandle = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_handle',
-	      'style': 'left: 0px;'
+	      CLASS: 'fc_ext_filter_slider_handle',
+	      'style': 'left: 0%;'
 	    });
 	    sliderBase.appendChild(minSliderHandle);
 	    attachHandlerEvent(minSliderHandle, 'min');
 
 	    maxSliderHandle = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_handle',
-	      'style': 'left:' + sliderBase.offsetWidth + 'px'
+	      CLASS: 'fc_ext_filter_slider_handle',
+	      'style': 'left: 100%;'
 	    });
 	    sliderBase.appendChild(maxSliderHandle);
 	    attachHandlerEvent(maxSliderHandle, 'max');
 
-	    labelWrapper = self.createElements('div', {
-	      'class': 'fc_ext_filter_slider_label'
+	    changeInputHandler();
+
+	    scaleWrapper = self.createElements('div', {
+	      CLASS: 'fc_ext_filter_slider_scale'
 	    });
-	    sliderWrapper.appendChild(labelWrapper);
+	    sliderBase.appendChild(scaleWrapper);
+
+	    scaleTick = self.createElements('span', {
+	      'style': 'left: 0%'
+	    });
+	    scaleWrapper.appendChild(scaleTick);
+	    stepsPosArr.push(0);
+
+	    if (step) {
+	      for (i = step; i < scaleMaxVal; i += step) {
+	        pos = (HUNDREED / diffVal) * i;
+	        scaleTick = self.createElements('span', {
+	          'style': 'left: ' + pos.toFixed(0) + PERCENTAGESTRING
+	        });
+	        scaleWrapper.appendChild(scaleTick);
+	        stepsPosArr.push(pos);
+	      }
+	    }
+
+	    if (parseInt(scaleTick.style.left) !== HUNDREED) {
+	      scaleTick = self.createElements('span', {
+	        'style': 'left: 100%'
+	      });
+	      scaleWrapper.appendChild(scaleTick);
+	      stepsPosArr.push(HUNDREED);
+	    }
+	    range.stepsPosArr = stepsPosArr;
+
+	    labelWrapper = self.createElements('div', {
+	      CLASS: 'fc_ext_filter_slider_label'
+	    });
+	    sliderBase.appendChild(labelWrapper);
 
 	    minLabel = self.createElements('label', {
-	      'style': 'margin-left: 9px;'
+	      'style': 'float: left;'
 	    });
-	    minLabel.innerHTML = minVal;
+	    minLabel.innerHTML = scaleMinVal;
 	    labelWrapper.appendChild(minLabel);
 
 	    maxLabel = self.createElements('label', {
-	      'style': 'float: right; margin-right: 9px;'
+	      'style': 'float: right;'
 	    });
-	    maxLabel.innerHTML = maxVal;
+	    maxLabel.innerHTML = scaleMaxVal;
 	    labelWrapper.appendChild(maxLabel);
 	  }
 
@@ -550,33 +698,33 @@
 	      applyButton,
 	      resetButton;
 
-	    if (!parentContainer || !config.visible) {
+	    if (!parentContainer) {
 	      return;
 	    }
 
 	    parentContainer.innerHTML = '';
 
 	    wrapper = self.createElements('div', {
-	      'class': 'fc_ext_filter_cont',
-	      'style': 'overflow-y: auto; overflow-x: hidden;'
+	      CLASS: 'fc_ext_filter_cont',
+	      'style': 'overflow-y: scroll; overflow-x: hidden;'
 	    });
 	    wrapper.style.height = parentContainer.offsetHeight + 'px';
 	    parentContainer.appendChild(wrapper);
 
 	    for (i = 0; i < filterState.length; i++) {
-	      let catObj = filterState[i],
+	      let fieldObj = filterState[i],
 	        header,
 	        cardBody,
 	        toggleTool,
 	        headerCont,
-	        catName = catObj.category;
+	        fieldName = fieldObj.field;
 
-	      if (catObj.visible) {
+	      if (fieldObj.visible) {
 	        section = self.createElements('section');
 	        wrapper.appendChild(section);
 
 	        cards = self.createElements('div', {
-	          'class': 'fc_ext_filter_card'
+	          CLASS: 'fc_ext_filter_card'
 	        });
 	        section.appendChild(cards);
 
@@ -587,19 +735,26 @@
 	        header.appendChild(headerCont);
 
 	        label = self.createElements('span');
-	        label.innerHTML = catName.toUpperCase();
+	        label.innerHTML = fieldName;
 	        headerCont.appendChild(label);
 
 	        toggleTool = self.createElements('span', {
-	          'class': 'fc_ext_filter_header_toggle'
+	          CLASS: 'fc_ext_filter_header_toggle'
 	        });
 	        headerCont.appendChild(toggleTool);
-	        toggleTool.innerHTML = '[ - ]';
 
 	        cardBody = self.createElements('div', {
-	          'class': 'fc_ext_filter_card-body'
+	          CLASS: 'fc_ext_filter_card-body'
 	        });
 	        cards.appendChild(cardBody);
+
+	        if (fieldObj.collapsed) {
+	          toggleTool.innerHTML = '[ + ]';
+	          cardBody.style.display = 'none';
+	        } else {
+	          toggleTool.innerHTML = '[ - ]';
+	          cardBody.style.display = 'block';
+	        }
 
 	        toggleTool.addEventListener('click', function () {
 	          var cardBodyStyle = cardBody.style;
@@ -612,12 +767,12 @@
 	          }
 	        }, false);
 
-	        if (catObj.type === 'string') {
+	        if (fieldObj.type === 'string') {
 	          ul = self.createElements('ul');
 	          cardBody.appendChild(ul);
 
-	          for (j = 0; j < catObj.items.length; j++) {
-	            let itemObj = catObj.items[j],
+	          for (j = 0; j < fieldObj.items.length; j++) {
+	            let itemObj = fieldObj.items[j],
 	              input,
 	              itemVal = itemObj.value;
 
@@ -628,7 +783,6 @@
 	              'type': 'checkbox',
 	              'value': itemVal,
 	              'id': 'fc_ext_filter_item_' + itemVal,
-	              'checked': itemObj.checked,
 	              'style': 'cursor: pointer;'
 	            });
 	            input.addEventListener('change', function () {
@@ -638,6 +792,7 @@
 
 	            itemObj.elem = input;
 	            input.disabled = itemObj.disabled;
+	            input.checked = itemObj.checked;
 	            li.appendChild(input);
 	            label = self.createElements('label', {
 	              'for': 'fc_ext_filter_item_' + itemVal,
@@ -645,19 +800,23 @@
 	            });
 	            label.innerHTML = itemVal;
 	            li.appendChild(label);
+
+	            if (input.disabled) {
+	              label.style.cursor = input.style.cursor = '';
+	              label.style.color = '#bdbdbd';
+	            }
 	          }
 	        } else {
-	          self.createSlider(cardBody, catObj);
+	          self.createSlider(cardBody, fieldObj);
 	        }
 	      }
 	    }
 	    section = self.createElements('section');
 	    wrapper.appendChild(section);
 
-	    if (!self.config.dynamic) {
+	    if (!self.config.autoApply) {
 	      applyButton = self.createElements('button', {
-	        'class': 'fc_ext_filter_button',
-	        'style': 'background-color: #555;'
+	        CLASS: 'fc_ext_filter_button fc_ext_filter_button_apply'
 	      });
 	      applyButton.innerHTML = 'APPLY';
 	      applyButton.onclick = function () {
@@ -667,8 +826,7 @@
 	    }
 
 	    resetButton = self.createElements('button', {
-	      'class': 'fc_ext_filter_button',
-	      'style': 'background-color: #898b8b;'
+	      CLASS: 'fc_ext_filter_button fc_ext_filter_button_reset'
 	    });
 	    resetButton.innerHTML = 'RESET';
 	    resetButton.onclick = function () {
@@ -677,12 +835,13 @@
 	      self.applyFilter(true);
 	    };
 	    section.appendChild(resetButton);
+	    self.applyFilter(true);
 	  }
 
 	  // Apply filter to the Data
-	  applyFilter (callFromButton) {
+	  applyFilter (forceCall) {
 	    var self = this;
-	    if (self.config.dynamic || callFromButton) {
+	    if (self.config.autoApply || forceCall) {
 	      self.filterExt.apply(self.filterState);
 	    }
 	  }

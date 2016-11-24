@@ -1,3 +1,24 @@
+.no-select {
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.draggable {
+    cursor: -webkit-grab;
+    cursor: -moz-grab;
+    cursor: grab;
+}
+
+.dragging {
+    cursor: -webkit-grabbing;
+    cursor: -moz-grabbing;
+    cursor: grabbing;
+}
+
 #crosstab-div {
     color: #5C6061;
     font-family: 'Arial', sans-serif;
@@ -5,7 +26,15 @@
 }
 
 #crosstab-div .corner-cell {
-    background-color: #F4F5F7;
+    background-color: #F2F6F6;
+}
+
+#crosstab-div .column-dimensions, #crosstab-div .axis-header-cell {
+    background-color: #E9EBEB;
+}
+
+#crosstab-div .axis-footer-cell {
+    border: none;
 }
 
 #crosstab-div .blank-cell {
@@ -21,14 +50,10 @@
     border: none;
 }
 
-#crosstab-div .y-axis-chart {
-    border: none;
-}
-
-#crosstab-div .row-dimensions.product, #crosstab-div .column-dimensions.year {
+#crosstab-div .row-dimensions.product {
     background-color: #E4EAEA;
 }
 
-#crosstab-div .row-dimensions.state, #crosstab-div .column-dimensions.quality {
+#crosstab-div .row-dimensions.state {
     background-color: #EEF4F4;
 }
