@@ -33,7 +33,7 @@ var config = {
             'plotBorderAlpha': '0',
             'showXaxisValues': '0',
             'showYAxisValues': '0',
-            'animation': '1',
+            'animation': '0',
             'transposeAnimation': '1',
             'alternateHGridAlpha': '0',
             'plotColorInTooltip': '0',

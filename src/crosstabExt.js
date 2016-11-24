@@ -222,7 +222,8 @@ class CrosstabExt {
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldComponent;
             htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
+            htmlRef.style.marginTop = '6px';
+            // htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
                 ' ' + this.measures[i].toLowerCase() + ' no-select';
@@ -230,7 +231,7 @@ class CrosstabExt {
             document.body.removeChild(htmlRef);
             colElement = {
                 width: this.cellWidth,
-                height: this.cornerHeight,
+                height: 30,
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
@@ -262,10 +263,10 @@ class CrosstabExt {
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = this.dimensions[i][0].toUpperCase() + this.dimensions[i].substr(1);
             htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
+            htmlRef.style.marginTop = '6px';
             cornerCellArr.push({
                 width: this.dimensions[i] * 10,
-                height: 30 * this.measures.length,
+                height: 30,
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
