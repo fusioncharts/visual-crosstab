@@ -780,7 +780,7 @@ class CrosstabExt {
         // Setting up dimension holder
         dimensionsHolder = placeHolder.slice(0, dimensionsLength);
         // Setting up measures holder
-        measuresHolder = placeHolder.slice(dimensionsLength, dimensionsLength + measuresLength);
+        measuresHolder = placeHolder.slice(dimensionsLength + 1, dimensionsLength + measuresLength + 1);
         setupListener(dimensionsHolder, dimensions, dimensionsLength, this.dimensions);
         setupListener(measuresHolder, measures, measuresLength, this.measures);
         function setupListener (holder, arr, arrLen, globalArr) {
@@ -793,7 +793,6 @@ class CrosstabExt {
                 item.index = i;
                 item.adjust = 0;
                 item.origZ = el.style.zIndex;
-                debugger;
                 self._setupDrag(item.graphics, function dragStart (dx, dy) {
                     el.style.left = item.origLeft + dx + item.adjust + 'px';
                     el.style.zIndex = 1000;
