@@ -3,7 +3,13 @@
  */
 class CrosstabExt {
     constructor (data, config) {
-        // let self = this;
+        this.eventList = {
+            'modelUpdated': 'modelupdated',
+            'modelDeleted': 'modeldeleted',
+            'metaInfoUpdate': 'metainfoupdated',
+            'processorUpdated': 'processorupdated',
+            'processorDeleted': 'processordeleted'
+        };
         this.data = data;
         if (typeof MultiCharting === 'function') {
             this.mc = new MultiCharting();
@@ -22,6 +28,7 @@ class CrosstabExt {
             config: config
         };
         this.chartType = config.chartType;
+        this.showFilter = config.showFilter;
         this.chartConfig = config.chartConfig;
         this.dimensions = config.dimensions;
         this.measures = config.measures;
@@ -36,11 +43,11 @@ class CrosstabExt {
         this.aggregation = config.aggregation;
         this.axes = [];
         this.noDataMessage = config.noDataMessage;
-        if (typeof FCDataFilterExt === 'function') {
+        if (typeof FCDataFilterExt === 'function' && this.showFilter) {
             let filterConfig = {};
             this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box');
         }
-        this.dataStore.addEventListener('tempEvent', (e, d) => {
+        this.dataStore.addEventListener(this.eventList.modelUpdated, (e, d) => {
             this.globalData = this.buildGlobalData();
             this.renderCrosstab();
         });
@@ -84,7 +91,7 @@ class CrosstabExt {
             htmlRef.style.marginTop = ((this.cellHeight - 10) / 2) + 'px';
             classStr += 'row-dimensions' +
                 ' ' + this.dimensions[currentIndex].toLowerCase() +
-                ' ' + fieldValues[i].toLowerCase();
+                ' ' + fieldValues[i].toLowerCase() + ' no-select';
             // if (currentIndex > 0) {
             //     htmlRef.classList.add(this.dimensions[currentIndex - 1].toLowerCase());
             // }
@@ -218,7 +225,7 @@ class CrosstabExt {
             htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
             document.body.appendChild(htmlRef);
             classStr += 'column-dimensions' +
-                ' ' + this.measures[i].toLowerCase();
+                ' ' + this.measures[i].toLowerCase() + ' no-select';
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
             colElement = {
@@ -262,7 +269,7 @@ class CrosstabExt {
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,
-                className: 'corner-cell'
+                className: 'corner-cell no-select'
             });
         }
         return cornerCellArr;
@@ -587,8 +594,8 @@ class CrosstabExt {
                                             'axisType': 'y',
                                             'dataMax': globalMax,
                                             'borderthickness': 0,
-                                            'chartBottomMargin': 5,
-                                            'chartTopMargin': 5
+                                            'chartBottomMargin': 10,
+                                            'chartTopMargin': 10
                                         }
                                     }
                                 }
@@ -635,15 +642,13 @@ class CrosstabExt {
             }
         });
         this.mc.addEventListener('hoverout', (evt, data) => {
-            if (data.data) {
-                for (let i = 0, ii = matrix.length; i < ii; i++) {
-                    let row = crosstab[i];
-                    for (var j = 0; j < row.length; j++) {
-                        if (row[j].chart) {
-                            if (!(row[j].chart.type === 'caption' || row[j].chart.type === 'axis')) {
-                                let cellAdapter = row[j].chart.configuration;
-                                cellAdapter.highlight();
-                            }
+            for (let i = 0, ii = matrix.length; i < ii; i++) {
+                let row = crosstab[i];
+                for (var j = 0; j < row.length; j++) {
+                    if (row[j].chart) {
+                        if (!(row[j].chart.type === 'caption' || row[j].chart.type === 'axis')) {
+                            let cellAdapter = row[j].chart.configuration;
+                            cellAdapter.highlight();
                         }
                     }
                 }
@@ -727,7 +732,6 @@ class CrosstabExt {
                 dataProcessors.push(dataProcessor);
             }
             filteredData = this.dataStore.getChildModel(dataProcessors);
-            filteredData = filteredData[filteredData.length - 1];
             // filteredJSON = filteredData.getJSON();
             // for (let i = 0, ii = filteredJSON.length; i < ii; i++) {
             //     if (filteredJSON[i][colFilter] > max) {
