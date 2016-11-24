@@ -9,7 +9,7 @@ var config = {
     crosstabContainer: 'crosstab-div',
     // cellWidth: 210,
     // cellHeight: 113,
-    // showFilter: false,
+    // showFilter: true,
     // draggableHeaders: true,
     // aggregation: 'sum',
     chartConfig: {

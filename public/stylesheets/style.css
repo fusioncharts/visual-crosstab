@@ -29,6 +29,10 @@
     background-color: #F4F5F7;
 }
 
+#crosstab-div .axis-footer-cell {
+    border: none;
+}
+
 #crosstab-div .blank-cell {
     border: none;
 }
