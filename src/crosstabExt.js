@@ -127,7 +127,26 @@ class CrosstabExt {
                             }
                         }
                     },
-                    adapter = this.mc.dataAdapter(adapterCfg);
+                    adapter = {};
+                if (this.chartType === 'bar2d') {
+                    let categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
+                    adapterCfg = {
+                        config: {
+                            config: {
+                                chart: {
+                                    'axisType': 'x',
+                                    'borderthickness': 0,
+                                    'isHorizontal': 0,
+                                    'canvasPadding': 13,
+                                    'chartLeftMargin': 5,
+                                    'chartRightMargin': 5
+                                },
+                                categories: categories
+                            }
+                        }
+                    };
+                }
+                adapter = this.mc.dataAdapter(adapterCfg);
                 table[table.length - 1].push({
                     rowspan: 1,
                     colspan: 1,
@@ -398,7 +417,19 @@ class CrosstabExt {
                             }
                         }
                     },
-                    adapter = this.mc.dataAdapter(adapterCfg);
+                    adapter = {};
+                if (this.chartType === 'bar2d') {
+                    adapterCfg = {
+                        config: {
+                            config: {
+                                chart: {
+                                    'axisType': 'y'
+                                }
+                            }
+                        }
+                    };
+                }
+                adapter = this.mc.dataAdapter(adapterCfg);
                 xAxisRow.push({
                     width: '100%',
                     height: 20,
