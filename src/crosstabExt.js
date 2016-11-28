@@ -167,7 +167,8 @@ class CrosstabExt {
                         rowspan: 1,
                         colspan: 1,
                         rowHash: filteredDataHashKey,
-                        colHash: this.columnKeyArr[j]
+                        colHash: this.columnKeyArr[j],
+                        className: 'chart-cell'
                     };
                     table[table.length - 1].push(chartCellObj);
                     minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
@@ -182,97 +183,64 @@ class CrosstabExt {
         return rowspan;
     }
 
-    // createCol (table, data, colOrder, currentIndex, filteredDataStore) {
-    //     var colspan = 0,
-    //         fieldComponent = colOrder[currentIndex],
-    //         fieldValues = data[fieldComponent],
-    //         i, l = fieldValues.length,
-    //         colElement,
-    //         hasFurtherDepth = currentIndex < (colOrder.length - 1),
-    //         filteredDataHashKey,
-    //         htmlRef;
-
-    //     if (table.length <= currentIndex) {
-    //         table.push([]);
-    //     }
-    //     for (i = 0; i < l; i += 1) {
-    //         let classStr = '';
-    //         htmlRef = document.createElement('p');
-    //         htmlRef.innerHTML = fieldValues[i];
-    //         htmlRef.style.textAlign = 'center';
-    //         document.body.appendChild(htmlRef);
-    //         classStr += 'column-dimensions' +
-    //             ' ' + this.measures[currentIndex] +
-    //             ' ' + fieldValues[i].toLowerCase();
-    //         this.cornerHeight = htmlRef.offsetHeight;
-    //         document.body.removeChild(htmlRef);
-    //         colElement = {
-    //             width: this.cellWidth,
-    //             height: this.cornerHeight,
-    //             rowspan: 1,
-    //             colspan: 1,
-    //             html: htmlRef.outerHTML,
-    //             className: classStr
-    //         };
-
-    //         filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
-
-    //         table[currentIndex].push(colElement);
-
-    //         if (hasFurtherDepth) {
-    //             colElement.colspan = this.createCol(table, data, colOrder, currentIndex + 1, filteredDataHashKey);
-    //         } else {
-    //             this.columnKeyArr.push(filteredDataHashKey);
-    //         }
-    //         colspan += colElement.colspan;
-    //     }
-    //     return colspan;
-    // }
-
     createCol (table, data, measureOrder) {
         var colspan = 0,
-            i, l = this.measures.length,
+            i,
+            l = this.measures.length,
+            j,
             colElement,
-            htmlRef;
+            htmlRef,
+            headerDiv,
+            dragDiv,
+            handleSpan;
 
         for (i = 0; i < l; i += 1) {
             let classStr = '',
                 fieldComponent = measureOrder[i];
                 // fieldValues = data[fieldComponent];
+            headerDiv = document.createElement('div');
+            headerDiv.style.textAlign = 'center';
+
+            dragDiv = document.createElement('div');
+            dragDiv.setAttribute('class', 'measure-drag-handle');
+            dragDiv.style.height = '5px';
+            dragDiv.style.paddingTop = '3px';
+            dragDiv.style.paddingBottom = '1px';
+            for (j = 0; j < 25; j++) {
+                handleSpan = document.createElement('span');
+                handleSpan.style.marginLeft = '1px';
+                handleSpan.style.fontSize = '3px';
+                handleSpan.style.lineHeight = '1';
+                handleSpan.style.verticalAlign = 'top';
+                dragDiv.appendChild(handleSpan);
+            }
+
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = fieldComponent;
             htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = '6px';
+            htmlRef.style.marginTop = '5px';
             // htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
             document.body.appendChild(htmlRef);
-            classStr += 'column-dimensions' +
-                ' ' + this.measures[i].toLowerCase() + ' no-select';
+
+            classStr += 'column-measures ' + this.measures[i].toLowerCase() + ' no-select';
             if (this.draggableHeaders) {
                 classStr += ' draggable';
             }
             this.cornerHeight = htmlRef.offsetHeight;
             document.body.removeChild(htmlRef);
+
+            headerDiv.appendChild(dragDiv);
+            headerDiv.appendChild(htmlRef);
             colElement = {
                 width: this.cellWidth,
-                height: 30,
+                height: 35,
                 rowspan: 1,
                 colspan: 1,
-                html: htmlRef.outerHTML,
+                html: headerDiv.outerHTML,
                 className: classStr
             };
             this.columnKeyArr.push(this.measures[i]);
             table[0].push(colElement);
-
-            // filteredDataHashKey = filteredDataStore + fieldValues[i] + '|';
-
-            // table[i].push(colElement);
-
-            // if (hasFurtherDepth) {
-            //     colElement.colspan = this.createCol(table, data, colOrder);
-            // } else {
-            //     this.columnKeyArr.push(filteredDataHashKey);
-            // }
-            // colspan += colElement.colspan;
         }
         return colspan;
     }
@@ -280,24 +248,47 @@ class CrosstabExt {
     createRowDimHeading (table, colOrderLength) {
         var cornerCellArr = [],
             i = 0,
+            j,
             htmlRef,
-            classStr = '';
+            classStr = '',
+            headerDiv,
+            dragDiv,
+            handleSpan;
 
         for (i = 0; i < this.dimensions.length - 1; i++) {
+            headerDiv = document.createElement('div');
+            headerDiv.style.textAlign = 'center';
+
+            dragDiv = document.createElement('div');
+            dragDiv.setAttribute('class', 'dimension-drag-handle');
+            dragDiv.style.height = '5px';
+            dragDiv.style.paddingTop = '3px';
+            dragDiv.style.paddingBottom = '1px';
+            for (j = 0; j < 25; j++) {
+                handleSpan = document.createElement('span');
+                handleSpan.style.marginLeft = '1px';
+                handleSpan.style.fontSize = '3px';
+                handleSpan.style.lineHeight = '1';
+                handleSpan.style.verticalAlign = 'top';
+                dragDiv.appendChild(handleSpan);
+            }
+
             htmlRef = document.createElement('p');
             htmlRef.innerHTML = this.dimensions[i][0].toUpperCase() + this.dimensions[i].substr(1);
             htmlRef.style.textAlign = 'center';
-            htmlRef.style.marginTop = '6px';
-            classStr = 'corner-cell no-select';
+            htmlRef.style.marginTop = '5px';
+            classStr = 'corner-cell ' + this.dimensions[i].toLowerCase() + ' no-select';
             if (this.draggableHeaders) {
                 classStr += ' draggable';
             }
+            headerDiv.appendChild(dragDiv);
+            headerDiv.appendChild(htmlRef);
             cornerCellArr.push({
                 width: this.dimensions[i] * 10,
-                height: 30,
+                height: 35,
                 rowspan: 1,
                 colspan: 1,
-                html: htmlRef.outerHTML,
+                html: headerDiv.outerHTML,
                 className: classStr
             });
         }
@@ -313,7 +304,7 @@ class CrosstabExt {
             htmlRef.style.textAlign = 'center';
             table[i].push({
                 width: 40,
-                height: 30,
+                height: 35,
                 rowspan: 1,
                 colspan: 1,
                 html: htmlRef.outerHTML,

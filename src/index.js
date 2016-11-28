@@ -3,14 +3,14 @@ const CrosstabExt = require('./crosstabExt'),
 
 var config = {
     dimensions: ['Product', 'State', 'Month'],
-    measures: ['Profit', 'Visitors', 'Sale'],
-    chartType: 'bar2d',
+    measures: ['Profit', 'Visitors'],
+    chartType: 'column2d',
     noDataMessage: 'No data to display.',
     crosstabContainer: 'crosstab-div',
-    // cellWidth: 210,
-    // cellHeight: 113,
+    cellWidth: 150,
+    cellHeight: 113,
     showFilter: true,
-    // draggableHeaders: true,
+    draggableHeaders: true,
     // aggregation: 'sum',
     chartConfig: {
         chart: {
