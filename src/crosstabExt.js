@@ -818,13 +818,26 @@ class CrosstabExt {
         // Setting up dimension holder
         dimensionsHolder = placeHolder.slice(0, dimensionsLength);
         // Setting up measures holder
+        // One shift for blank box
         measuresHolder = placeHolder.slice(dimensionsLength + 1, dimensionsLength + measuresLength + 1);
         setupListener(dimensionsHolder, dimensions, dimensionsLength, this.dimensions);
         setupListener(measuresHolder, measures, measuresLength, this.measures);
         function setupListener (holder, arr, arrLen, globalArr) {
+            let limitLeft = 0,
+                limitRight = 0,
+                last = arrLen - 1,
+                ln = Math.log2;
+
+            if (holder[0]) {
+                limitLeft = parseInt(holder[0].graphics.style.left);
+                limitRight = parseInt(holder[last].graphics.style.left);
+            }
+
             for (let i = 0; i < arrLen; ++i) {
                 let el = holder[i].graphics,
-                    item = holder[i];
+                    item = holder[i],
+                    nLeft = 0,
+                    diff = 0;
                 item.cellValue = arr[i];
                 item.origLeft = parseInt(el.style.left);
                 item.redZone = item.origLeft + parseInt(el.style.width) / 2;
@@ -832,7 +845,16 @@ class CrosstabExt {
                 item.adjust = 0;
                 item.origZ = el.style.zIndex;
                 self._setupDrag(item.graphics, function dragStart (dx, dy) {
-                    el.style.left = item.origLeft + dx + item.adjust + 'px';
+                    nLeft = item.origLeft + dx + item.adjust;
+                    if (nLeft < limitLeft) {
+                        diff = limitLeft - nLeft;
+                        nLeft = limitLeft - ln(diff);
+                    }
+                    if (nLeft > limitRight) {
+                        diff = nLeft - limitRight;
+                        nLeft = limitRight + ln(diff);
+                    }
+                    el.style.left = nLeft + 'px';
                     el.style.zIndex = 1000;
                     manageShifting(item.index, false, holder);
                     manageShifting(item.index, true, holder);
