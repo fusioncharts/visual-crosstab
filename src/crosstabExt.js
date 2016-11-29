@@ -1,3 +1,4 @@
+let SpaceManager = require('./spaceManager');
 /**
  * Represents a crosstab.
  */
@@ -15,7 +16,6 @@ class CrosstabExt {
             this.mc = new MultiCharting();
             this.dataStore = this.mc.createDataStore();
             this.dataStore.setData({ dataSource: this.data });
-            this.t1 = performance.now();
         } else {
             return {
                 test: function (a) {
@@ -592,12 +592,10 @@ class CrosstabExt {
         return hashMap;
     }
 
-    renderCrosstab () {
-        let crosstab = this.createCrosstab(),
-            matrix = this.createMultiChart(crosstab),
-            t2 = performance.now(),
-            globalMax = -Infinity,
+    updateMatrix (crosstab, matrix) {
+        let globalMax = -Infinity,
             globalMin = Infinity;
+
         for (let i = 0, ii = crosstab.length; i < ii; i++) {
             let rowLastChart = crosstab[i][crosstab[i].length - 1];
             if (rowLastChart.max || rowLastChart.min) {
@@ -648,10 +646,8 @@ class CrosstabExt {
                         chart.configuration.FCjson.chart.yAxisMaxValue = maxLimit;
                         cell.config.chart = chart;
                         crosstabElement.chart = chart;
-                        window.ctPerf += (performance.now() - t2);
                         cell.update(cell.config);
                     }
-                    t2 = performance.now();
                 }
             }
         }
@@ -688,10 +684,20 @@ class CrosstabExt {
         });
     }
 
+    renderCrosstab () {
+        let crosstab = this.createCrosstab(),
+            spaceManager,
+            matrix = [];
+        spaceManager = new SpaceManager();
+        spaceManager.manageSpace(crosstab, (managedCt) => {
+            matrix = this.createMultiChart(managedCt);
+            this.updateMatrix(managedCt, matrix);
+        });
+    }
+
     createMultiChart (matrix) {
         if (this.multichartObject === undefined) {
             this.multichartObject = this.mc.createMatrix(this.crosstabContainer, matrix);
-            window.ctPerf = performance.now() - this.t1;
             this.multichartObject.draw();
         } else {
             this.multichartObject.update(matrix);
