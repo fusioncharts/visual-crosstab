@@ -7,6 +7,8 @@ var config = {
     chartType: 'column2d',
     noDataMessage: 'No data to display.',
     crosstabContainer: 'crosstab-div',
+    width: 800,
+    height: 600,
     cellWidth: 150,
     cellHeight: 113,
     showFilter: true,

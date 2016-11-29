@@ -36,6 +36,8 @@ class CrosstabExt {
         this.measureOnRow = false;
         this.globalData = this.buildGlobalData();
         this.columnKeyArr = [];
+        this.width = config.width || 800;
+        this.height = config.height || 600;
         this.cellWidth = config.cellWidth || 210;
         this.cellHeight = config.cellHeight || 113;
         this.crosstabContainer = config.crosstabContainer;
@@ -688,7 +690,7 @@ class CrosstabExt {
         let crosstab = this.createCrosstab(),
             spaceManager,
             matrix = [];
-        spaceManager = new SpaceManager();
+        spaceManager = new SpaceManager(this.width, this.height);
         spaceManager.manageSpace(crosstab, (managedCt) => {
             matrix = this.createMultiChart(managedCt);
             this.updateMatrix(managedCt, matrix);
