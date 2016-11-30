@@ -3,7 +3,7 @@ const CrosstabExt = require('./crosstabExt'),
 
 var config = {
     dimensions: ['Product', 'State', 'Month'],
-    measures: ['Profit', 'Visitors'],
+    measures: ['Sale', 'Profit', 'Visitors'],
     chartType: 'column2d',
     noDataMessage: 'No data to display.',
     crosstabContainer: 'crosstab-div',
@@ -33,7 +33,7 @@ var config = {
             'plotBorderAlpha': '0',
             'showXaxisValues': '0',
             'showYAxisValues': '0',
-            'animation': '0',
+            'animation': '1',
             'transposeAnimation': '1',
             'alternateHGridAlpha': '0',
             'plotColorInTooltip': '0',

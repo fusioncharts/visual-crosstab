@@ -48,10 +48,6 @@ class CrosstabExt {
             let filterConfig = {};
             this.dataFilterExt = new FCDataFilterExt(this.dataStore, filterConfig, 'control-box');
         }
-        this.dataStore.addEventListener(this.eventList.modelUpdated, (e, d) => {
-            this.globalData = this.buildGlobalData();
-            this.renderCrosstab();
-        });
     }
 
     /**
@@ -119,40 +115,49 @@ class CrosstabExt {
                 rowElement.rowspan = this.createRow(table, data, rowOrder, currentIndex + 1, filteredDataHashKey);
             } else {
                 if (this.chartType === 'bar2d') {
-                    // let categories = this.globalData[this.dimensions[this.dimensions.length - 1]],
-                        // adapterCfg = {
-                        //     config: {
-                        //         config: {
-                        //             chart: {
-                        //                 'axisType': 'x',
-                        //                 'borderthickness': 0,
-                        //                 'isHorizontal': 0,
-                        //                 'canvasPadding': 13,
-                        //                 'chartLeftMargin': 5,
-                        //                 'chartRightMargin': 5
-                        //             },
-                        //             categories: categories
-                        //         }
-                        //     }
-                        // };
-                }
-                table[table.length - 1].push({
-                    rowspan: 1,
-                    colspan: 1,
-                    width: 40,
-                    className: 'y-axis-chart',
-                    chart: this.mc.chart({
-                        'type': 'axis',
-                        'width': '100%',
-                        'height': '100%',
-                        'dataFormat': 'json',
-                        'config': {
-                            'chart': {
-                                'axisType': 'y'
+                    let categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
+                    table[table.length - 1].push({
+                        rowspan: 1,
+                        colspan: 1,
+                        width: 40,
+                        className: 'y-axis-chart',
+                        chart: this.mc.chart({
+                            'type': 'axis',
+                            'width': '100%',
+                            'height': '100%',
+                            'dataFormat': 'json',
+                            'config': {
+                                'chart': {
+                                    'axisType': 'x',
+                                    'borderthickness': 0,
+                                    'isHorizontal': 0,
+                                    'canvasPadding': 13,
+                                    'chartLeftMargin': 5,
+                                    'chartRightMargin': 5
+                                },
+                                'categories': categories
                             }
-                        }
-                    })
-                });
+                        })
+                    });
+                } else {
+                    table[table.length - 1].push({
+                        rowspan: 1,
+                        colspan: 1,
+                        width: 40,
+                        className: 'y-axis-chart',
+                        chart: this.mc.chart({
+                            'type': 'axis',
+                            'width': '100%',
+                            'height': '100%',
+                            'dataFormat': 'json',
+                            'config': {
+                                'chart': {
+                                    'axisType': 'y'
+                                }
+                            }
+                        })
+                    });
+                }
                 for (let j = 0; j < colLength; j += 1) {
                     let chartCellObj = {
                         width: this.cellWidth,
@@ -161,8 +166,8 @@ class CrosstabExt {
                         colspan: 1,
                         rowHash: filteredDataHashKey,
                         colHash: this.columnKeyArr[j],
-                        className: 'chart-cell',
-                        chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[1]
+                        // chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[1],
+                        className: 'chart-cell'
                     };
                     table[table.length - 1].push(chartCellObj);
                     minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
@@ -394,56 +399,51 @@ class CrosstabExt {
 
             for (i = 0; i < maxLength - this.dimensions.length; i++) {
                 let categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
-                    // adapterCfg = {
-                    //     config: {
-                    //         config: {
-                    //             chart: {
-                    //                 'axisType': 'x',
-                    //                 'borderthickness': 0,
-                    //                 'canvasPadding': 13,
-                    //                 'chartLeftMargin': 5,
-                    //                 'chartRightMargin': 5
-                    //             },
-                    //             categories: categories
-                    //         }
-                    //     }
-                    // },
-                    // adapter = {};
                 if (this.chartType === 'bar2d') {
-                    // let adapterCfg = {
-                    //     config: {
-                    //         config: {
-                    //             chart: {
-                    //                 'axisType': 'y'
-                    //             }
-                    //         }
-                    //     }
-                    // };
+                    xAxisRow.push({
+                        width: '100%',
+                        height: 20,
+                        rowspan: 1,
+                        colspan: 1,
+                        className: 'x-axis-chart',
+                        chart: this.mc.chart({
+                            'type': 'axis',
+                            'width': '100%',
+                            'height': '100%',
+                            'dataFormat': 'json',
+                            'config': {
+                                'chart': {
+                                    'axisType': 'y',
+                                    'isHorizontal': 1
+                                }
+                            }
+                        })
+                    });
+                } else {
+                    xAxisRow.push({
+                        width: '100%',
+                        height: 20,
+                        rowspan: 1,
+                        colspan: 1,
+                        className: 'x-axis-chart',
+                        chart: this.mc.chart({
+                            'type': 'axis',
+                            'width': '100%',
+                            'height': '100%',
+                            'dataFormat': 'json',
+                            'config': {
+                                'chart': {
+                                    'axisType': 'x',
+                                    'borderthickness': 0,
+                                    'canvasPadding': 13,
+                                    'chartLeftMargin': 5,
+                                    'chartRightMargin': 5
+                                },
+                                'categories': categories
+                            }
+                        })
+                    });
                 }
-                // adapter = this.mc.dataAdapter(adapterCfg);
-                xAxisRow.push({
-                    width: '100%',
-                    height: 20,
-                    rowspan: 1,
-                    colspan: 1,
-                    className: 'x-axis-chart',
-                    chart: this.mc.chart({
-                        'type': 'axis',
-                        'width': '100%',
-                        'height': '100%',
-                        'dataFormat': 'json',
-                        'config': {
-                            'chart': {
-                                'axisType': 'x',
-                                'borderthickness': 0,
-                                'canvasPadding': 13,
-                                'chartLeftMargin': 5,
-                                'chartRightMargin': 5
-                            },
-                            'categories': categories
-                        }
-                    })
-                });
             }
 
             table.push(xAxisRow);
@@ -603,7 +603,7 @@ class CrosstabExt {
 
     renderCrosstab () {
         let crosstab = this.createCrosstab(),
-            matrix = this.createMultiChart(crosstab),
+            matrix = [],
             t2 = performance.now(),
             globalMax = -Infinity,
             globalMin = Infinity;
@@ -618,17 +618,17 @@ class CrosstabExt {
                 }
             }
         }
-        for (let i = 0, ii = matrix.length; i < ii; i++) {
-            let row = matrix[i],
+        for (let i = 0, ii = crosstab.length; i < ii; i++) {
+            let row = crosstab[i],
                 rowAxis;
             for (let j = 0, jj = row.length; j < jj; j++) {
-                let cell = row[j],
-                    crosstabElement = crosstab[i][j];
+                let crosstabElement = row[j];
                 if (crosstabElement.chart && crosstabElement.chart.conf.type === 'axis') {
-                    rowAxis = cell;
-                    if (rowAxis.config.chart.conf.config.chart.axisType === 'y') {
-                        let axisChart = rowAxis.config.chart;
-                        axisChart.conf.config.chart = {
+                    rowAxis = crosstabElement;
+                    if (rowAxis.chart.conf.config.chart.axisType === 'y') {
+                        let axisChart = rowAxis.chart,
+                            config = axisChart.conf;
+                        config.config.chart = {
                             'dataMin': globalMin,
                             'axisType': 'y',
                             'dataMax': globalMax,
@@ -636,58 +636,98 @@ class CrosstabExt {
                             'chartBottomMargin': 10,
                             'chartTopMargin': 10
                         };
-                        axisChart.update(axisChart.conf.config);
+                        if (this.chartType === 'bar2d') {
+                            config.config.chart = {
+                                'dataMin': globalMin,
+                                'axisType': 'y',
+                                'dataMax': globalMax,
+                                'borderthickness': 0,
+                                'chartBottomMargin': 10,
+                                'chartTopMargin': 10,
+                                'isHorizontal': 1
+                            };
+                        }
+                        axisChart = this.mc.chart(config);
+                        rowAxis.chart = axisChart;
                     }
                 }
+            }
+        }
+        matrix = this.createMultiChart(crosstab);
+        for (let i = 0, ii = crosstab.length; i < ii; i++) {
+            let row = crosstab[i],
+                rowAxis;
+            for (let j = 0, jj = row.length; j < jj; j++) {
+                let crosstabElement = row[j];
+                if (!rowAxis && crosstabElement.chart && crosstabElement.chart.conf.type === 'axis') {
+                    rowAxis = crosstabElement;
+                }
                 if (rowAxis) {
-                    if (!(crosstabElement.hasOwnProperty('chart') || crosstabElement.hasOwnProperty('html')) &&
-                    crosstabElement.className !== 'blank-cell') {
-                        let limits = rowAxis.config.chart.chartInstance.getLimits(),
+                    if (!crosstabElement.hasOwnProperty('html') && !crosstabElement.hasOwnProperty('chart') &&
+                        crosstabElement.className !== 'blank-cell') {
+                        let chart = rowAxis.chart,
+                            chartInstance = chart.getChartInstance(),
+                            limits = chartInstance.getLimits(),
                             minLimit = limits[0],
                             maxLimit = limits[1],
-                            chart = this.getChartObj(crosstabElement.rowHash, crosstabElement.colHash)[1];
-                        chart.conf.config.chart.yAxisMinValue = minLimit;
-                        chart.conf.config.chart.yAxisMaxValue = maxLimit;
-                        // cell.config.chart = chart;
-                        // crosstabElement.chart = chart;
+                            chartObj = this.getChartObj(crosstabElement.rowHash,
+                                crosstabElement.colHash,
+                                minLimit,
+                                maxLimit)[1];
+                        crosstabElement.chart = chartObj;
                         window.ctPerf += (performance.now() - t2);
-                        chart.update(chart.conf);
                     }
                     t2 = performance.now();
                 }
             }
         }
+        matrix = this.createMultiChart(crosstab);
+        this.dataStore.addEventListener(this.eventList.modelUpdated, (e, d) => {
+            this.globalData = this.buildGlobalData();
+            this.updateCrosstab(crosstab);
+        });
+        // this.mc.addEventListener('hoverin', (evt, data) => {
+        //     if (data.data) {
+        //         for (let i = 0, ii = crosstab.length; i < ii; i++) {
+        //             let row = crosstab[i];
+        //             for (var j = 0; j < row.length; j++) {
+        //                 if (row[j].chart) {
+        //                     if (!(row[j].chart.conf.type === 'caption' || row[j].chart.conf.type === 'axis')) {
+        //                         let cellAdapter = row[j].chart.dataAdapter,
+        //                             category = this.dimensions[this.dimensions.length - 1],
+        //                             categoryVal = data.data[category];
+        //                         cellAdapter.highlight(categoryVal);
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+        // this.mc.addEventListener('hoverout', (evt, data) => {
+        //     for (let i = 0, ii = crosstab.length; i < ii; i++) {
+        //         let row = crosstab[i];
+        //         for (var j = 0; j < row.length; j++) {
+        //             if (row[j].chart) {
+        //                 if (!(row[j].chart.conf.type === 'caption' || row[j].chart.conf.type === 'axis')) {
+        //                     let cellAdapter = row[j].chart.dataAdapter;
+        //                     cellAdapter.highlight();
+        //                 }
+        //             }
+        //         }
+        //     }
+        // });
+    }
 
-        this.mc.addEventListener('hoverin', (evt, data) => {
-            if (data.data) {
-                for (let i = 0, ii = crosstab.length; i < ii; i++) {
-                    let row = crosstab[i];
-                    for (var j = 0; j < row.length; j++) {
-                        if (row[j].chart) {
-                            if (!(row[j].chart.conf.type === 'caption' || row[j].chart.conf.type === 'axis')) {
-                                let cellAdapter = row[j].chart.dataAdapter,
-                                    category = this.dimensions[this.dimensions.length - 1],
-                                    categoryVal = data.data[category];
-                                cellAdapter.highlight(categoryVal);
-                            }
-                        }
-                    }
-                }
+    updateCrosstab (oldCrosstab) {
+        let filteredCrosstab = this.createCrosstab(),
+            i,
+            j;
+        for (i = filteredCrosstab.length - 1; i >= 0; i--) {
+            let row = filteredCrosstab[i];
+            for (j = row.length - 1; j >= 0; j--) {
+                let cell = row[j];
             }
-        });
-        this.mc.addEventListener('hoverout', (evt, data) => {
-            for (let i = 0, ii = crosstab.length; i < ii; i++) {
-                let row = crosstab[i];
-                for (var j = 0; j < row.length; j++) {
-                    if (row[j].chart) {
-                        if (!(row[j].chart.conf.type === 'caption' || row[j].chart.conf.type === 'axis')) {
-                            let cellAdapter = row[j].chart.dataAdapter;
-                            cellAdapter.highlight();
-                        }
-                    }
-                }
-            }
-        });
+        }
     }
 
     createMultiChart (matrix) {
@@ -739,7 +779,7 @@ class CrosstabExt {
         return false;
     }
 
-    getChartObj (rowFilter, colFilter) {
+    getChartObj (rowFilter, colFilter, minLimit, maxLimit) {
         let filters = [],
             filterStr = '',
             rowFilters = rowFilter.split('|'),
@@ -777,6 +817,10 @@ class CrosstabExt {
             //         min = filteredJSON[i][colFilter];
             //     }
             // }
+            if (minLimit !== undefined && maxLimit !== undefined) {
+                this.chartConfig.chart.yAxisMinValue = minLimit;
+                this.chartConfig.chart.yAxisMaxValue = maxLimit;
+            }
             chart = this.mc.chart({
                 dataSource: filteredData,
                 type: this.chartType,

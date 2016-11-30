@@ -28,18 +28,18 @@
 
 #crosstab-div .corner-cell {
     background-color: #F2F6F6;
-    border: 2px solid #D5D5D5;
+    border: 1px solid #D5D5D5;
     border-right: none;
 }
 
 #crosstab-div .corner-cell.state {
     background-color: #F2F6F6;
-    border: 2px solid #D5D5D5;
+    border: 1px solid #D5D5D5;
 }
 
 #crosstab-div .corner-cell.quality {
     background-color: #F2F6F6;
-    border: 2px solid #D5D5D5;
+    border: 1px solid #D5D5D5;
     border-left: none;
     border-right: 1px solid #B1B6B6;
 }
@@ -62,13 +62,13 @@
 
 #crosstab-div .axis-header-cell {
     background-color: #DBE0E0;
-    border: 2px solid #B1B6B6;
+    border: 1px solid #B1B6B6;
     border-left: 1px solid #B1B6B6;
 }
 
 #crosstab-div .column-measures {
     background-color: #DBE0E0;
-    border: 2px solid #B1B6B6;
+    border: 1px solid #B1B6B6;
     border-left: none;
 }
 
@@ -83,24 +83,30 @@
 }
 
 #crosstab-div .y-axis-chart {
-    border-right: 2px solid #F6F6F6;
-    border-bottom: 2px solid #F6F6F6;
+    border-right: 1px solid #F6F6F6;
+    border-bottom: 1px solid #F6F6F6;
 }
 
 #crosstab-div .row-dimensions.product {
     background-color: #E4EAEA;
-    border: 2px solid #C3C6C6;
+    border: 1px solid #C3C6C6;
     border-top: none;
     border-right: none;
 }
 
 #crosstab-div .row-dimensions.state {
     background-color: #EEF4F4;
-    border: 2px solid #DBE0E0;
+    border: 1px solid #DBE0E0;
+    border-top: none;
+}
+
+#crosstab-div .row-dimensions.quality, #crosstab-div .row-dimensions.year {
+    background-color: #EEF4F4;
+    border: 1px solid #DBE0E0;
     border-top: none;
 }
 
 #crosstab-div .chart-cell {
-    border-right: 2px solid #F6F6F6;
-    border-bottom: 2px solid #F6F6F6;
+    border-right: 1px solid #F6F6F6;
+    border-bottom: 1px solid #F6F6F6;
 }
