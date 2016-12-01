@@ -25,8 +25,7 @@ var config = {
             'chartTopMargin': '10',
             'chartLeftMargin': '5',
             'chartRightMargin': '5',
-            'zeroPlaneThickness': '1',
-            'showZeroPlaneValue': '1',
+            'zeroPlaneThickness': '0',
             'zeroPlaneAlpha': '100',
             'bgColor': '#FFFFFF',
             'showXAxisLine': '1',
@@ -37,11 +36,12 @@ var config = {
             'transposeAnimation': '1',
             'alternateHGridAlpha': '0',
             'plotColorInTooltip': '0',
-            'canvasBorderAlpha': '100',
+            'canvasBorderAlpha': '0',
             'alternateVGridAlpha': '0',
             'paletteColors': '#B5B9BA',
             'usePlotGradientColor': '0',
             'valueFontColor': '#FFFFFF',
+            'canvasBorderThickness': '0',
             'drawTrendRegion': '1'
         }
     }
