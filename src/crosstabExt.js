@@ -132,8 +132,8 @@ class CrosstabExt {
                                     'axisType': 'x',
                                     'borderthickness': 0,
                                     'isHorizontal': 0,
-                                    'chartTopMargin': 10,
-                                    'chartBottomMargin': 10,
+                                    'chartTopMargin': this.chartConfig.chart.chartTopMargin,
+                                    'chartBottomMargin': this.chartConfig.chart.chartBottomMargin,
                                     'valuePadding': 0.5
                                 },
                                 'categories': categories
@@ -168,8 +168,11 @@ class CrosstabExt {
                         rowHash: filteredDataHashKey,
                         colHash: this.columnKeyArr[j],
                         // chart: this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[1],
-                        className: 'chart-cell'
+                        className: 'chart-cell ' + (j + 1)
                     };
+                    if (j === colLength - 1) {
+                        chartCellObj.className = 'chart-cell last-col';
+                    }
                     table[table.length - 1].push(chartCellObj);
                     minmaxObj = this.getChartObj(filteredDataHashKey, this.columnKeyArr[j])[0];
                     max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
@@ -315,18 +318,6 @@ class CrosstabExt {
     }
 
     createCaption (table, maxLength) {
-        // let adapterCfg = {
-        //         config: {
-        //             config: {
-        //                 chart: {
-        //                     'caption': 'Sale of Cereal',
-        //                     'subcaption': 'Across States, Across Years',
-        //                     'borderthickness': '0'
-        //                 }
-        //             }
-        //         }
-        //     },
-            // adapter = this.mc.dataAdapter(adapterCfg);
         table.unshift([{
             height: 50,
             rowspan: 1,
@@ -436,8 +427,8 @@ class CrosstabExt {
                                 'chart': {
                                     'axisType': 'x',
                                     'borderthickness': 0,
-                                    'chartLeftMargin': 5,
-                                    'chartRightMargin': 5,
+                                    'chartLeftMargin': this.chartConfig.chart.chartLeftMargin,
+                                    'chartRightMargin': this.chartConfig.chart.chartRightMargin,
                                     'valuePadding': 0.5
                                 },
                                 'categories': categories
@@ -634,8 +625,8 @@ class CrosstabExt {
                             'axisType': 'y',
                             'dataMax': globalMax,
                             'borderthickness': 0,
-                            'chartBottomMargin': 10,
-                            'chartTopMargin': 10
+                            'chartBottomMargin': this.chartConfig.chart.chartBottomMargin,
+                            'chartTopMargin': this.chartConfig.chart.chartTopMargin
                         };
                         if (this.chartType === 'bar2d') {
                             config.config.chart = {
@@ -643,8 +634,8 @@ class CrosstabExt {
                                 'axisType': 'y',
                                 'dataMax': globalMax,
                                 'borderthickness': 0,
-                                'chartLeftMargin': 5,
-                                'chartRightMargin': 5,
+                                'chartLeftMargin': this.chartConfig.chart.chartLeftMargin,
+                                'chartRightMargin': this.chartConfig.chart.chartRightMargin,
                                 'isHorizontal': 1
                             };
                         }
@@ -800,8 +791,8 @@ class CrosstabExt {
                             'axisType': 'y',
                             'dataMax': globalMax,
                             'borderthickness': 0,
-                            'chartBottomMargin': 10,
-                            'chartTopMargin': 10
+                            'chartBottomMargin': this.chartConfig.chart.chartBottomMargin,
+                            'chartTopMargin': this.chartConfig.chart.chartTopMargin
                         };
                         if (this.chartType === 'bar2d') {
                             config.config.chart = {
@@ -809,8 +800,8 @@ class CrosstabExt {
                                 'axisType': 'y',
                                 'dataMax': globalMax,
                                 'borderthickness': 0,
-                                'chartLeftMargin': 5,
-                                'chartRightMargin': 5,
+                                'chartLeftMargin': this.chartConfig.chart.chartLeftMargin,
+                                'chartRightMargin': this.chartConfig.chart.chartRightMargin,
                                 'isHorizontal': 1
                             };
                         }
