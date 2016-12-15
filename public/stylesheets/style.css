@@ -23,90 +23,58 @@
     color: #5B6060;
     font-size: 12px;
     font-family: 'Arial', sans-serif;
-    font-weight: bold;
+}
+
+#crosstab-div .row-dimensions {
+    border: 1px solid #B8B8B8;
+    border-left: none;
+    border-bottom: none;
+}
+
+#crosstab-div .blank-cell,
+#crosstab-div .axis-footer-cell,
+#crosstab-div .x-axis-chart {
+    border-top: 1px solid #B8B8B8;
+}
+
+#crosstab-div .dimension-drag-handle, .measure-drag-handle {
+    background: #D5D5D5;
+    overflow: hidden;
+}
+
+#crosstab-div .dimension-drag-handle > span, .measure-drag-handle > span {
+    border-right: 1px solid #868686;
 }
 
 #crosstab-div .corner-cell {
-    background-color: #F2F6F6;
-    border: 1px solid #D5D5D5;
-    border-right: none;
-}
-
-#crosstab-div .corner-cell.state {
-    background-color: #F2F6F6;
-    border: 1px solid #D5D5D5;
-}
-
-#crosstab-div .corner-cell.quality {
-    background-color: #F2F6F6;
-    border: 1px solid #D5D5D5;
-    border-left: none;
-    border-right: 1px solid #B1B6B6;
-}
-
-#crosstab-div .measure-drag-handle {
-    background-color: #CAD0D0;
-}
-
-#crosstab-div .measure-drag-handle > span {
-    border-right: 1px solid #828484;
-}
-
-#crosstab-div .dimension-drag-handle {
-    background-color: #DDE1E1;
-}
-
-#crosstab-div .dimension-drag-handle > span {
-    border-right: 1px solid #ABB0B0;
+    background: #F6F6F6;
+    font-weight: bold;
+    border-right: 1px solid #FFFFFF;
 }
 
 #crosstab-div .axis-header-cell {
-    background-color: #DBE0E0;
-    border: 1px solid #B1B6B6;
-    border-left: 1px solid #B1B6B6;
+    background: #F6F6F6;
+    border-right: 1px solid #FFFFFF;
+    border-top: 9px solid #D5D5D5;
 }
 
 #crosstab-div .column-measures {
-    background-color: #DBE0E0;
-    border: 1px solid #B1B6B6;
+    background: #EEEDEE;
+    border-right: 1px solid #FFFFFF;
     border-left: none;
-}
-
-#crosstab-div .axis-footer-cell,
-#crosstab-div .blank-cell,
-#crosstab-div .caption-chart {
-    border: none;
-}
-
-#crosstab-div .x-axis-chart {
-    border: none;
+    font-weight: bold;
 }
 
 #crosstab-div .y-axis-chart {
-    border-right: 1px solid #F6F6F6;
-    border-bottom: 1px solid #F6F6F6;
+    border: 1px solid #B8B8B8;
+    border-left: none;
 }
 
-#crosstab-div .row-dimensions.product {
-    background-color: #E4EAEA;
-    border: 1px solid #C3C6C6;
-    border-top: none;
-    border-right: none;
+#crosstab-div .chart-cell, #crosstab-div .chart-cell.last-col {
+    border: 1px solid #B8B8B8;
+    border-left: none;
 }
 
-#crosstab-div .row-dimensions.state {
-    background-color: #EEF4F4;
-    border: 1px solid #DBE0E0;
-    border-top: none;
-}
-
-#crosstab-div .row-dimensions.quality, #crosstab-div .row-dimensions.year {
-    background-color: #EEF4F4;
-    border: 1px solid #DBE0E0;
-    border-top: none;
-}
-
-#crosstab-div .chart-cell {
-    border-right: 1px solid #F6F6F6;
-    border-bottom: 1px solid #F6F6F6;
+#crosstab-div .chart-cell.last-col {
+    border-right: 1px solid #FFFFFF;
 }
