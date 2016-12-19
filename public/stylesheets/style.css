@@ -33,7 +33,7 @@
 
 #crosstab-div .blank-cell,
 #crosstab-div .axis-footer-cell,
-#crosstab-div .x-axis-chart {
+#crosstab-div .horizontal-axis {
     border-top: 1px solid #B8B8B8;
 }
 
@@ -46,7 +46,7 @@
     border-right: 1px solid #868686;
 }
 
-#crosstab-div .corner-cell {
+#crosstab-div .dimension-header {
     background: #F6F6F6;
     font-weight: bold;
     border-right: 1px solid #FFFFFF;
@@ -65,7 +65,7 @@
     font-weight: bold;
 }
 
-#crosstab-div .y-axis-chart {
+#crosstab-div .vertical-axis {
     border: 1px solid #B8B8B8;
     border-left: none;
 }

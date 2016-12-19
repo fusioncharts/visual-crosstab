@@ -2,7 +2,7 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    dimensions: ['Product', 'State', 'Quality', 'Month'],
+    dimensions: ['Product', 'State', 'Month'],
     measures: ['Sale', 'Profit', 'Visitors'],
     chartType: 'bar2d',
     noDataMessage: 'No data to display.',
@@ -23,8 +23,8 @@ var config = {
             'columnHoverColor': '#1b83cc',
             'chartBottomMargin': '2',
             'chartTopMargin': '2',
-            'chartLeftMargin': '0',
-            'chartRightMargin': '5',
+            'chartLeftMargin': '5',
+            'chartRightMargin': '7',
             'zeroPlaneThickness': '0',
             'zeroPlaneAlpha': '100',
             'bgColor': '#FFFFFF',

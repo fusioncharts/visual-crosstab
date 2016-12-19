@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title></title>
+    <link href="https://bootswatch.com/cosmo/bootstrap.min.css" rel="stylesheet">
+    <link href="dist/css/styles.css" rel="stylesheet">
+    <script src="https://rawgit.com/fusioncharts/multi-charting/develop/out/fusioncharts.multicharting.js"></script>
+    <script src="https://rawgit.com/fusioncharts/multi-charting/develop/src/multicharting.datatable.js"></script>
+    <!-- <script src="https://rawgit.com/fusioncharts/data-filters/develop/dist/js/data-filter-es6.js"></script> -->
+    <script src="dist/js/data-filter-es6.js"></script>
+    <script src="data.js"></script>
+  </head>
+  <style>
+    #filter-container{
+      height: 550px;
+    }
+    table.mytable {
+        font-family: verdana,arial,sans-serif;
+        font-size:11px;
+        border-width: 1px;
+        border-color: #999999;
+        border-collapse: collapse;
+    }
+    table.mytable th {
+        background:#808585;
+        border-width: 1px;
+        padding: 8px;
+        color:#fff;
+        border-style: solid;
+        border-color: #999999;
+    }
+    table.mytable td {
+        background:#f2f4f4;
+        border-width: 1px;
+        padding: 8px;
+        color:#808585;
+        font-size: 12px;
+        border: 1px solid #ced5d4;
+    }
+    table.mytable td input{
+        text-align: center;
+        background:none;
+        border: none;
+    }
+
+    table.mytable td input[type=text]:focus {
+        outline: none;
+        background:#f2f4f4;
+    }
+  </style>
+  <body>
+    <div class="container">
+      <h2> Data Filter Extension </h2>
+      <div class="row">
+        <div class="col col-md-4" id="filter-container"></div>
+        <div class="col col-md-4" id="table-container"></div>
+      </div>
+    </div>
+    <script src="main.js"></script>
+  </body>
+</html>
