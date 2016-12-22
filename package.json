@@ -26,15 +26,6 @@
     "build": "npm run build-es6 \n npm run build-es6-min \n npm run build-es5 \n npm run build-es5-min \n npm start",
     "build-prod": "npm run build-es6-prod \n npm run build-es5-prod \n npm run docs"
   },
-  "dependencies": {
-    "body-parser": "~1.15.2",
-    "cookie-parser": "~1.4.3",
-    "debug": "~2.2.0",
-    "express": "~4.14.0",
-    "jade": "~1.11.0",
-    "morgan": "~1.7.0",
-    "serve-favicon": "~2.3.0"
-  },
   "devDependencies": {
     "babel-core": "^6.18.2",
     "babel-loader": "^6.2.8",
