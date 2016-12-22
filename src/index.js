@@ -7,6 +7,7 @@ var config = {
     chartType: 'bar2d',
     noDataMessage: 'No data to display.',
     crosstabContainer: 'crosstab-div',
+    dataIsSortable: false,
     cellWidth: 150,
     cellHeight: 80,
     // showFilter: true,

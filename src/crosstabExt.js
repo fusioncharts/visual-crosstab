@@ -26,6 +26,7 @@ class CrosstabExt {
         this.chartType = config.chartType;
         this.dimensions = config.dimensions;
         this.chartConfig = config.chartConfig;
+        this.dataIsSortable = config.dataIsSortable;
         this.crosstabContainer = config.crosstabContainer;
         this.cellWidth = config.cellWidth || 210;
         this.cellHeight = config.cellHeight || 113;
@@ -68,6 +69,8 @@ class CrosstabExt {
             for (let i = 0, ii = fields.length; i < ii; i++) {
                 globalData[fields[i]] = dataStore.getUniqueValues(fields[i]);
             }
+            // Default categories for charts (i.e. no sorting applied)
+            this.categories = globalData[this.dimensions[this.dimensions.length - 1]];
             return globalData;
         } else {
             throw new Error('Could not generate keys from data store');
@@ -128,7 +131,6 @@ class CrosstabExt {
                     currentIndex + 1, filteredDataHashKey);
             } else {
                 if (this.chartType === 'bar2d') {
-                    let categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
                     table[table.length - 1].push({
                         rowspan: 1,
                         colspan: 1,
@@ -148,7 +150,7 @@ class CrosstabExt {
                                     'chartBottomMargin': this.chartConfig.chart.chartBottomMargin,
                                     'valuePadding': 0.5
                                 },
-                                'categories': categories
+                                'categories': this.categories
                             }
                         })
                     });
@@ -186,7 +188,7 @@ class CrosstabExt {
                         chartCellObj.className = 'chart-cell last-col';
                     }
                     table[table.length - 1].push(chartCellObj);
-                    minmaxObj = this.getChartObj(filteredDataHashKey, this._columnKeyArr[j])[0];
+                    minmaxObj = this.getChartObj(this.dataStore, this.categories, filteredDataHashKey, this._columnKeyArr[j])[0];
                     max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
                     min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
                     chartCellObj.max = max;
@@ -378,7 +380,6 @@ class CrosstabExt {
 
             // Push horizontal axes into the last row of the table
             for (i = 0; i < maxLength - this.dimensions.length; i++) {
-                let categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
                 if (this.chartType === 'bar2d') {
                     xAxisRow.push({
                         width: '100%',
@@ -419,7 +420,7 @@ class CrosstabExt {
                                     'chartRightMargin': this.chartConfig.chart.chartRightMargin,
                                     'valuePadding': 0.5
                                 },
-                                'categories': categories
+                                'categories': this.categories
                             }
                         })
                     });
@@ -615,7 +616,7 @@ class CrosstabExt {
                             limits = chartInstance.getLimits(),
                             minLimit = limits[0],
                             maxLimit = limits[1],
-                            chartObj = this.getChartObj(crosstabElement.rowHash,
+                            chartObj = this.getChartObj(this.dataStore, this.categories, crosstabElement.rowHash,
                                 crosstabElement.colHash,
                                 minLimit,
                                 maxLimit)[1];
@@ -700,7 +701,7 @@ class CrosstabExt {
                     let oldChart = this.getOldChart(oldCharts, cell.rowHash, cell.colHash),
                         limits = {};
                     if (!oldChart) {
-                        let chartObj = this.getChartObj(cell.rowHash, cell.colHash);
+                        let chartObj = this.getChartObj(this.dataStore, this.categories, cell.rowHash, cell.colHash);
                         oldChart = chartObj[1];
                         limits = chartObj[0];
                     }
@@ -776,7 +777,7 @@ class CrosstabExt {
                     crosstabElement.className !== 'axis-footer-cell' &&
                     crosstabElement.chart.getConf().type !== 'caption' &&
                     crosstabElement.chart.getConf().type !== 'axis') {
-                    let chartObj = this.getChartObj(crosstabElement.rowHash,
+                    let chartObj = this.getChartObj(this.dataStore, this.categories, crosstabElement.rowHash,
                         crosstabElement.colHash,
                         axisLimits[0],
                         axisLimits[1])[1];
@@ -822,6 +823,48 @@ class CrosstabExt {
                 return oldCharts[i].chart;
             }
         }
+    }
+
+    sortCharts (key, order) {
+        let sortProcessor = this.mc.createDataProcessor(),
+            sortFn,
+            sortedData;
+
+        this.dataIsSortable = true;
+        if (order === 'ascending') {
+            sortFn = (a, b) => a[key] - b[key];
+        } else {
+            sortFn = (a, b) => b[key] - a[key];
+        }
+        sortProcessor.sort(sortFn);
+        sortedData = this.dataStore.getChildModel(sortProcessor);
+        this.crosstab.forEach(row => {
+            let rowCategories;
+            row.forEach(cell => {
+                if (cell.chart) {
+                    let chart = cell.chart,
+                        chartConf = chart.getConf();
+                    if (chartConf.type !== 'caption' && chartConf.type !== 'axis') {
+                        let chartObj = this.getChartObj(sortedData, this.categories, cell.rowHash, cell.colHash);
+                        chart.update(chartObj[1].getConf());
+                        rowCategories = chart.getConf().categories;
+                    }
+                }
+            });
+            row.forEach(cell => {
+                if (cell.chart) {
+                    let chart = cell.chart,
+                        chartConf = chart.getConf();
+                    if (chartConf.type === 'axis') {
+                        let axisType = chartConf.config.chart.axisType;
+                        if (axisType === 'x') {
+                            chartConf.config.categories = rowCategories;
+                            chart.update(chartConf);
+                        }
+                    }
+                }
+            });
+        });
     }
 
     createMultiChart () {
@@ -872,7 +915,7 @@ class CrosstabExt {
         return false;
     }
 
-    getChartObj (rowFilter, colFilter, minLimit, maxLimit) {
+    getChartObj (dataStore, categories, rowFilter, colFilter, minLimit, maxLimit) {
         let filters = [],
             filterStr = '',
             rowFilters = rowFilter.split('|'),
@@ -885,8 +928,7 @@ class CrosstabExt {
             filteredData = {},
             // adapter = {},
             limits = {},
-            chart = {},
-            categories = this.globalData[this.dimensions[this.dimensions.length - 1]];
+            chart = {};
 
         rowFilters.push.apply(rowFilters);
         filters = rowFilters.filter((a) => {
@@ -900,10 +942,21 @@ class CrosstabExt {
                 dataProcessor.filter(matchedHashes[i]);
                 dataProcessors.push(dataProcessor);
             }
-            filteredData = this.dataStore.getChildModel(dataProcessors);
+            filteredData = dataStore.getChildModel(dataProcessors);
             if (minLimit !== undefined && maxLimit !== undefined) {
                 this.chartConfig.chart.yAxisMinValue = minLimit;
                 this.chartConfig.chart.yAxisMaxValue = maxLimit;
+            }
+            if (this.dataIsSortable) {
+                let filteredJSON = filteredData.getJSON(),
+                    sortedCategories = [];
+                filteredJSON.forEach(val => {
+                    let category = val[this.dimensions[this.dimensions.length - 1]];
+                    if (sortedCategories.indexOf(category) === -1) {
+                        sortedCategories.push(category);
+                    }
+                });
+                categories = sortedCategories.slice();
             }
             chart = this.mc.chart({
                 dataSource: filteredData,
