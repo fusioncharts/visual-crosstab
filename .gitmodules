@@ -1,0 +1,12 @@
+[submodule "javascripts/vendor/data-filters"]
+	path = javascripts/vendor/data-filters
+	url = git@github.com:fusioncharts/data-filters.git
+[submodule "javascripts/vendor/multi-charting"]
+	path = javascripts/vendor/multi-charting
+	url = git@github.com:fusioncharts/multi-charting.git
+[submodule "javascripts/vendor/fusioncharts-caption"]
+	path = javascripts/vendor/fusioncharts-caption
+	url = git@github.com:fusioncharts/fusioncharts-caption.git
+[submodule "javascripts/vendor/fusioncharts-axis"]
+	path = javascripts/vendor/fusioncharts-axis
+	url = git@github.com:fusioncharts/fusioncharts-axis.git
