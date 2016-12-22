@@ -188,7 +188,8 @@ class CrosstabExt {
                         chartCellObj.className = 'chart-cell last-col';
                     }
                     table[table.length - 1].push(chartCellObj);
-                    minmaxObj = this.getChartObj(this.dataStore, this.categories, filteredDataHashKey, this._columnKeyArr[j])[0];
+                    minmaxObj = this.getChartObj(this.dataStore, this.categories,
+                        filteredDataHashKey, this._columnKeyArr[j])[0];
                     max = (parseInt(minmaxObj.max) > max) ? minmaxObj.max : max;
                     min = (parseInt(minmaxObj.min) < min) ? minmaxObj.min : min;
                     chartCellObj.max = max;
@@ -205,6 +206,9 @@ class CrosstabExt {
             i,
             l = this.measures.length,
             colElement,
+            ascendingSortBtn,
+            descendingSortBtn,
+            headingTextNode,
             htmlRef,
             headerDiv,
             dragDiv;
@@ -224,7 +228,25 @@ class CrosstabExt {
             this.appendDragHandle(dragDiv, 25);
 
             htmlRef = document.createElement('p');
-            htmlRef.innerHTML = fieldComponent;
+            htmlRef.style.position = 'relative';
+
+            ascendingSortBtn = this.createSortButton('ascending-sort');
+            ascendingSortBtn.style.left = '5px';
+            ascendingSortBtn.style.top = '1px';
+            ascendingSortBtn.innerHTML = 'A';
+            htmlRef.appendChild(ascendingSortBtn);
+
+            descendingSortBtn = this.createSortButton('descending-sort');
+            descendingSortBtn.style.right = '5px';
+            descendingSortBtn.style.top = '1px';
+            descendingSortBtn.innerHTML = 'D';
+            htmlRef.appendChild(descendingSortBtn);
+
+            headingTextNode = document.createTextNode(fieldComponent);
+
+            htmlRef.appendChild(ascendingSortBtn);
+            htmlRef.appendChild(headingTextNode);
+            htmlRef.appendChild(descendingSortBtn);
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = '5px';
             // htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
@@ -536,6 +558,15 @@ class CrosstabExt {
         }
     }
 
+    createSortButton (className) {
+        let sortBtn;
+        className = 'sort-btn' + ' ' + (className || '');
+        sortBtn = document.createElement('span');
+        sortBtn.setAttribute('class', className.trim());
+        sortBtn.style.position = 'absolute';
+        return sortBtn;
+    }
+
     renderCrosstab () {
         let globalMax = -Infinity,
             globalMin = Infinity,
@@ -616,10 +647,8 @@ class CrosstabExt {
                             limits = chartInstance.getLimits(),
                             minLimit = limits[0],
                             maxLimit = limits[1],
-                            chartObj = this.getChartObj(this.dataStore, this.categories, crosstabElement.rowHash,
-                                crosstabElement.colHash,
-                                minLimit,
-                                maxLimit)[1];
+                            chartObj = this.getChartObj(this.dataStore, this.categories,
+                                crosstabElement.rowHash, crosstabElement.colHash, minLimit, maxLimit)[1];
                         crosstabElement.chart = chartObj;
                     }
                 }
@@ -701,7 +730,8 @@ class CrosstabExt {
                     let oldChart = this.getOldChart(oldCharts, cell.rowHash, cell.colHash),
                         limits = {};
                     if (!oldChart) {
-                        let chartObj = this.getChartObj(this.dataStore, this.categories, cell.rowHash, cell.colHash);
+                        let chartObj = this.getChartObj(this.dataStore, this.categories,
+                            cell.rowHash, cell.colHash);
                         oldChart = chartObj[1];
                         limits = chartObj[0];
                     }
@@ -829,8 +859,6 @@ class CrosstabExt {
         let sortProcessor = this.mc.createDataProcessor(),
             sortFn,
             sortedData;
-
-        this.dataIsSortable = true;
         if (order === 'ascending') {
             sortFn = (a, b) => a[key] - b[key];
         } else {
@@ -845,7 +873,8 @@ class CrosstabExt {
                     let chart = cell.chart,
                         chartConf = chart.getConf();
                     if (chartConf.type !== 'caption' && chartConf.type !== 'axis') {
-                        let chartObj = this.getChartObj(sortedData, this.categories, cell.rowHash, cell.colHash);
+                        let chartObj = this.getChartObj(sortedData, this.categories,
+                            cell.rowHash, cell.colHash);
                         chart.update(chartObj[1].getConf());
                         rowCategories = chart.getConf().categories;
                     }
@@ -876,6 +905,9 @@ class CrosstabExt {
         }
         if (this.draggableHeaders) {
             this.dragListener(this.multichartObject.placeHolder);
+        }
+        if (this.dataIsSortable) {
+            this.setupSortButtons(this.multichartObject.placeHolder);
         }
         return this.multichartObject.placeHolder;
     }
@@ -976,6 +1008,37 @@ class CrosstabExt {
                 'min': limits.min
             }, chart];
         }
+    }
+
+    setupSortButtons () {
+        let ascendingBtns = document.getElementsByClassName('ascending-sort'),
+            ii = ascendingBtns.length,
+            i,
+            descendingBtns = document.getElementsByClassName('descending-sort'),
+            jj = ascendingBtns.length,
+            j;
+        for (i = 0; i < ii; i++) {
+            let btn = ascendingBtns[i];
+            btn.addEventListener('mousedown', e => {
+                let targetChildren = e.target.parentNode.childNodes;
+                targetChildren.forEach(val => {
+                    if (val.nodeType === 3) {
+                        this.sortCharts(val.nodeValue, 'ascending');
+                    }
+                });
+            });
+        };
+        for (j = 0; j < jj; j++) {
+            let btn = descendingBtns[j];
+            btn.addEventListener('mousedown', e => {
+                let targetChildren = e.target.parentNode.childNodes;
+                targetChildren.forEach(val => {
+                    if (val.nodeType === 3) {
+                        this.sortCharts(val.nodeValue, 'descending');
+                    }
+                });
+            });
+        };
     }
 
     dragListener (placeHolder) {
@@ -1104,12 +1167,16 @@ class CrosstabExt {
             handler(e.clientX - x, e.clientY - y);
         }
         el.addEventListener('mousedown', function (e) {
-            x = e.clientX;
-            y = e.clientY;
-            el.style.opacity = 0.8;
-            el.classList.add('dragging');
-            window.document.addEventListener('mousemove', customHandler);
-            window.document.addEventListener('mouseup', mouseUpHandler);
+            let target = e.target,
+                targetClassStr = target.className;
+            if (target.className === '' || targetClassStr.split(' ').indexOf('sort-btn') === -1) {
+                x = e.clientX;
+                y = e.clientY;
+                el.style.opacity = 0.8;
+                el.classList.add('dragging');
+                window.document.addEventListener('mousemove', customHandler);
+                window.document.addEventListener('mouseup', mouseUpHandler);
+            }
         });
         function mouseUpHandler (e) {
             el.style.opacity = 1;

@@ -2,12 +2,12 @@ const CrosstabExt = require('./crosstabExt'),
     data = require('./largeData');
 
 var config = {
-    dimensions: ['Product', 'State', 'Month'],
+    dimensions: ['Product', 'State', 'Quality', 'Year', 'Month'],
     measures: ['Sale', 'Profit', 'Visitors'],
     chartType: 'bar2d',
     noDataMessage: 'No data to display.',
     crosstabContainer: 'crosstab-div',
-    dataIsSortable: false,
+    dataIsSortable: true,
     cellWidth: 150,
     cellHeight: 80,
     // showFilter: true,
