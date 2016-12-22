@@ -4,7 +4,7 @@ if (env === 'es6-min') {
     module.exports = {
         entry: './src/index.js',
         output: {
-            path: './public/javascripts/',
+            path: './javascripts/',
             filename: 'crosstab-ext-es6.min.js'
         },
         module: {
@@ -33,7 +33,7 @@ if (env === 'es6-min') {
     module.exports = {
         entry: './src/index.js',
         output: {
-            path: './public/javascripts/',
+            path: './javascripts/',
             filename: 'crosstab-ext-es6.js'
         },
         module: {
@@ -55,7 +55,7 @@ if (env === 'es6-min') {
     module.exports = {
         entry: './src/index.js',
         output: {
-            path: './public/javascripts/',
+            path: './javascripts/',
             filename: 'crosstab-ext-es5.js'
         },
         module: {
@@ -84,7 +84,7 @@ if (env === 'es6-min') {
     module.exports = {
         entry: './src/index.js',
         output: {
-            path: './public/javascripts/',
+            path: './javascripts/',
             filename: 'crosstab-ext-es5.min.js'
         },
         module: {
