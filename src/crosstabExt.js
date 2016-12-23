@@ -26,6 +26,7 @@ class CrosstabExt {
         this.chartType = config.chartType;
         this.dimensions = config.dimensions;
         this.chartConfig = config.chartConfig;
+        this.measureUnits = config.measureUnits;
         this.dataIsSortable = config.dataIsSortable;
         this.crosstabContainer = config.crosstabContainer;
         this.cellWidth = config.cellWidth || 210;
@@ -34,6 +35,7 @@ class CrosstabExt {
         this.aggregation = config.aggregation || 'sum';
         this.draggableHeaders = config.draggableHeaders || false;
         this.noDataMessage = config.noDataMessage || 'No data to display.';
+        this.unitFunction = config.unitFunction || function (unit) { return '(' + unit + ')'; };
         if (typeof MultiCharting === 'function') {
             this.mc = new MultiCharting();
             // Creating an empty data store
@@ -55,7 +57,11 @@ class CrosstabExt {
         this.globalData = this.buildGlobalData();
         // Building a hash map of applicable filters and the corresponding filter functions
         this.hash = this.getFilterHashMap();
-        this.chartsAreSorted = false;
+        this.chartsAreSorted = {
+            bool: false,
+            order: '',
+            measure: ''
+        };
     }
 
     /**
@@ -216,7 +222,8 @@ class CrosstabExt {
 
         for (i = 0; i < l; i += 1) {
             let classStr = '',
-                fieldComponent = measureOrder[i];
+                fieldComponent = measureOrder[i],
+                measureUnit = '';
                 // fieldValues = data[fieldComponent];
             headerDiv = document.createElement('div');
             headerDiv.style.textAlign = 'center';
@@ -230,18 +237,31 @@ class CrosstabExt {
 
             htmlRef = document.createElement('p');
             htmlRef.style.position = 'relative';
+            htmlRef.setAttribute('data-measure', fieldComponent);
 
-            ascendingSortBtn = this.createSortButton('ascending-sort');
-            htmlRef.appendChild(ascendingSortBtn);
+            measureUnit = this.measureUnits[this.measures.indexOf(fieldComponent)];
+            if (measureUnit.length > 0) {
+                let measureHeading = fieldComponent + ' ' + this.unitFunction(measureUnit);
+                headingTextNode = document.createTextNode(measureHeading);
+            } else {
+                headingTextNode = document.createTextNode(fieldComponent);
+            }
 
-            descendingSortBtn = this.createSortButton('descending-sort');
-            htmlRef.appendChild(descendingSortBtn);
+            // headingTextNode = document.createTextNode(fieldComponent);
+            if (this.dataIsSortable) {
+                ascendingSortBtn = this.createSortButton('ascending-sort');
+                htmlRef.appendChild(ascendingSortBtn);
 
-            headingTextNode = document.createTextNode(fieldComponent);
+                descendingSortBtn = this.createSortButton('descending-sort');
+                htmlRef.appendChild(descendingSortBtn);
 
-            htmlRef.appendChild(ascendingSortBtn);
-            htmlRef.appendChild(headingTextNode);
-            htmlRef.appendChild(descendingSortBtn);
+                htmlRef.appendChild(ascendingSortBtn);
+                htmlRef.appendChild(headingTextNode);
+                htmlRef.appendChild(descendingSortBtn);
+            } else {
+                htmlRef.appendChild(headingTextNode);
+            }
+
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = '5px';
             // htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
@@ -576,7 +596,6 @@ class CrosstabExt {
             node = document.createElement('span');
             node.style.display = 'block';
             node.className = 'sort-steps ascending';
-            node.style.borderBottom = '1px solid #59595C';
             divWidth = divWidth + ((i / divWidth) * 3);
             node.style.width = (divWidth.toFixed()) + 'px';
             if (i === (numSteps - 1)) {
@@ -597,7 +616,6 @@ class CrosstabExt {
             node = document.createElement('span');
             node.style.display = 'block';
             node.className = 'sort-steps descending';
-            node.style.borderBottom = '1px solid #59595C';
             divWidth = divWidth - ((i / divWidth) * 4);
             node.style.width = (divWidth.toFixed()) + 'px';
             if (i === (numSteps - 1)) {
@@ -901,7 +919,6 @@ class CrosstabExt {
         let sortProcessor = this.mc.createDataProcessor(),
             sortFn,
             sortedData;
-        this.chartsAreSorted = true;
         if (order === 'ascending') {
             sortFn = (a, b) => a[key] - b[key];
         } else if (order === 'descending') {
@@ -1070,64 +1087,94 @@ class CrosstabExt {
         for (i = 0; i < ii; i++) {
             let btn = ascendingBtns[i];
             btn.addEventListener('mousedown', e => {
+                let clickElem,
+                    measureName,
+                    classStr;
+                if (e.target.className.split(' ').indexOf('sort-steps') !== -1) {
+                    clickElem = e.target.parentNode;
+                } else {
+                    clickElem = e.target;
+                }
+                measureName = clickElem.parentNode.getAttribute('data-measure');
+                classStr = clickElem.className + ' active';
                 e.stopPropagation();
                 for (var i = sortBtns.length - 1; i >= 0; i--) {
                     this.removeActiveClass(sortBtns[i]);
                 }
-                if (this.chartsAreSorted) {
-                    this.sortCharts();
-                    this.chartsAreSorted = false;
-                } else {
-                    let clickElem,
-                        targetChildren,
-                        classStr;
-                    if (e.target.className.split(' ').indexOf('sort-steps') !== -1) {
-                        clickElem = e.target.parentNode;
+                clickElem.setAttribute('class', classStr);
+                if (this.chartsAreSorted.bool) {
+                    let classList = clickElem.className.split(' ');
+                    if (measureName === this.chartsAreSorted.measure &&
+                        classList.indexOf(this.chartsAreSorted.order) !== -1) {
+                        this.sortCharts();
+                        this.chartsAreSorted = {
+                            bool: false,
+                            order: '',
+                            measure: ''
+                        };
+                        this.removeActiveClass(clickElem);
                     } else {
-                        clickElem = e.target;
+                        this.sortCharts(measureName, 'ascending');
+                        this.chartsAreSorted = {
+                            bool: true,
+                            order: 'ascending-sort',
+                            measure: measureName
+                        };
                     }
-                    if (clickElem) {
-                        targetChildren = clickElem.parentNode.childNodes;
-                        classStr = clickElem.className + ' active';
-                        clickElem.setAttribute('class', classStr);
-                        targetChildren.forEach(val => {
-                            if (val.nodeType === 3) {
-                                this.sortCharts(val.nodeValue, 'ascending');
-                            }
-                        });
-                    }
+                } else {
+                    this.sortCharts(measureName, 'ascending');
+                    this.chartsAreSorted = {
+                        bool: true,
+                        order: 'ascending-sort',
+                        measure: measureName
+                    };
                 }
             });
         };
         for (j = 0; j < jj; j++) {
             let btn = descendingBtns[j];
             btn.addEventListener('mousedown', e => {
+                let clickElem,
+                    measureName,
+                    classStr;
+                if (e.target.className.split(' ').indexOf('sort-steps') !== -1) {
+                    clickElem = e.target.parentNode;
+                } else {
+                    clickElem = e.target;
+                }
+                measureName = clickElem.parentNode.getAttribute('data-measure');
+                classStr = clickElem.className + ' active';
                 e.stopPropagation();
                 for (var i = sortBtns.length - 1; i >= 0; i--) {
                     this.removeActiveClass(sortBtns[i]);
                 }
-                if (this.chartsAreSorted) {
-                    this.sortCharts();
-                    this.chartsAreSorted = false;
-                } else {
-                    let clickElem,
-                        targetChildren,
-                        classStr;
-                    if (e.target.className.split(' ').indexOf('sort-steps') !== -1) {
-                        clickElem = e.target.parentNode;
+                clickElem.setAttribute('class', classStr);
+                if (this.chartsAreSorted.bool) {
+                    let classList = clickElem.className.split(' ');
+                    if (measureName === this.chartsAreSorted.measure &&
+                        classList.indexOf(this.chartsAreSorted.order) !== -1) {
+                        this.sortCharts();
+                        this.chartsAreSorted = {
+                            bool: false,
+                            order: '',
+                            measure: ''
+                        };
+                        this.removeActiveClass(clickElem);
                     } else {
-                        clickElem = e.target;
+                        this.sortCharts(measureName, 'descending');
+                        this.chartsAreSorted = {
+                            bool: true,
+                            order: 'descending-sort',
+                            measure: measureName
+                        };
                     }
-                    if (clickElem) {
-                        targetChildren = clickElem.parentNode.childNodes;
-                        classStr = clickElem.className + ' active';
-                        clickElem.setAttribute('class', classStr);
-                        targetChildren.forEach(val => {
-                            if (val.nodeType === 3) {
-                                this.sortCharts(val.nodeValue, 'descending');
-                            }
-                        });
-                    }
+                } else {
+                    this.sortCharts(measureName, 'descending');
+                    this.chartsAreSorted = {
+                        bool: true,
+                        order: 'descending-sort',
+                        measure: measureName
+                    };
                 }
             });
         };
@@ -1138,6 +1185,14 @@ class CrosstabExt {
             .split(' ')
             .filter((val) => val !== 'active')
             .join(' ');
+        elem.setAttribute('class', classNm);
+    }
+
+    addActiveClass (elem) {
+        let classNm = elem.className
+            .split(' ');
+        classNm.push('active');
+        classNm = classNm.join(' ');
         elem.setAttribute('class', classNm);
     }
 

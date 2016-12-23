@@ -22,7 +22,7 @@
 #crosstab-div {
     color: #5B6060;
     font-size: 12px;
-    font-family: 'Arial', sans-serif;
+    font-family: 'Lucida Grande', sans-serif;
 }
 
 #crosstab-div .row-dimensions {
@@ -60,8 +60,8 @@
 
 #crosstab-div .sort-btn {
     padding: 1px;
-    background-color: #D8D8D8;
-    border: 1px solid #999999;
+    background-color: #DDDDDD;
+    border: 1px solid #BABABA;
     cursor: pointer;
     border-radius: 3px;
     height: 9px;
@@ -69,12 +69,25 @@
     top: 1px;
 }
 
+#crosstab-div .sort-btn > .sort-steps {
+    border-color: #999B9C;
+}
+
+#crosstab-div .sort-steps{
+    border-bottom: 1px solid #59595C;
+}
+
 #crosstab-div .sort-btn:hover {
     background-color: #ACACAC;
 }
 
 #crosstab-div .sort-btn.active {
-    background-color: #000000;
+    background-color: #E5E5E5;
+    border-color: #D6D6D6;
+}
+
+#crosstab-div .sort-btn.active > .sort-steps{
+    border-color: #C7C8C8;
 }
 
 #crosstab-div .sort-btn.ascending-sort {
