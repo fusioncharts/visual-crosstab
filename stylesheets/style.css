@@ -59,7 +59,7 @@
 }
 
 #crosstab-div .sort-btn {
-    padding: 0px 1px 1px 1px;
+    padding: 0px 1px 1px 2px;
     background-color: #DDDDDD;
     border: 1px solid #BABABA;
     cursor: pointer;

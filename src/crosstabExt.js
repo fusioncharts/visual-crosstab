@@ -42,6 +42,15 @@ class CrosstabExt {
             this.dataStore = this.mc.createDataStore();
             // Adding data to the data store
             this.dataStore.setData({ dataSource: this.data });
+            this.dataStore.updateMetaData('Sale', {
+                type: 'measure',
+                scaleType: 'nominal',
+                dataType: 'number',
+                discrete: 'true',
+                precision: 2,
+                aggregationMode: 'sum',
+                unit: 'INR'
+            });
         } else {
             throw new Error('MultiChartng module not found.');
         }

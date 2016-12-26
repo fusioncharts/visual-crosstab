@@ -13,7 +13,7 @@ var config = {
     cellWidth: 150,
     cellHeight: 80,
     // showFilter: true,
-    draggableHeaders: true,
+    draggableHeaders: false,
     aggregation: 'min',
     chartConfig: {
         chart: {
