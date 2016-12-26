@@ -215,7 +215,9 @@ class CrosstabExt {
             colElement,
             ascendingSortBtn,
             descendingSortBtn,
-            headingTextNode,
+            headingText,
+            headingTextSpan,
+            measureHeading,
             htmlRef,
             headerDiv,
             dragDiv;
@@ -223,7 +225,8 @@ class CrosstabExt {
         for (i = 0; i < l; i += 1) {
             let classStr = '',
                 fieldComponent = measureOrder[i],
-                measureUnit = '';
+                measureUnit = '',
+                aggregationNode;
                 // fieldValues = data[fieldComponent];
             headerDiv = document.createElement('div');
             headerDiv.style.textAlign = 'center';
@@ -235,19 +238,33 @@ class CrosstabExt {
             dragDiv.style.paddingBottom = '1px';
             this.appendDragHandle(dragDiv, 25);
 
-            htmlRef = document.createElement('p');
+            htmlRef = document.createElement('div');
             htmlRef.style.position = 'relative';
             htmlRef.setAttribute('data-measure', fieldComponent);
 
             measureUnit = this.measureUnits[this.measures.indexOf(fieldComponent)];
             if (measureUnit.length > 0) {
-                let measureHeading = fieldComponent + ' ' + this.unitFunction(measureUnit);
-                headingTextNode = document.createTextNode(measureHeading);
+                measureHeading = fieldComponent + ' ' + this.unitFunction(measureUnit);
             } else {
-                headingTextNode = document.createTextNode(fieldComponent);
+                measureHeading = fieldComponent;
             }
 
-            // headingTextNode = document.createTextNode(fieldComponent);
+            headingTextSpan = document.createElement('span');
+            headingTextSpan.setAttribute('class', 'measure-span');
+
+            headingText = document.createElement('div');
+            headingText.innerHTML = measureHeading;
+            headingText.setAttribute('class', 'measure-text');
+            headingTextSpan.appendChild(headingText);
+
+            aggregationNode = document.createElement('div');
+            aggregationNode.innerHTML = this.aggregation.split('').reduce((a, b, idx) => {
+                return idx === 1 ? a.toUpperCase() + b : a + b;
+            });
+            aggregationNode.setAttribute('class', 'measure-aggregation');
+            headingTextSpan.appendChild(aggregationNode);
+
+            // headingTextSpan = document.createTextNode(fieldComponent);
             if (this.dataIsSortable) {
                 ascendingSortBtn = this.createSortButton('ascending-sort');
                 htmlRef.appendChild(ascendingSortBtn);
@@ -256,15 +273,16 @@ class CrosstabExt {
                 htmlRef.appendChild(descendingSortBtn);
 
                 htmlRef.appendChild(ascendingSortBtn);
-                htmlRef.appendChild(headingTextNode);
+                htmlRef.appendChild(headingTextSpan);
                 htmlRef.appendChild(descendingSortBtn);
             } else {
-                htmlRef.appendChild(headingTextNode);
+                htmlRef.appendChild(headingTextSpan);
             }
 
             htmlRef.style.textAlign = 'center';
             htmlRef.style.marginTop = '5px';
             // htmlRef.style.marginTop = ((30 * this.measures.length - 15) / 2) + 'px';
+            // htmlRef.appendChild(aggregationNode);
             document.body.appendChild(htmlRef);
 
             classStr += 'column-measures ' + this.measures[i].toLowerCase() + ' no-select';
@@ -278,7 +296,7 @@ class CrosstabExt {
             headerDiv.appendChild(htmlRef);
             colElement = {
                 width: this.cellWidth,
-                height: 35,
+                height: this.cornerHeight + 5,
                 rowspan: 1,
                 colspan: 1,
                 html: headerDiv.outerHTML,
@@ -579,6 +597,7 @@ class CrosstabExt {
         sortBtn = document.createElement('span');
         sortBtn.setAttribute('class', classStr.trim());
         sortBtn.style.position = 'absolute';
+        sortBtn.style.display = 'inline-block';
         if (className === 'ascending-sort') {
             this.appendAscendingSteps(sortBtn, 4);
         } else if (className === 'descending-sort') {
@@ -590,13 +609,13 @@ class CrosstabExt {
     appendAscendingSteps (btn, numSteps) {
         let i,
             node,
-            marginValue = 1,
+            marginValue = 2,
             divWidth = 1;
         for (i = 1; i <= numSteps; i++) {
             node = document.createElement('span');
             node.style.display = 'block';
             node.className = 'sort-steps ascending';
-            divWidth = divWidth + ((i / divWidth) * 3);
+            divWidth = divWidth + ((i / divWidth) * 4);
             node.style.width = (divWidth.toFixed()) + 'px';
             if (i === (numSteps - 1)) {
                 node.style.marginTop = marginValue + 'px';
@@ -610,13 +629,13 @@ class CrosstabExt {
     appendDescendingSteps (btn, numSteps) {
         let i,
             node,
-            marginValue = 1,
-            divWidth = 9;
+            marginValue = 2,
+            divWidth = 10;
         for (i = 1; i <= numSteps; i++) {
             node = document.createElement('span');
             node.style.display = 'block';
             node.className = 'sort-steps descending';
-            divWidth = divWidth - ((i / divWidth) * 4);
+            divWidth = divWidth - ((i / divWidth) * 5);
             node.style.width = (divWidth.toFixed()) + 'px';
             if (i === (numSteps - 1)) {
                 node.style.marginTop = marginValue + 'px';

@@ -4,7 +4,7 @@ const CrosstabExt = require('./crosstabExt'),
 var config = {
     dimensions: ['Product', 'State', 'Month'],
     measures: ['Sale', 'Profit', 'Visitors'],
-    measureUnits: ['₹', '$', ''],
+    measureUnits: ['INR', '$', ''],
     unitFunction: (unit) => '(' + unit + ')',
     chartType: 'bar2d',
     noDataMessage: 'No data to display.',
@@ -13,8 +13,8 @@ var config = {
     cellWidth: 150,
     cellHeight: 80,
     // showFilter: true,
-    draggableHeaders: false,
-    // aggregation: 'sum',
+    draggableHeaders: true,
+    aggregation: 'min',
     chartConfig: {
         chart: {
             'showBorder': '0',
