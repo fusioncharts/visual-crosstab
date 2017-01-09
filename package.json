@@ -27,10 +27,11 @@
     "build-prod": "npm run build-es6-prod \n npm run build-es5-prod \n npm run docs"
   },
   "devDependencies": {
-    "babel-core": "^6.18.2",
-    "babel-loader": "^6.2.8",
+    "babel-core": "^6.21.0",
+    "babel-loader": "^6.2.10",
     "babel-preset-babili": "0.0.8",
     "babel-preset-latest": "^6.16.0",
+    "babili-webpack-plugin": "0.0.7",
     "chai": "^3.5.0",
     "documentation": "^4.0.0-beta13",
     "eslint": "^3.9.1",
@@ -38,8 +39,9 @@
     "eslint-loader": "^1.6.1",
     "eslint-plugin-promise": "^3.3.1",
     "eslint-plugin-standard": "^2.0.1",
+    "immutable": "^3.8.1",
     "mocha": "^3.1.2",
-    "webpack": "^1.13.3",
-    "webpack-dev-server": "^1.16.2"
+    "ramda": "^0.23.0",
+    "webpack": "^2.2.0-rc.3"
   }
 }

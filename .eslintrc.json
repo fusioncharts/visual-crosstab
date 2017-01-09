@@ -8,7 +8,8 @@
         "FusionCharts": true,
         "MultiCharting": true,
         "FCDataFilterExt": true,
-        "performance": true
+        "performance": true,
+        "CrosstabExt": true
     },
     "rules": {
         "semi": [

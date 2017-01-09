@@ -1,184 +1,90 @@
 var webpack = require('webpack'),
-    env = process.env.NODE_ENV || 'es6';
+    BabiliPlugin = require('babili-webpack-plugin'),
+    env = process.env.NODE_ENV || 'es6',
+    webpackConfigObj = {
+        entry: './src/crosstabExt.js',
+        output: {
+            library: ['CrosstabExt'],
+            libraryTarget: 'umd',
+            umdNamedDefine: true
+        },
+        module: {
+            loaders: [{
+                test: /\.js$/,
+                loader: 'eslint-loader',
+                exclude: /node_modules/
+            }]
+        },
+        plugins: [
+            new webpack.LoaderOptionsPlugin({
+                options: {
+                    eslint: {
+                        configFile: './.eslintrc.json',
+                        failOnError: true
+                    }
+                }
+            })
+        ]
+    };
 if (env === 'es6-min') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './javascripts/',
-            filename: 'crosstab-ext-es6.min.js'
-        },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['babili']
-                    },
-                    exclude: /node_modules/
-                }, {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
-        },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
-        },
-        devtool: 'inline-source-map'
-    };
+    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es6.min.js';
+    webpackConfigObj.plugins.push(new BabiliPlugin());
+    webpackConfigObj.devtool = 'source-map';
 } else if (env === 'es6') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './javascripts/',
-            filename: 'crosstab-ext-es6.js'
-        },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
-        },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
-        },
-        devtool: 'inline-source-map'
-    };
-} else if (env === 'es5') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './javascripts/',
-            filename: 'crosstab-ext-es5.js'
-        },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['latest']
-                    },
-                    exclude: /node_modules/
-                }, {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
-        },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
-        },
-        devtool: 'inline-source-map'
-    };
-} else if (env === 'es5-min') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './javascripts/',
-            filename: 'crosstab-ext-es5.min.js'
-        },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['latest']
-                    },
-                    exclude: /node_modules/
-                }, {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
-        },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
-        },
-        devtool: 'inline-source-map',
-        plugins: [
-            new webpack.optimize.UglifyJsPlugin({
-                mangle: {
-                    except: ['exports', 'require']
-                }
-            })
-        ]
-    };
-} else if (env === 'es5-prod') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './dist/',
-            filename: 'crosstab-ext-es5.min.js'
-        },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['latest']
-                    },
-                    exclude: /node_modules/
-                }, {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
-        },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
-        },
-        devtool: 'inline-source-map',
-        plugins: [
-            new webpack.optimize.UglifyJsPlugin({
-                mangle: {
-                    except: ['exports', 'require']
-                }
-            })
-        ]
-    };
+    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es6.js';
 } else if (env === 'es6-prod') {
-    module.exports = {
-        entry: './src/index.js',
-        output: {
-            path: './dist/',
-            filename: 'crosstab-ext-es6.min.js'
+    webpackConfigObj.output.path = './dist/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es6.min.js';
+    webpackConfigObj.plugins.push(new BabiliPlugin());
+    webpackConfigObj.devtool = 'source-map';
+} else if (env === 'es5-min') {
+    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es5.min.js';
+    webpackConfigObj.module.loaders.unshift({
+        test: /\.js$/,
+        loader: 'babel-loader',
+        query: {
+            presets: ['latest']
         },
-        module: {
-            loaders: [
-                {
-                    test: /\.js$/,
-                    loader: 'babel',
-                    query: {
-                        presets: ['babili']
-                    },
-                    exclude: /node_modules/
-                }, {
-                    test: /\.js$/,
-                    loader: 'eslint-loader',
-                    exclude: /node_modules/
-                }
-            ]
+        exclude: /node_modules/
+    });
+    webpackConfigObj.devtool = 'source-map';
+    webpackConfigObj.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        mangle: {
+            except: ['exports', 'require']
+        }
+    }));
+} else if (env === 'es5') {
+    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es5.js';
+    webpackConfigObj.module.loaders.unshift({
+        test: /\.js$/,
+        loader: 'babel-loader',
+        query: {
+            presets: ['latest']
         },
-        eslint: {
-            configFile: './.eslintrc.json',
-            failOnError: true
+        exclude: /node_modules/
+    });
+    webpackConfigObj.devtool = 'source-map';
+} else if (env === 'es5-prod') {
+    webpackConfigObj.output.path = './dist/';
+    webpackConfigObj.output.filename = 'crosstab-ext-es5.min.js';
+    webpackConfigObj.module.loaders.unshift({
+        test: /\.js$/,
+        loader: 'babel-loader',
+        query: {
+            presets: ['latest']
         },
-        devtool: 'inline-source-map'
-    };
+        exclude: /node_modules/
+    });
+    webpackConfigObj.devtool = 'source-map';
+    webpackConfigObj.plugins.push(new webpack.optimize.UglifyJsPlugin({
+        mangle: {
+            except: ['exports', 'require']
+        }
+    }));
 }
+
+module.exports = webpackConfigObj;
