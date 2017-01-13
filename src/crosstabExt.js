@@ -1,20 +1,29 @@
 import map from 'ramda/src/map';
+import nth from 'ramda/src/nth';
+import init from 'ramda/src/init';
 import join from 'ramda/src/join';
+import last from 'ramda/src/last';
+import prop from 'ramda/src/prop';
+import append from 'ramda/src/append';
+import length from 'ramda/src/length';
+import pickBy from 'ramda/src/pickBy';
 import reduce from 'ramda/src/reduce';
 import values from 'ramda/src/values';
-import append from 'ramda/src/append';
-import * as Immutable from 'immutable';
+import forEach from 'ramda/src/forEach';
+import addIndex from 'ramda/src/addIndex';
+import contains from 'ramda/src/contains';
+import forEachObjIndexed from 'ramda/src/forEachObjIndexed';
 
 class CrosstabExt {
     constructor (data, config) {
-        this.data = Immutable.List(data);
-        this.eventList = Immutable.Map({
+        this.data = data;
+        this.eventList = {
             'modelUpdated': 'modelupdated',
             'modelDeleted': 'modeldeleted',
             'metaInfoUpdate': 'metainfoupdated',
             'processorUpdated': 'processorupdated',
             'processorDeleted': 'processordeleted'
-        });
+        };
         // Potentially unnecessary member.
         // TODO: Refactor code dependent on variable.
         // TODO: Remove variable.
@@ -23,12 +32,12 @@ class CrosstabExt {
             config: config
         };
         // Array of column names (measures) used when building the crosstab array.
-        this._columnKeyArr = Immutable.List([]);
+        this._columnKeyArr = [];
         // Saving provided configuration into instance.
-        this.measures = Immutable.List(config.measures);
-        this.dimensions = Immutable.List(config.dimensions);
-        this.chartConfig = Immutable.Map(config.chartConfig);
-        this.measureUnits = Immutable.List(config.measureUnits);
+        this.measures = config.measures;
+        this.dimensions = config.dimensions;
+        this.chartConfig = config.chartConfig;
+        this.measureUnits = config.measureUnits;
         this.dataIsSortable = config.dataIsSortable;
         this.crosstabContainer = config.crosstabContainer;
         this.chartType = config.chartType;
@@ -44,7 +53,7 @@ class CrosstabExt {
             // Creating an empty data store
             this.dataStore = this.mc.createDataStore();
             // Adding data to the data store
-            this.dataStore.setData({ dataSource: this.data.toJS() });
+            this.dataStore.setData({ dataSource: this.data });
             this.dataStore.updateMetaData('Sale', {
                 type: 'measure',
                 scaleType: 'nominal',
@@ -67,21 +76,22 @@ class CrosstabExt {
                 throw new Error('DataFilter module not found.');
             }
         }
-        this.chartsAreSorted = Immutable.Map({
+        this.chartsAreSorted = {
             bool: false,
             order: '',
             measure: ''
-        });
+        };
         this.createGlobals();
     }
 
     createGlobals () {
+        let ct = this;
         // Building a data structure for internal use.
-        this.globalData = Immutable.Map(this.buildGlobalData());
+        ct.globalData = ct.buildGlobalData();
         // Default categories for charts (i.e. no sorting applied)
-        this.categories = this.globalData.get(this.dimensions.last());
+        ct.categories = prop(last(ct.dimensions), ct.globalData);
         // Building a hash map of applicable filters and the corresponding filter functions
-        this.hash = this.getFilterHashMap();
+        ct.hash = ct.getFilterHashMap();
     }
 
     /**
@@ -98,7 +108,7 @@ class CrosstabExt {
             throw new Error('Could not generate keys from data store');
         }
         function buildFields (obj, field) {
-            obj[field] = Immutable.List(ct.dataStore.getUniqueValues(field));
+            obj[field] = ct.dataStore.getUniqueValues(field);
             return obj;
         }
     }
@@ -110,27 +120,28 @@ class CrosstabExt {
     createFilters () {
         let ct = this,
             filters = {},
-            dimensions = ct.dimensions.pop(),
-            dimObj;
+            dimensions = init(ct.dimensions),
+            dimObj,
+            dimensionsIncludesKey = (v, k) => contains(k, dimensions);
 
-        dimObj = ct.globalData.filter((v, k) => dimensions.includes(k));
-        dimObj.map((v, dim) => {
-            v.map((val) => {
+        dimObj = pickBy(dimensionsIncludesKey, ct.globalData);
+        forEachObjIndexed((v, dim) => {
+            forEach((val) => {
                 filters[val] = ct.filterGen(dim, val);
-            });
-        });
-        return Immutable.Map(filters);
+            }, v);
+        }, dimObj);
+        return filters;
     }
 
     makeGlobalArray () {
         let ct = this,
             tempObj = {};
 
-        ct.globalData.map((v, k) => {
-            if (ct.dimensions.includes(k) && k !== ct.dimensions.last()) {
-                tempObj[k] = ct.globalData.get(k);
+        forEachObjIndexed((v, k) => {
+            if (contains(k, ct.dimensions) && k !== last(ct.dimensions)) {
+                tempObj[k] = prop(k, ct.globalData);
             }
-        });
+        }, ct.globalData);
 
         return values(map(n => n, tempObj));
     }
@@ -138,17 +149,18 @@ class CrosstabExt {
     createDataCombos () {
         let ct = this,
             r = [],
-            globalArray = Immutable.List(ct.makeGlobalArray()),
-            max = globalArray.size - 1;
+            globalArray = ct.makeGlobalArray(),
+            max = length(globalArray) - 1,
+            forEachIndexed = addIndex(forEach);
 
         function recurse (arr, i) {
-            globalArray.get(i).map((v, j) => {
-                var a = append(globalArray.get(i).get(j), arr);
+            forEachIndexed((v, j) => {
+                var a = append(nth(j, nth(i, globalArray)), arr);
                 i === max ? r.push(a) : recurse(a, i + 1);
-            });
+            }, nth(i, globalArray));
         }
         recurse([], 0);
-        return Immutable.List(r);
+        return r;
     }
 
     getFilterHashMap () {
@@ -157,19 +169,15 @@ class CrosstabExt {
             filters = ct.createFilters(),
             dataCombos = ct.createDataCombos();
 
-        dataCombos.forEach((data) => {
+        forEach((data) => {
             let hash = join('|', data);
             hashMap[hash] = reduce(buildFilterArr, [], data);
             function buildFilterArr (a, b) {
-                return append(filters.get(b), a);
+                return append(prop(b, filters), a);
             }
-        });
+        }, dataCombos);
 
         return hashMap;
-    }
-
-    logData (data) {
-        console.log(data);
     }
 }
 
