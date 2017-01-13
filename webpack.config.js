@@ -9,7 +9,7 @@ var webpack = require('webpack'),
             umdNamedDefine: true
         },
         module: {
-            loaders: [{
+            rules: [{
                 test: /\.js$/,
                 loader: 'eslint-loader',
                 exclude: /node_modules/
@@ -27,12 +27,12 @@ var webpack = require('webpack'),
         ]
     };
 if (env === 'es6-min') {
-    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.path = './javascripts/vendor/crosstab/';
     webpackConfigObj.output.filename = 'crosstab-ext-es6.min.js';
     webpackConfigObj.plugins.push(new BabiliPlugin());
     webpackConfigObj.devtool = 'source-map';
 } else if (env === 'es6') {
-    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.path = './javascripts/vendor/crosstab/';
     webpackConfigObj.output.filename = 'crosstab-ext-es6.js';
 } else if (env === 'es6-prod') {
     webpackConfigObj.output.path = './dist/';
@@ -40,9 +40,9 @@ if (env === 'es6-min') {
     webpackConfigObj.plugins.push(new BabiliPlugin());
     webpackConfigObj.devtool = 'source-map';
 } else if (env === 'es5-min') {
-    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.path = './javascripts/vendor/crosstab/';
     webpackConfigObj.output.filename = 'crosstab-ext-es5.min.js';
-    webpackConfigObj.module.loaders.unshift({
+    webpackConfigObj.module.rules.unshift({
         test: /\.js$/,
         loader: 'babel-loader',
         query: {
@@ -57,9 +57,9 @@ if (env === 'es6-min') {
         }
     }));
 } else if (env === 'es5') {
-    webpackConfigObj.output.path = './javascripts/';
+    webpackConfigObj.output.path = './javascripts/vendor/crosstab/';
     webpackConfigObj.output.filename = 'crosstab-ext-es5.js';
-    webpackConfigObj.module.loaders.unshift({
+    webpackConfigObj.module.rules.unshift({
         test: /\.js$/,
         loader: 'babel-loader',
         query: {
@@ -71,7 +71,7 @@ if (env === 'es6-min') {
 } else if (env === 'es5-prod') {
     webpackConfigObj.output.path = './dist/';
     webpackConfigObj.output.filename = 'crosstab-ext-es5.min.js';
-    webpackConfigObj.module.loaders.unshift({
+    webpackConfigObj.module.rules.unshift({
         test: /\.js$/,
         loader: 'babel-loader',
         query: {

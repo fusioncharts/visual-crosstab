@@ -1,3 +1,6 @@
 {
-  "presets": ["latest", "babili"]
+  "presets": [
+      "babili",
+      ["latest", { "modules": false }]
+  ]
 }
