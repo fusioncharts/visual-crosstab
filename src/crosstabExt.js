@@ -1,18 +1,8 @@
-import map from 'ramda/src/map';
-import nth from 'ramda/src/nth';
-import init from 'ramda/src/init';
-import join from 'ramda/src/join';
 import last from 'ramda/src/last';
 import prop from 'ramda/src/prop';
-import append from 'ramda/src/append';
-import length from 'ramda/src/length';
-import pickBy from 'ramda/src/pickBy';
 import reduce from 'ramda/src/reduce';
-import values from 'ramda/src/values';
-import forEach from 'ramda/src/forEach';
-import addIndex from 'ramda/src/addIndex';
-import contains from 'ramda/src/contains';
-import forEachObjIndexed from 'ramda/src/forEachObjIndexed';
+
+import FilterManager from './filterManager';
 
 class CrosstabExt {
     constructor (data, config) {
@@ -85,13 +75,15 @@ class CrosstabExt {
     }
 
     createGlobals () {
-        let ct = this;
+        let ct = this,
+            filterManager = {};
         // Building a data structure for internal use.
         ct.globalData = ct.buildGlobalData();
         // Default categories for charts (i.e. no sorting applied)
         ct.categories = prop(last(ct.dimensions), ct.globalData);
+        filterManager = new FilterManager(ct.dimensions, ct.globalData);
         // Building a hash map of applicable filters and the corresponding filter functions
-        ct.hash = ct.getFilterHashMap();
+        ct.hash = filterManager.getFilterHashMap();
     }
 
     /**
@@ -111,73 +103,6 @@ class CrosstabExt {
             obj[field] = ct.dataStore.getUniqueValues(field);
             return obj;
         }
-    }
-
-    filterGen (key, val) {
-        return (data) => data[key] === val;
-    }
-
-    createFilters () {
-        let ct = this,
-            filters = {},
-            dimensions = init(ct.dimensions),
-            dimObj,
-            dimensionsIncludesKey = (v, k) => contains(k, dimensions);
-
-        dimObj = pickBy(dimensionsIncludesKey, ct.globalData);
-        forEachObjIndexed((v, dim) => {
-            forEach((val) => {
-                filters[val] = ct.filterGen(dim, val);
-            }, v);
-        }, dimObj);
-        return filters;
-    }
-
-    makeGlobalArray () {
-        let ct = this,
-            tempObj = {};
-
-        forEachObjIndexed((v, k) => {
-            if (contains(k, ct.dimensions) && k !== last(ct.dimensions)) {
-                tempObj[k] = prop(k, ct.globalData);
-            }
-        }, ct.globalData);
-
-        return values(map(n => n, tempObj));
-    }
-
-    createDataCombos () {
-        let ct = this,
-            r = [],
-            globalArray = ct.makeGlobalArray(),
-            max = length(globalArray) - 1,
-            forEachIndexed = addIndex(forEach);
-
-        function recurse (arr, i) {
-            forEachIndexed((v, j) => {
-                var a = append(nth(j, nth(i, globalArray)), arr);
-                i === max ? r.push(a) : recurse(a, i + 1);
-            }, nth(i, globalArray));
-        }
-        recurse([], 0);
-        return r;
-    }
-
-    getFilterHashMap () {
-        let ct = this,
-            hashMap = {},
-            filters = ct.createFilters(),
-            dataCombos = ct.createDataCombos();
-
-        forEach((data) => {
-            let hash = join('|', data);
-            hashMap[hash] = reduce(buildFilterArr, [], data);
-            function buildFilterArr (a, b) {
-                return append(prop(b, filters), a);
-            }
-        }, dataCombos);
-
-        return hashMap;
     }
 }
 
