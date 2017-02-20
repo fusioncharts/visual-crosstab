@@ -4,7 +4,7 @@ var webpack = require('webpack'),
     webpackConfigObj = {
         entry: './src/crosstabExt.js',
         output: {
-            library: ['CrosstabExt'],
+            library: 'CrosstabExt',
             libraryTarget: 'umd',
             umdNamedDefine: true
         },
@@ -26,6 +26,7 @@ var webpack = require('webpack'),
             })
         ]
     };
+
 if (env === 'es6-min') {
     webpackConfigObj.output.path = './javascripts/vendor/crosstab/';
     webpackConfigObj.output.filename = 'crosstab-ext-es6.min.js';

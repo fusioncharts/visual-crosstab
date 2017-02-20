@@ -37,7 +37,7 @@ class CrosstabExt {
         this.aggregation = config.aggregation || 'sum';
         this.draggableHeaders = config.draggableHeaders || false;
         this.noDataMessage = config.noDataMessage || 'No data to display.';
-        this.unitFunction = config.unitFunction || function (unit) { return '(' + unit + ')'; };
+        this.unitFunction = config.unitFunction || (unit => '(' + unit + ')');
         if (typeof MultiCharting === 'function') {
             this.mc = new MultiCharting();
             // Creating an empty data store
@@ -106,4 +106,4 @@ class CrosstabExt {
     }
 }
 
-module.exports = CrosstabExt;
+export default CrosstabExt;
